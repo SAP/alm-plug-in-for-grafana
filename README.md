@@ -1,11 +1,14 @@
 # ALM plug-in for Grafana
 
-- [Introduction](#heading)
-  * [Sub-heading](#sub-heading)
-    + [Sub-sub-heading](#sub-sub-heading)
-- [Installation](#heading-1)
-  * [Sub-heading](#sub-heading-1)
-    + [Sub-sub-heading](#sub-sub-heading-1)
+- [Introduction](#introduction)
+  * [Concepts](#concepts)
+  * [Output Formats](#outputFormats)
+  * [Time Dimensions](#timeDimension)
+  * [Query](#query)
+- [Installation](#Installation)
+  * [Download](#Download)
+  * [Configuration](#Configuration)
+
 
 
 ## Introduction
@@ -24,7 +27,7 @@ The goals of the SAP Cloud ALM Analytics API are:
 - Consume SAP Cloud ALM analytics from SAP Analytics Cloud or from an OData consumer without coding.
 - Consume SAP Cloud ALM analytics from third-party frontend applications
 
-
+### Concepts
 The SAP Cloud ALM Analytics API relies on the following concepts:
 
 - **Providers**: Data providers are analytics data sources corresponding to the different objects or scenarios managed in SAP Cloud ALM. They could be Tasks, Projects, Alerts, Integration Monitoring, ..
@@ -55,3 +58,10 @@ Queries are the central mechanism of the SAP Cloud ALM Anlaytics API to format a
 
 
 
+## Installation
+### Download
+### Configuration
+
+## User Guides
+### Data Providers
+### Variables
