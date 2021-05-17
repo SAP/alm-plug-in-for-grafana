@@ -1,7 +1,7 @@
 {
-  "name": "sap-calm-dp-api-datasource",
+  "name": "sap-alm-dp-api-datasource",
   "version": "1.0.0",
-  "description": "SAP CALM DP API Datasource",
+  "description": "SAP ALM DP API Datasource",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
