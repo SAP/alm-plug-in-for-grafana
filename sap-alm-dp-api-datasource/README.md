@@ -29,17 +29,17 @@ When adding datasource add your API endpoint to the `URL` field. That's where da
 For CALM, the path to service should be: `/api/x-calmextapi-service-api/v1`.
 For FRUN, the path to service should be: `/sap/frun/fi/dp`.
 
---> Image
+![Data Source Setup - URL](../assets/SAP%20CALM%20DP%20API%20DS%20URL.png?raw=true)
 
 By default, the data source will treat URL as CALM destination. Please contact with your Grafana administrator to configure authentication related parameters.
 
 If the destination is to FRUN system, you need to turn the FRUN system switch on. The recommended authentication method is `Basic auth` `With Credentials` for simplicity.
 
---> Image
+![Data Source Setup - FRUN Destination](../assets/SAP%20CALM%20DP%20API%20DS%20FRUN.png?raw=true)
 
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
 
---> Image
+![Data Source Setup - Data Providers Version Selection](../assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png?raw=true)
 
 Once data source setup has been done, you are ready to configure queries for data retrieval.
 
@@ -52,7 +52,12 @@ The service provides data for different areas or applications of the destination
 Each `Data Provider` has its own set of attributes, dimensions, and measures which can be used to retrieve intended data.
 
 Normally data will be requested for a specific time period with a specific resolution. 
-Resolution can be defined universally in data source set up, or in `Configuration Query`. More on it can be found later. If no resolution is instructed, `Data Provider` will decide what's best.
+
+Resolution can be defined universally for all panels using data source in data source set up, or in `Configuration Query`. More on it can be found later.
+
+![Data Source Setup - Global Resolution](../assets/SAP%20CALM%20DP%20API%20DS%20Res%20Global.png?raw=true)
+
+If no resolution is instructed, `Data Provider` will decide what's best.
 
 --> Image for data providers
 
@@ -63,7 +68,7 @@ The query can be defined as normal query or `Configuration Query`. The differenc
 ### Configuration Query
 `Configuration Query` is declared by toggle the switch for it to on. You can toggle multiple queries switch on, but only the first one will be accounted for.
 
---> Image for configuration query
+![Data Source Setup - Configuration Query](../assets/SAP%20CALM%20DP%20API%20DS%20Config%20Query.png?raw=true)
 
 `Configuration Query` can be used to defined requested resoution for all queries.
 
@@ -74,6 +79,8 @@ Otherwise, data source will use provided `Default Resolution` as resolution for 
 ### Normal Query
 
 This is where you configure the criterias by which the `Data Provider` uses to retrieve data.
+
+![Data Source Setup - Query](../assets/SAP%20CALM%20DP%20API%20DS%20Query.png?raw=true)
 
 The information one query can hold is as follow:
 - `Format As`: responded data should be formatted as provided. Options are:
