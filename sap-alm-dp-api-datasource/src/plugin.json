@@ -1,16 +1,17 @@
 {
   "type": "datasource",
-  "name": "SAP CALM DP API",
-  "id": "sap-calm-dp-api-datasource",
+  "name": "SAP ALM DP API",
+  "id": "sap-alm-dp-api-datasource",
   "metrics": true,
   "info": {
-    "description": "SAP CALM DP API Datasource",
+    "description": "SAP ALM DP API Datasource",
     "author": {
       "name": "SAP",
       "url": "www.sap.com"
     },
     "keywords": [
       "SAP",
+      "FRUN",
       "CALM",
       "DP API"
     ],
@@ -21,11 +22,11 @@
     "links": [
       {
         "name": "Website",
-        "url": "https://github.com/grafana/simple-datasource"
+        "url": "https://github.com/SAP/alm-plug-in-for-grafana"
       },
       {
         "name": "License",
-        "url": "https://github.com/grafana/simple-datasource/blob/master/LICENSE"
+        "url": "https://github.com/SAP/alm-plug-in-for-grafana/blob/master/LICENSE"
       }
     ],
     "screenshots": [],
