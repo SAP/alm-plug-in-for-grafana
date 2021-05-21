@@ -21,7 +21,6 @@ Issue report checklist:
  * Good summary
  * Well-documented
  * Minimal example
- * Use the [template](ISSUE_TEMPLATE.md)
 
 
 ### Requirements for a bug report
@@ -40,10 +39,7 @@ These eight requirements are the mandatory base of a good bug report:
 7. Minimal example: it is highly encouraged to provide a minimal example to reproduce.
 8. Only one bug per report: open different tickets for different issues
 
-You are encouraged to use [this template](ISSUE_TEMPLATE.md).
-
 Please report bugs in English, so all users can understand them.
-
 
 
 ### Issue handling process
@@ -51,9 +47,6 @@ Please report bugs in English, so all users can understand them.
 When an issue is reported, a committer will look at it and either confirm it as a real issue (by giving the "in progress" label), close it if it is not an issue, or ask for more details. In-progress issues are then either assigned to a committer in GitHub, reported in our internal issue handling system, or left open as "contribution welcome" for easy or not urgent fixes.
 
 An issue that is about a real bug is closed as soon as the fix is committed. The closing comment explains which patch version(s) of ALM plug-in will contain the fix.
-
-
-
 
 
 ### Issue Reporting Disclaimer
