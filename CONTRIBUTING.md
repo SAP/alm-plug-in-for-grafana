@@ -99,15 +99,13 @@ Contributed content can be accepted if it:
 2.  Create a branch forking the alm-plug-in-for-grafana repository and do your change
 3.  Commit and push your changes on that branch
     -   When you have several commits, squash them into one (see [this explanation](http://davidwalsh.name/squash-commits-git)) - this also needs to be done when additional changes are required after the code review
-
-4.  In the commit message follow the [commit message guidelines](docs/guidelines.md#git-guidelines)
-5.  If your change fixes an issue reported at GitHub, add the following line to the commit message:
+4.  If your change fixes an issue reported at GitHub, add the following line to the commit message:
     - ```Fixes https://github.com/SAP/alm-plug-in-for-grafana/issues/(issueNumber)```
     - Do NOT add a colon after "Fixes" - this prevents automatic closing.
 	- When your pull request number is known (e.g. because you enhance a pull request after a code review), you can also add the line ```Closes https://github.com/SAP/alm-plug-in-for-grafana/pull/(pullRequestNumber)```
-6.  Create a Pull Request to github.com/SAP/alm-plug-in-for-grafana
-7.  Follow the link posted by the CLA assistant to your pull request and accept the Developer Certificate of Origin, as described in detail above.
-8.  Wait for our code review and approval, possibly enhancing your change on request
-9.  Once the change has been approved we will inform you in a comment
-10.  Your pull request cannot be merged directly into the branch (internal SAP processes), but will be merged internally and immediately appear in the public repository as well. Pull requests for non-code branches can be directly merged.
-11.  We will close the pull request, feel free to delete the now obsolete branch
+5.  Create a Pull Request to github.com/SAP/alm-plug-in-for-grafana
+6.  Follow the link posted by the CLA assistant to your pull request and accept the Developer Certificate of Origin, as described in detail above.
+7.  Wait for our code review and approval, possibly enhancing your change on request
+8.  Once the change has been approved we will inform you in a comment
+9.  Your pull request cannot be merged directly into the branch (internal SAP processes), but will be merged internally and immediately appear in the public repository as well. Pull requests for non-code branches can be directly merged.
+10.  We will close the pull request, feel free to delete the now obsolete branch
