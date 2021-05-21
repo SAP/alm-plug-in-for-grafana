@@ -104,7 +104,7 @@ Contributed content can be accepted if it:
 5.  If your change fixes an issue reported at GitHub, add the following line to the commit message:
     - ```Fixes https://github.com/SAP/alm-plug-in-for-grafana/issues/(issueNumber)```
     - Do NOT add a colon after "Fixes" - this prevents automatic closing.
-	- When your pull request number is known (e.g. because you enhance a pull request after a code review), you can also add the line ```Closes https://github.com/SAP/openui5/pull/(pullRequestNumber)```
+	- When your pull request number is known (e.g. because you enhance a pull request after a code review), you can also add the line ```Closes https://github.com/SAP/alm-plug-in-for-grafana/pull/(pullRequestNumber)```
 6.  Create a Pull Request to github.com/SAP/alm-plug-in-for-grafana
 7.  Follow the link posted by the CLA assistant to your pull request and accept the Developer Certificate of Origin, as described in detail above.
 8.  Wait for our code review and approval, possibly enhancing your change on request
