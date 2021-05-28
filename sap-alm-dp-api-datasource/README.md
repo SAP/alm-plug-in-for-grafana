@@ -1,20 +1,20 @@
 # Grafana Data Source Plugin for SAP ALM
 
-This Grafana data source plugin executes requests for analytical data from SAP ALM destinations including CALM and FRUN by using Data Providers API REST service, and parses JSON result to Grafana data frame.
+This Grafana data source plugin executes requests for analytical data from SAP ALM destinations including SAP Cloud ALM and SAP Focused RUN by using Data Providers API REST service, and parses JSON result to Grafana data frame.
 
 ## What is Grafana Data Source Plugin?
 Grafana supports a wide range of data sources, including Prometheus, MySQL, and even Datadog. There’s a good chance you can already visualize metrics from the systems you have set up. In some cases, though, you already have an in-house metrics solution that you’d like to add to your Grafana dashboards. Grafana Data Source Plugins enables integrating such solutions with Grafana.
 
 ## Compatibilties
 
-- SAP Cloud ALM Analytics API.
-- SAP Focused RUN FP03 SP02 or later.
+- SAP Cloud ALM (CALM) Analytics API.
+- SAP Focused RUN (FRUN) FP03 SP02 or later.
 
 ## Contents
 
 ## Installation
 
-Normally you can install the plugin using `grafana-cli` tool. However, it is not possible for now. Please contact us for signed copy of the plugin.
+Normally you can install the plugin using `grafana-cli` tool. However, it is not possible for now. Please contact us for signed copy of the plugin by create issue with label `install`.
 
 When it is available by using `grafana-cli` tool, you can do as follow:
 
@@ -24,18 +24,29 @@ When it is available by using `grafana-cli` tool, you can do as follow:
 
 ## Setup
 
-When adding datasource add your API endpoint to the `URL` field. That's where datasource will make requests to.
+![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png?raw=true)
 
-For CALM, the path to service should be: `/api/x-calmextapi-service-api/v1`.
-For FRUN, the path to service should be: `/sap/frun/fi/dp`.
+When adding datasource, you need to provide your API end point for data source to make requests to. However there are differences when adding API endpoint with their respective authentication methods for the two types of destination. Details are as follow:
 
-![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20URL.png?raw=true)
+- For Cloud ALM:
+    - Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work.
+    ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
+        - `path`: Your destination alias. To be used in data source settings.
+        - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
+        - `tokenAuth`: Authentication via Token.
+            - `url`: Authentication end point.
+            - `params`: Parameters for authentication.
+                - `grant_type`: Type of token provider.
+                - `client_id`: Your authentication client id.
+                - `client_secret`: Your authentication client secret.
+    - Use the value in the `path` field as `alias` field in data source settings.
+    ![Data Source Setup - CALM Alias](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
 
-By default, the data source will treat URL as CALM destination. Please contact with your Grafana administrator to configure authentication related parameters.
-
-If the destination is to FRUN system, you need to turn the FRUN system switch on. The recommended authentication method is `Basic auth` `With Credentials` for simplicity.
-
-![Data Source Setup - FRUN Destination](../../assets/SAP%20CALM%20DP%20API%20DS%20FRUN.png?raw=true)
+- For Focused RUN:
+    ![Data Source Setup - FRUN URL](../../assets/SAP%20CALM%20DP%20API%20DS%20FRUN%20SYS%20SETTINGS.png?raw=true)
+    - Provide API end point in `URL` field. The path to the end point should be: `/sap/frun/fi/dp`.
+    - Use `Basic Auth` with `With Credentials` for simplicity.
+    - Provider `Username` and `Password` in the respective fields.
 
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
 
@@ -46,6 +57,8 @@ Once data source setup has been done, you are ready to configure queries for dat
 ## Query Configuration
 
 Before going into query configuration, let's have a general view on organization of DP API REST Serivce.
+
+![Data Source Setup - DP REST API](../../assets/SAP%20CALM%20DP%20API%20DS%20DP%20API.png?raw=true)
 
 The service provides data for different areas or applications of the destination. These areas or applications are called `Data Provider`s by the service.
 

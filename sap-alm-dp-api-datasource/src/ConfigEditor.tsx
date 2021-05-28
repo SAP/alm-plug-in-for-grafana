@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, ChangeEvent } from 'react';
 import { DataSourceHttpSettings, Select, Switch } from '@grafana/ui';
 import { DataSourceJsonData, DataSourcePluginOptionsEditorProps, DataSourceSettings, SelectableValue } from '@grafana/data';
 import { DPResponse, MyDataSourceOptions } from './types';
@@ -19,7 +19,7 @@ const resOptions = [
   { label: 'Years', value: Resolution.Year },
 ];
 
-const routePath = "/calm/analytics";
+const routePath = "/analytics";
 const dpListPath = "/providers";
 
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
@@ -35,10 +35,16 @@ export class ConfigEditor extends PureComponent<Props> {
   }
 
   getDPList(): Promise<void | FetchResponse<void | Array<DPResponse>>> {
+    let url = "";
+    if (this.props.options.jsonData.isFRUN) {
+      url = `/api/datasources/proxy/${this.props.options.id}${routePath}${dpListPath}`;
+    } else {
+      url = `/api/datasources/proxy/${this.props.options.id}/${this.props.options.jsonData.alias}${routePath}${dpListPath}`;
+    }
     return getBackendSrv()
     .fetch({
       method: 'GET',
-      url: `/api/datasources/proxy/${this.props.options.id}${routePath}${dpListPath}`,
+      url: url,
       // headers: this.headers,
       // credentials: this.withCredentials ? "include" : undefined,
     })
@@ -124,6 +130,24 @@ export class ConfigEditor extends PureComponent<Props> {
     onOptionsChange({ ...options, jsonData });
   };
 
+  onIsCALMChange = (e: { currentTarget: { checked: any; }; }) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      isFRUN: !e.currentTarget.checked,
+    };
+    onOptionsChange({ ...options, jsonData });
+  };
+
+  onAliasChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      alias: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  };
+
   // Secure field (only sent to the backend)
   // Old from template, left for reference for what we can do with it.
   // onResetAPIKey = () => {
@@ -149,18 +173,26 @@ export class ConfigEditor extends PureComponent<Props> {
 
     return (
       <>
-        <DataSourceHttpSettings
-          defaultUrl={'http://localhost:8080'}
-          dataSourceConfig={options}
-          showAccessOptions={true}
-          onChange={this.onHTTPSettingsChange}
-        />
-
         <div className="gf-form-group">
+          <h3 className="page-heading">Connection</h3>
+          <div className="gf-form-group">
             <h6>Destination System</h6>
-              <div className="gf-form">
+            <div className="gf-form-inline">
+              <div className="gf-form-switch-container-react">
                 <label className="gf-form-label width-10">
-                  FRUN System
+                  Cloud ALM
+                </label> 
+                <div className="gf-form-switch">
+                  <Switch
+                    value={!jsonData.isFRUN}
+                    onChange={this.onIsCALMChange}
+                    css=""
+                  />
+                </div>
+              </div>
+              <div className="gf-form-switch-container-react">
+                <label className="gf-form-label width-10">
+                  Focused RUN
                 </label> 
                 <div className="gf-form-switch">
                   <Switch
@@ -170,7 +202,33 @@ export class ConfigEditor extends PureComponent<Props> {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+          {(jsonData.isFRUN) ? 
+            <DataSourceHttpSettings
+              defaultUrl={'http://localhost:8080'}
+              dataSourceConfig={options}
+              showAccessOptions={true}
+              onChange={this.onHTTPSettingsChange}
+            />
+          :
+            <div className="gf-form-group">
+              <h6>System Settings</h6>
+              <div className="gf-form">
+                <label className="gf-form-label width-10">
+                  Alias
+                </label>
+              
+                <input
+                  onChange={this.onAliasChange}
+                  value={jsonData.alias}
+                  className="gf-form-input"
+                />
+              </div>
+            </div>
+          }
         </div>
+        
         <div className="gf-form-group">
           <h3 className="page-heading">Global Query Settings</h3>
           <div className="gf-form-group">

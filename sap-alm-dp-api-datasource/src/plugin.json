@@ -39,13 +39,14 @@
   },
   "routes": [
     {
-      "path": "calm/analytics",
+      "path": "jup",
+      "url": "https://eu10.alm.cloud.sap/api/calm-analytics/v1",
       "tokenAuth": {
         "url": "https://calm-dev-eu10-expfeatures-stabledata.authentication.eu10.hana.ondemand.com/oauth/token",
         "params": {
           "grant_type": "client_credentials",
-          "client_id": "sb-sapcloudalm!b45600|sapcloudalm!b16907",
-          "client_secret": "WzCeLY9P8RIAk97IS5kqFQ8nyVA="
+          "client_id": "sb-sapcloudalmapi!b45600|sapcloudalm!b16907",
+          "client_secret": "MlMI18YbZmS+e6Xrdz2cVxeqM90="
         }
       }
     }
