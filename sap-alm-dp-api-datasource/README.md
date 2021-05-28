@@ -30,7 +30,7 @@ When adding datasource, you need to provide your API end point for data source t
 
 - For Cloud ALM:
     - Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work.
-    ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
+    ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20PLUGIN%20CONFIG.png?raw=true)
         - `path`: Your destination alias. To be used in data source settings.
         - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
         - `tokenAuth`: Authentication via Token.
@@ -43,8 +43,8 @@ When adding datasource, you need to provide your API end point for data source t
     ![Data Source Setup - CALM Alias](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
 
 - For Focused RUN:
-    ![Data Source Setup - FRUN URL](../../assets/SAP%20CALM%20DP%20API%20DS%20FRUN%20SYS%20SETTINGS.png?raw=true)
     - Provide API end point in `URL` field. The path to the end point should be: `/sap/frun/fi/dp`.
+    ![Data Source Setup - FRUN URL](../../assets/SAP%20CALM%20DP%20API%20DS%20FRUN%20SYS%20SETTINGS.png?raw=true)
     - Use `Basic Auth` with `With Credentials` for simplicity.
     - Provider `Username` and `Password` in the respective fields.
 
