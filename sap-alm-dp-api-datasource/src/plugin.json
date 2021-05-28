@@ -37,17 +37,5 @@
     "grafanaVersion": "6.5.x",
     "plugins": []
   },
-  "routes": [
-    {
-      "path": "calm/analytics",
-      "tokenAuth": {
-        "url": "https://calm-dev-eu10-expfeatures-stabledata.authentication.eu10.hana.ondemand.com/oauth/token",
-        "params": {
-          "grant_type": "client_credentials",
-          "client_id": "sb-sapcloudalm!b45600|sapcloudalm!b16907",
-          "client_secret": "WzCeLY9P8RIAk97IS5kqFQ8nyVA="
-        }
-      }
-    }
-  ]
+  "routes": []
 }

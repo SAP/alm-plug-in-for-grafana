@@ -68,6 +68,7 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
   resolution?: Resolution;
   oauthPassThru?: boolean;
   isFRUN?: boolean;
+  alias?: string;
   dataProviderConfigs?: {[key: string]: DataProviderConfig};
 }
 
