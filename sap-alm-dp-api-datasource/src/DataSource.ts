@@ -23,7 +23,7 @@ import { Format, Resolution } from 'format';
 
 type ResultData = TimeSeries | TableData;
 
-const routePath = "/calm/analytics";
+const routePath = "/analytics";
 const dpListPath = "/providers";
 const dpFiltersPath = "/providers/filters";
 const dpDataPath = "/providers/data"
@@ -36,6 +36,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   withCredentials: boolean;
   oauthPassThru: boolean;
   isFRUN: boolean;
+  alias: string;
   headers: any;
   uid: string;
   dataProviderConfigs: {[key: string]: DataProviderConfig};
@@ -51,6 +52,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     this.withCredentials = instanceSettings.withCredentials !== undefined;
 
     this.isFRUN = instanceSettings.jsonData.isFRUN ? instanceSettings.jsonData.isFRUN : false;
+
+    this.alias = instanceSettings.jsonData.alias ? instanceSettings.jsonData.alias : "";
 
     this.oauthPassThru = instanceSettings.jsonData['oauthPassThru'] || false;
 
@@ -307,10 +310,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (response.data.error) {
       error = this.getErrorFromResponse(response);
     } else {
+      // Each query has their own array of series in response.data
       for (let i = 0; i < response.data.length; i++) {
-        const series = response.data[i];
-        if (series) {
-          data.push({ target: series.serieName, datapoints: series.dataPoints, refId: queries[i].refId }); //this.parseSeriesPoints(series.dataPoints)
+        const qseries = response.data[i];
+        for (let j = 0; j < qseries.length; j++) {
+          const series = qseries[j];
+          if (series) {
+            data.push({ target: series.serieName, datapoints: series.dataPoints, refId: queries[i].refId }); //this.parseSeriesPoints(series.dataPoints)
+          }
         }
       }
     }
@@ -382,7 +389,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           }
         }
       } else {
-        if (!target.dataProvider.value) {
+        if (!target.dataProvider || !target.dataProvider.value) {
           continue;
         }
         if (target.type === Format.Timeseries) {
@@ -504,7 +511,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (this.isFRUN) {
       return this.url;
     } else {
-      return this.url + routePath;
+      return this.url + "/" + this.alias + routePath;
     }
   }
 
