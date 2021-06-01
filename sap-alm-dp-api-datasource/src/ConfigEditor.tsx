@@ -37,7 +37,7 @@ export class ConfigEditor extends PureComponent<Props> {
   getDPList(): Promise<void | FetchResponse<void | Array<DPResponse>>> {
     let url = "";
     if (this.props.options.jsonData.isFRUN) {
-      url = `/api/datasources/proxy/${this.props.options.id}${routePath}${dpListPath}`;
+      url = `/api/datasources/proxy/${this.props.options.id}${dpListPath}`;
     } else {
       url = `/api/datasources/proxy/${this.props.options.id}/${this.props.options.jsonData.alias}${routePath}${dpListPath}`;
     }
@@ -53,7 +53,14 @@ export class ConfigEditor extends PureComponent<Props> {
       this.dataProviderOptions = [];
       this.dataProviderVersionsOptions = [];
       
-      response.data.forEach((value: DPResponse) => {
+      response.data.sort((el1: DPResponse, el2: DPResponse) => {
+        if (el1.name > el2.name) {
+          return 1;
+        } else if (el1.name < el2.name) {
+          return -1;
+        }
+        return 0;
+      }).forEach((value: DPResponse) => {
         this.dataProviderOptions.push({
           label: value.description.split(" ").map(_.upperFirst).join(" "),
           value: value.name,
@@ -254,19 +261,19 @@ export class ConfigEditor extends PureComponent<Props> {
           <div className="gf-form-group">
             <h6>Data Providers' Settings</h6>
               <div className="gf-form">
-                <label className="gf-form-label width-11">Name</label>
-                <label className="gf-form-label width-11">Id</label>
+                <label className="gf-form-label width-13">Id</label>
+                <label className="gf-form-label width-18">Name</label>
                 <label className="gf-form-label width-6">Used Version</label>
               </div>
               {
               this.dataProviderOptions.map((dp, i) => {
                 return (
                   <div className="gf-form">
-                    <label className="gf-form-label width-11" title={dp.description}>
-                      {dp.label}
-                    </label>
-                    <label className="gf-form-label width-11" title={dp.description}>
+                    <label className="gf-form-label width-13" title={dp.description}>
                       {dp.value}
+                    </label>
+                    <label className="gf-form-label width-18" title={dp.description}>
+                      {dp.label}
                     </label>
                     <Select
                       width={12}
