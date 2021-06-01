@@ -7,8 +7,8 @@ Grafana supports a wide range of data sources, including Prometheus, MySQL, and 
 
 ## Compatibilties
 
-- SAP Cloud ALM Analytics API.
-- SAP Focused RUN FP03 SP02 or later.
+- SAP Cloud ALM (CALM) Analytics API.
+- SAP Focused RUN (FRUN) FP03 SP02 or later. (under development)
 
 ## Contents
 
