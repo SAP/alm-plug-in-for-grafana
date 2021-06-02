@@ -42,12 +42,6 @@ When adding datasource, you need to provide your API end point for data source t
     - Use the value in the `path` field as `alias` field in data source settings.
     ![Data Source Setup - CALM Alias](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
 
-- For Focused RUN:
-    - Provide API end point in `URL` field. The path to the end point should be: `/sap/frun/fi/dp`.
-    ![Data Source Setup - FRUN URL](../../assets/SAP%20CALM%20DP%20API%20DS%20FRUN%20SYS%20SETTINGS.png?raw=true)
-    - Use `Basic Auth` with `With Credentials` for simplicity.
-    - Provider `Username` and `Password` in the respective fields.
-
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
 
 ![Data Source Setup - Data Providers Version Selection](../../assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png?raw=true)
