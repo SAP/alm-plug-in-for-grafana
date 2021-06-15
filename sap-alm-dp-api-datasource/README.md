@@ -1,14 +1,17 @@
 # Grafana Data Source Plugin for SAP ALM
 
-This Grafana data source plugin executes requests for analytical data from SAP ALM destinations including SAP Cloud ALM and SAP Focused RUN by using Data Providers API REST service, and parses JSON result to Grafana data frame.
+This Grafana data source plugin executes requests for analytical data from SAP ALM destinations by using Data Providers API REST service, and parses JSON result to Grafana data frame.
 
 ## What is Grafana Data Source Plugin?
 Grafana supports a wide range of data sources, including Prometheus, MySQL, and even Datadog. There’s a good chance you can already visualize metrics from the systems you have set up. In some cases, though, you already have an in-house metrics solution that you’d like to add to your Grafana dashboards. Grafana Data Source Plugins enables integrating such solutions with Grafana.
 
+
 ## Compatibilties
+The current version of the ALM plug-in for Grafana supports the following products:
 
 - SAP Cloud ALM (CALM) Analytics API.
-- SAP Focused RUN (FRUN) FP03 SP02 or later. (under development)
+
+
 
 ## Contents
 
@@ -76,8 +79,6 @@ Resolution can be defined universally for all panels using data source in data s
 
 If no resolution is instructed, `Data Provider` will decide what's best.
 
---> Image for data providers
-
 These information are available to be configured in query. Query also need additional informations for better data format when returning from the serivce.
 
 The query can be defined as normal query or `Configuration Query`. The difference is that Configuration Query is not used to retrieve data, but is used to have universal configuration for the panel's normal queries.
@@ -102,7 +103,7 @@ This is where you configure the criterias by which the `Data Provider` uses to r
 The information one query can hold is as follow:
 - `Format As`: responded data should be formatted as provided. Options are:
     - `Time Series`: data is returned in time series format.
-    - `Table`: data is returned in table format for recent period (today) disregard requested period.
+    - `Table`: data is returned in table format for the most recent time frame in the requested period.
     - `Raw Table`: data is returned in table format.
 - `Legend`: name of query. It will be used as legend or part of legends if query is to retrieve multiple dataset.
 - `Data Provider`: area or application of destination system to retrieve data from.
