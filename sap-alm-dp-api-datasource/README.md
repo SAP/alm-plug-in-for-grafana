@@ -14,13 +14,13 @@ Grafana supports a wide range of data sources, including Prometheus, MySQL, and 
 
 - [Installation](#installation)
 - [Setup](#setup)
-- [Query Configuration](#query%20configuration)
-  - [/Configuration Query](#configuration%20query)
-  - [/Normal Query](#normal%20query)
-  - [/Return Formats](#return%20formats)
-    - [/Time Series Format](#time%20series%20format)
-    - [/Table Format](#table%20format)
-- [Query Variables](#query%20variables)
+- [Query Configuration](#query-configuration)
+  - [Configuration Query](#configuration-query)
+  - [Normal Query](#normal-query)
+  - [Return Formats](#return-formats)
+    - [Time Series Format](#time-series-format)
+    - [Table Format](#table-format)
+- [Query Variables](#query-variables)
 
 ## Installation
 
