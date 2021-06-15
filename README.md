@@ -56,3 +56,9 @@ ALM analytics are constructed on a time dimension containing two attributes:
 Queries are the central mechanism of the SAP Cloud ALM Anlaytics API to format and retrieve data from SAP Cloud ALM.  A query is responsible to return either a set of measures (series) or a row-column structured data format (table) for a specific data provider and a given period based on filters and columns identified by selected dimensions of the data sources.
 
 
+## External Documentation
+- SAP help.sap.com: to be added.
+- SAP Cloud ALM API HUB: https://api.sap.com/package/SAPCloudALM?section=Artifacts
+- SAP CLoud ALM support portal: https://support.sap.com/en/alm/sap-cloud-alm.html
+
+
