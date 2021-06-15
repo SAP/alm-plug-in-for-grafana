@@ -12,6 +12,16 @@ Grafana supports a wide range of data sources, including Prometheus, MySQL, and 
 
 ## Contents
 
+- [Installation](#installation)
+- [Setup](#setup)
+- [Query Configuration](#query%20configuration)
+  - [/Configuration Query](#configuration%20query)
+  - [/Normal Query](#normal%20query)
+  - [/Return Formats](#return%20formats)
+    - [/Time Series Format](#time%20series%20format)
+    - [/Table Format](#table%20format)
+- [Query Variables](#query%20variables)
+
 ## Installation
 
 Normally you can install the plugin using `grafana-cli` tool. However, it is not possible for now. Please contact us for signed copy of the plugin by create issue with label `install`.
