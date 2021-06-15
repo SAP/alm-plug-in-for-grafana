@@ -2,13 +2,9 @@
 
 - [Introduction](#introduction)
   * [Concepts](#concepts)
-  * [Output Formats](#output-Format)
+  * [Output Formats](#Output-Format)
   * [Time Dimensions](#time-Dimensions)
-  * [Query](#query)
-- [Installation](#Installation)
-  * [Download](#Download)
-  * [Configuration](#Configuration)
-
+  * [Queries](#queries)
 
 
 ## Introduction
@@ -53,6 +49,7 @@ ALM analytics are constructed on a time dimension containing two attributes:
 
 - **period**: The duration of the measurements (Ex: Today, Last 6 Months, ..). This is in general a dynamic rolling-time dimension.
 - **resolution**: The scale of the data points. (Ex: hour, Month,..)
+
 
 ### Queries
 
