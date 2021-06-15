@@ -42,12 +42,6 @@ When adding datasource, you need to provide your API end point for data source t
     - Use the value in the `path` field as `alias` field in data source settings.
     ![Data Source Setup - CALM Alias](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
 
-- For Focused RUN:
-    - Provide API end point in `URL` field. The path to the end point should be: `/sap/frun/fi/dp`.
-    ![Data Source Setup - FRUN URL](../../assets/SAP%20CALM%20DP%20API%20DS%20FRUN%20SYS%20SETTINGS.png?raw=true)
-    - Use `Basic Auth` with `With Credentials` for simplicity.
-    - Provider `Username` and `Password` in the respective fields.
-
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
 
 ![Data Source Setup - Data Providers Version Selection](../../assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png?raw=true)
@@ -252,3 +246,32 @@ Returning format is as follow:
 Return is a list of dataset, where each dataset contains:
 - `columns`: list of columns which each column has a text and type of value. Value's types are `string` for simple text, `time` for UNIX time stamp, and `number` for number value.
 - `rows`: list of rows. Each row has a list of values which correspond to the columns respectively.
+
+## Query Variables
+
+The plugin supports dashboard variables for query to provide a more dynamic approach to dashboard. 
+
+To configure query variables, go to `Dashboard Settings` (using cord wheel icon on top right corner), and select `Variables` tab.
+
+![Dashboard Settings - Query Variables](../../assets/Query%20Variables.png?raw=true)
+
+- Click `New` button to add a new variable, or select variable's name to edit.
+- In `General` section of variable editor:
+    - Provide `Name`. This is important as it will be used in query configuration.
+    - Choose `Query` as option for `Type` field.
+    - Provide `Label` for the display on dashboard.
+- In `Query Options` of variable editor:
+    - Provide `Data source` which is the added plugin data source.
+    - Provide `Data Provider` for where the options of variable need to be retrieved from.
+    - Provide `Type`. It can be `Attribute`, `Dimension`, or `Measure`.
+    - Provide `Values of` if `Type` is `Attribute` or any other types that requires this field which only appears when needed.
+
+So far you should be able to see possible options in `Preview of values` section. 
+
+For further flexibility, you can use `Multi-value` and/or `Include All option` in `Selection Options` section. The names are self-describing.
+
+To use it in query, type in the name of variable preceeding with `$` into the needed fields, for example: `$dimension`.
+
+![Query Configuration - Query Variables](../../assets/Variable%20Usage.png?raw=true)
+
+Now to can select variable in dashboard to see the effects.
