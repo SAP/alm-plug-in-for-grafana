@@ -17,7 +17,7 @@ The ALM plug-in for Grafana (alm-plug-in-for-grafana) lets you extend your analy
 This plugin is based on the SAP Cloud ALM Analytics API documented here: https://api.sap.com/api/CALM_ANALYTICS/overview. 
 This API enables you to build dashboards and reports aggregating all types of data managed by SAP Cloud ALM. It comes with OData and Rest endpoints exposing analytics data.
 
-With the SAP ALM Plugin for Rest interface you are able to connect your **SAP Cloud ALM tenants**. and get data in Table format or Time-series format to get new insights on your different ALM processes.
+With the SAP ALM Plugin for Rest interface you are able to connect your **SAP Cloud ALM tenants** and get data in Table format or Time-series format to get new insights on your different ALM processes.
 
 The goals of the SAP Cloud ALM Analytics API are:
 
@@ -33,7 +33,8 @@ The SAP Cloud ALM Analytics API relies on the following concepts:
 - **Providers**: Data providers are analytics data sources corresponding to the different objects or scenarios managed in SAP Cloud ALM. They could be Tasks, Projects, Alerts, Integration Monitoring, ..
 - **Dimensions**: The Dimensions are the characteristics of SAP Cloud ALM entities. The Dimensions correspond to the different fields of the CALM entities. (ex: Name of Projects, Phase Status for CALM tasks).
 - **Metrics**: Metrics are the quantitative measurements of SAP Cloud ALM analytics data sources. (ex: total number of tasks, average response time, ...). Different optional aggregation methods can be supported for each metrics (ex: avg, sum, max, min, Last, ....)
-Output Format
+
+### Output Format
 
 The CALM analytics API supports 2 output formats:
 
