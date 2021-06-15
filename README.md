@@ -2,8 +2,8 @@
 
 - [Introduction](#introduction)
   * [Concepts](#concepts)
-  * [Output Formats](#outputFormats)
-  * [Time Dimensions](#timeDimension)
+  * [Output Formats](#output-Format)
+  * [Time Dimensions](#time-Dimensions)
   * [Query](#query)
 - [Installation](#Installation)
   * [Download](#Download)
@@ -34,6 +34,7 @@ The SAP Cloud ALM Analytics API relies on the following concepts:
 - **Dimensions**: The Dimensions are the characteristics of SAP Cloud ALM entities. The Dimensions correspond to the different fields of the CALM entities. (ex: Name of Projects, Phase Status for CALM tasks).
 - **Metrics**: Metrics are the quantitative measurements of SAP Cloud ALM analytics data sources. (ex: total number of tasks, average response time, ...). Different optional aggregation methods can be supported for each metrics (ex: avg, sum, max, min, Last, ....)
 
+
 ### Output Format
 
 The CALM analytics API supports 2 output formats:
@@ -46,14 +47,14 @@ Table:
 - **Row-column** structured data format representing SAP Cloud ALM dimensions in columns.
 
 
-**Time Dimensions**
+### Time Dimensions
 
 ALM analytics are constructed on a time dimension containing two attributes:
 
 - **period**: The duration of the measurements (Ex: Today, Last 6 Months, ..). This is in general a dynamic rolling-time dimension.
 - **resolution**: The scale of the data points. (Ex: hour, Month,..)
 
-**Queries**
+### Queries
 
 Queries are the central mechanism of the SAP Cloud ALM Anlaytics API to format and retrieve data from SAP Cloud ALM.  A query is responsible to return either a set of measures (series) or a row-column structured data format (table) for a specific data provider and a given period based on filters and columns identified by selected dimensions of the data sources.
 
