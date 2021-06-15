@@ -43,6 +43,7 @@ export class QueryEditor extends PureComponent<Props> {
   dataProviderCustomDimensionOptions: Array<SelectableValue<string>> = [];
   dataProviderMeasuresOptions: Array<SelectableValue<string>> = [];
   dataProviderCustomMeasuresOptions: Array<SelectableValue<string>> = [];
+  firstLoad: boolean = true;
 
   /* ---------------- Utilities ---------------- */
 
@@ -200,12 +201,14 @@ export class QueryEditor extends PureComponent<Props> {
           // Check for custom dimensions and measures
           if (!rfilter) {
             query.drilldown.dimensions.forEach(dim => {
-              if (!this.dataProviderDimensionOptions.find(d => { return d.value == dim.value; })) {
+              if (dim && dim.value && dim.value != "" 
+              && !this.dataProviderDimensionOptions.find(d => { return d.value == dim.value; })) {
                 this.dataProviderCustomDimensionOptions.push(dim);
               }
             });
             query.drilldown.measures.forEach(meas => {
-              if (!this.dataProviderMeasuresOptions.find(m => { return m.value == meas.value.value; })) {
+              if (meas && meas.value && meas.value.value && meas.value.value != "" 
+              && !this.dataProviderMeasuresOptions.find(m => { return m.value == meas.value.value; })) {
                 this.dataProviderCustomDimensionOptions.push(meas.value);
               }
             });
@@ -222,18 +225,21 @@ export class QueryEditor extends PureComponent<Props> {
             } 
             
             // Get related filters in case needed.
-            // if (filter && filter.key.value && filter.key.value != "" && rfilter?.key != filter.key.value
-            // && this.dataProviderFilterOptions.find(f => { return f.value == filter.key.value })
-            // && this.dataProviderFiltersValues[filter.key.value].triggerRefresh
-            // && (!parents || parents?.indexOf(filter.key.value) > -1)) {
-            //   if (!parents) {
-            //     parents = [filter.key.value];
-            //   } else {
-            //     parents.push(filter.key.value);
-            //   }
-            //   this.retrieveRelatedFilters(this.dataProviderFiltersValues[filter.key.value], parents);
-            // }
+            if (this.firstLoad) {
+              if (filter && filter.key.value && filter.key.value != "" && rfilter?.key != filter.key.value
+              && this.dataProviderFilterOptions.find(f => { return f.value == filter.key.value })
+              && this.dataProviderFiltersValues[filter.key.value].triggerRefresh
+              && (!parents || parents?.indexOf(filter.key.value) > -1)) {
+                if (!parents) {
+                  parents = [filter.key.value];
+                } else {
+                  parents.push(filter.key.value);
+                }
+                this.retrieveRelatedFilters(this.dataProviderFiltersValues[filter.key.value], parents);
+              }
 
+              this.firstLoad = false;
+            }
             
             // Load filters' values list
             this.loadDPFilterValueOptions(filter.key, i, filter.values);
