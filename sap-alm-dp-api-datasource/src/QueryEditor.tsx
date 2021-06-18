@@ -5,7 +5,7 @@ import { AsyncSelect, Button, MultiSelect, Select, Switch } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { AggrMethod, Format, Resolution } from './format';
-import { defaultQuery, DPFilterResponse, MyDataSourceOptions, MyQuery } from './types';
+import { DPFilterResponse, MyDataSourceOptions, MyQuery } from './types';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -470,6 +470,21 @@ export class QueryEditor extends PureComponent<Props> {
   /* ------------------------------------------------ */
 
   render() {
+    const defaultQuery: Partial<MyQuery> = {
+      name: "",
+      type: Format.Timeseries,
+      isConfig: false,
+      dataProvider: {},
+      dataProviderFilters: [],
+      resolution: {
+        default: Resolution.Raw,
+        autoDecide: true,
+      },
+      drilldown: {
+        measures: [],
+        dimensions: []
+      },
+    };
     const query = defaults(this.props.query, defaultQuery);
     const { type, name, dataProvider, dataProviderFilters, isConfig, resolution, drilldown } = query;
 
