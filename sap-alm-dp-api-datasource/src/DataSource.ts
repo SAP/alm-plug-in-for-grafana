@@ -13,6 +13,7 @@ import {
   DateTime,
   TimeRange,
   MetricFindValue,
+  RawTimeRange,
 } from '@grafana/data';
 
 import { FetchResponse, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
@@ -235,6 +236,84 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return s;
   }
 
+  translateToPeriodUnit(unit: string): string {
+    if (unit) {
+      switch (unit) {
+        case "d":
+          return "D";
+        case "w":
+          return "W";
+        case "M":
+          return "M";
+        case "y":
+          return "Y";
+        default:
+          return "H";
+      }
+    }
+    return "";
+  }
+
+  getPeriodForRequest(rangeRaw: RawTimeRange): string {
+    let period = "";
+
+    // Full format can be now-2d/d for both from and to.
+    // Period prefix is get from from.
+    // Period number and suffix are get from to.
+
+    // If range's raw data is provided as string, meaning relative time is provided.
+    if (rangeRaw && typeof rangeRaw.from == "string" && typeof rangeRaw.to == "string") {
+      // Currently not support for the day before yesterday or future date, we have only last and current.
+
+      // Check to for prefix.
+      let rrts = rangeRaw.to.split("+");
+      if (!rrts[1]) {
+        let rrtu = rangeRaw.to.split("/");
+        rrts = rrtu[0].split("-");
+        if (rrts.length == 2 && rrts[0] == "now") {
+          // Get number from first split.
+          let rrtn = Number(rrts[1].substring(0, rrts[1].length - 1));
+          // More than 1 is not supported as stated.
+          if (rrtn == 1) {
+            // Set L (last) as period prefix.
+            period = period + "L";
+          }
+        } else if (rrts[0] == "now") {
+          // Set C (current) as period prefix.
+          period = period + "C";
+        }
+      }
+
+      // Continue if there's prefix.
+      if (period != "") {
+        // Check from for number and suffix.
+        let rrfs = rangeRaw.from.split("+");
+        if (!rrfs[1]) {
+          let rrfu = rangeRaw.from.split("/");
+          rrfs = rrfu[0].split("-");
+          if (rrfs.length == 2 && rrfs[0] == "now") {
+            // Get number from first split.
+            let rrfn = Number(rrfs[1].substring(0, rrfs[1].length - 1));
+            let rrfsu = rrfs[1].substring(rrfs[1].length - 1);
+            // Set period number and unit.
+            period = period + rrfn + this.translateToPeriodUnit(rrfsu);
+          } else if (rrfs[0] == "now") {
+            // Set period number to 1.
+            period = period + "1";
+            // Set suffix to requested unit or hour by default.
+            if (rrfu[1]) {
+              period = period + this.translateToPeriodUnit(rrfu[1]);
+            } else {
+              period = period + "H";
+            }
+          }
+        }
+      }
+    }
+
+    return period;
+  }
+
   getAutomaticResolution(options:{maxDataPoints?:number, range:TimeRange}): string {
     let resolution:string = Resolution.Raw;
     let maxDataPoints = options.maxDataPoints || 101;
@@ -433,15 +512,18 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let tzMinutesStr = this.getIntNumberInString(tzMinutes, 2);
     // Get time zone offset into string
     let timezone = `${tzHoursStr}:${tzMinutesStr}`;
+    // Period for request
+    let period = this.getPeriodForRequest(options.range.raw);
     // From time stamp
-    let from = this.getTimeStampForRequest(options.range.from);
+    let from = period != "" ? undefined : this.getTimeStampForRequest(options.range.from);
     // To time stamp
-    let to = this.getTimeStampForRequest(options.range.to);
+    let to = period != "" ? undefined : this.getTimeStampForRequest(options.range.to);
     // Normal body payload
     let body = {
       format: 'time_series',
       timestampFormat: 'unix',
       timeRange: {
+        semantic: period,
         from: from,
         to: to,
       },
@@ -456,7 +538,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           url: this.getRootURL() + dpDataPath,
           headers: this.headers,
           // credentials: this.withCredentials ? "include" : undefined,
-          // requestId: this.uid + "-querydata-timeseries",
+          requestId: `${options.dashboardId}-${options.panelId}-querydata-timeseries`,
           data: {
             ...body,
             queries: queriesTSeries,
@@ -473,7 +555,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           url: this.getRootURL() + dpDataPath,
           headers: this.headers,
           // credentials: this.withCredentials ? "include" : undefined,
-          // requestId: this.uid + "-querydata-table",
+          requestId: `${options.dashboardId}-${options.panelId}-querydata-tableraw`,
           data: {
             ...body,
             format: 'table',
@@ -492,7 +574,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           url: this.getRootURL() + dpDataPath,
           headers: this.headers,
           // credentials: this.withCredentials ? "include" : undefined,
-          // requestId: this.uid + "-querydata-table",
+          requestId: `${options.dashboardId}-${options.panelId}-querydata-table`,
           data: {
             ...body,
             format: 'table',
