@@ -129,6 +129,8 @@ export class QueryEditor extends PureComponent<Props> {
 
             if (fdp) {
               this.loadDPFilters(query.dataProvider);
+            } else {
+              this.checkCustomDimAndFil();
             }
 
             resolve(this.dataProviderOptions);
@@ -156,6 +158,23 @@ export class QueryEditor extends PureComponent<Props> {
     this.dataProviderMeasuresOptions = [];
     this.dataProviderCustomMeasuresOptions = [];
   };
+
+  checkCustomDimAndFil = () => {
+    const { query } = this.props;
+
+    query.drilldown.dimensions.forEach(dim => {
+      if (dim && dim.value && dim.value != "" 
+      && !this.dataProviderDimensionOptions.find(d => { return d.value == dim.value; })) {
+        this.dataProviderCustomDimensionOptions.push(dim);
+      }
+    });
+    query.drilldown.measures.forEach(meas => {
+      if (meas && meas.value && meas.value.value && meas.value.value != "" 
+      && !this.dataProviderMeasuresOptions.find(m => { return m.value == meas.value.value; })) {
+        this.dataProviderCustomDimensionOptions.push(meas.value);
+      }
+    });
+  }
 
   /* Load Data Providers List */
   loadDPFilters = (dp: SelectableValue<string> = {}, rfilter?: DPFilterResponse, parents?: Array<string>) => {
@@ -200,18 +219,7 @@ export class QueryEditor extends PureComponent<Props> {
 
           // Check for custom dimensions and measures
           if (!rfilter) {
-            query.drilldown.dimensions.forEach(dim => {
-              if (dim && dim.value && dim.value != "" 
-              && !this.dataProviderDimensionOptions.find(d => { return d.value == dim.value; })) {
-                this.dataProviderCustomDimensionOptions.push(dim);
-              }
-            });
-            query.drilldown.measures.forEach(meas => {
-              if (meas && meas.value && meas.value.value && meas.value.value != "" 
-              && !this.dataProviderMeasuresOptions.find(m => { return m.value == meas.value.value; })) {
-                this.dataProviderCustomDimensionOptions.push(meas.value);
-              }
-            });
+            this.checkCustomDimAndFil();
           }
 
           // Check if selected filter is correct, load filter's values
