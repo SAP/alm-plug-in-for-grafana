@@ -58,7 +58,7 @@ Queries are the central mechanism of the SAP Cloud ALM Anlaytics API to format a
 
 
 ## External Documentation
-- SAP help.sap.com: to be added.
+- SAP help.sap.com: https://help.sap.com/viewer/fe419bfabbdc46dfbddbfd78b21483d5/2021-06-30/en-US/25fda4490062486e88f0712302e8b801.html
 - SAP Cloud ALM API HUB: https://api.sap.com/package/SAPCloudALM?section=Artifacts
 - SAP CLoud ALM support portal: https://support.sap.com/en/alm/sap-cloud-alm.html
 
