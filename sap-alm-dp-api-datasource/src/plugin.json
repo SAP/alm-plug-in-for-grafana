@@ -1,0 +1,41 @@
+{
+  "type": "datasource",
+  "name": "SAP ALM DP API",
+  "id": "sap-alm-dp-api-datasource",
+  "metrics": true,
+  "info": {
+    "description": "SAP ALM DP API Datasource",
+    "author": {
+      "name": "SAP",
+      "url": "www.sap.com"
+    },
+    "keywords": [
+      "SAP",
+      "FRUN",
+      "CALM",
+      "DP API"
+    ],
+    "logos": {
+      "small": "img/logo.png",
+      "large": "img/logo.png"
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/SAP/alm-plug-in-for-grafana"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/SAP/alm-plug-in-for-grafana/blob/master/LICENSE"
+      }
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaVersion": "6.5.x",
+    "plugins": []
+  },
+  "routes": []
+}
