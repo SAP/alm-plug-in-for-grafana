@@ -51,7 +51,6 @@ The CALM analytics API supports 2 output formats:
 Series:
 - **Time series**: A series of data points indexed in time order.
 - **Categorical value series**: The values of measures are represented on the y-axis, while dimensions provide the axis of the chart.
-Table:
 - **Row-column** structured data format representing SAP Cloud ALM dimensions in columns.
 
 
