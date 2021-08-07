@@ -51,7 +51,6 @@ The CALM analytics API supports 2 output formats:
 Series:
 - **Time series**: A series of data points indexed in time order.
 - **Categorical value series**: The values of measures are represented on the y-axis, while dimensions provide the axis of the chart.
-Table: 
 - **Row-column** structured data format representing SAP Cloud ALM dimensions in columns.
 
 
@@ -127,7 +126,7 @@ The service provides data for different areas or applications of the destination
 
 Each `Data Provider` has its own set of attributes, dimensions, and measures which can be used to retrieve intended data.
 
-Normally data will be requested for a specific time period with a specific resolution. 
+Normally data will be requested for a specific time period with a specific resolution.
 
 Resolution can be defined universally for all panels using data source in data source set up, or in `Configuration Query`. More on it can be found later.
 
@@ -215,7 +214,7 @@ Returning format is as follow:
             }
         ],
         "dataPoints": [
-            [ 
+            [
                  20,
                  1621096874000            
            ]
@@ -239,7 +238,7 @@ Returning format is as follow:
             }
         ],
         "dataPoints": [
-           [ 
+           [
                  15,
                  1621096874000            
            ]
@@ -316,7 +315,7 @@ Return is a list of dataset, where each dataset contains:
 
 ## Query Variables
 
-The plugin supports dashboard variables for query to provide a more dynamic approach to dashboard. 
+The plugin supports dashboard variables for query to provide a more dynamic approach to dashboard.
 
 To configure query variables, go to `Dashboard Settings` (using cord wheel icon on top right corner), and select `Variables` tab.
 
@@ -333,11 +332,11 @@ To configure query variables, go to `Dashboard Settings` (using cord wheel icon 
     - Provide `Type`. It can be `Attribute`, `Dimension`, or `Measure`.
     - Provide `Values of` if `Type` is `Attribute` or any other types that requires this field which only appears when needed.
 
-So far you should be able to see possible options in `Preview of values` section. 
+So far you should be able to see possible options in `Preview of values` section.
 
 For further flexibility, you can use `Multi-value` and/or `Include All option` in `Selection Options` section. The names are self-describing.
 
-To use it in query, type in the name of variable preceeding with `$` into the needed fields, for example: `$dimension`.
+To use it in the query, type in the name of variable preceeding with `$` into the needed fields, for example: `$dimension`.
 
 ![Query Configuration - Query Variables](../../assets/Variable%20Usage.png?raw=true)
 
