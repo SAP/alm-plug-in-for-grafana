@@ -510,11 +510,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // Period for request
     let period = this.getPeriodForRequest(options.range.raw);
     // From time stamp
-    let from = period != "" ? undefined : this.getTimeStampForRequest(options.range.from);
-    // let from = this.getTimeStampForRequest(options.range.from);
+    // let from = period != "" ? undefined : this.getTimeStampForRequest(options.range.from);
+    let from = this.getTimeStampForRequest(options.range.from);
     // To time stamp
-    let to = period != "" ? undefined : this.getTimeStampForRequest(options.range.to);
-    // let to = this.getTimeStampForRequest(options.range.to);
+    // let to = period != "" ? undefined : this.getTimeStampForRequest(options.range.to);
+    let to = this.getTimeStampForRequest(options.range.to);
     // Normal body payload
     let body = {
       format: 'time_series',
