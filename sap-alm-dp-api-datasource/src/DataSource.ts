@@ -98,7 +98,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     for (let i = 0; i < filters.length; i++) {
       if (filters[i].key.value) {
         if (options) {
-          let tf: { key: string | undefined, values: Array<string>} = {
+          let tf: { key: string | undefined, values: string[] } = {
             key: filters[i].key.value,
             values: [],
           };
@@ -357,7 +357,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return d.getTime();
   }
 
-  parseSeriesPoints(points: {x: any, y: any}[]): Array<any> {
+  parseSeriesPoints(points: Array<{ x: any, y: any }>): any[] {
     let pp: any[] = [];
     
     points.forEach(p => {

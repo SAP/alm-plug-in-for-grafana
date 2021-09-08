@@ -12,13 +12,13 @@ export interface QueryDrilldownMeasure {
 }
 
 export interface QueryDrilldown {
-  dimensions: SelectableValue<string>[];
+  dimensions: Array<SelectableValue<string>>;
   measures: QueryDrilldownMeasure[];
 }
 
 export interface DataProviderFilter {
   key: SelectableValue<string>;
-  values: SelectableValue<string>[];
+  values: Array<SelectableValue<string>>;
   keySelected: boolean;
   valuesSelected: boolean;
 }
@@ -87,7 +87,7 @@ export interface DPResponse {
   description: string;
   service: string;
   domain: string;
-  version: Array<string>;
+  version: string[];
   plan: string;
   calmMarket: string;
 }

@@ -134,8 +134,6 @@ export class QueryEditor extends PureComponent<Props> {
             resolve(this.dataProviderOptions);
           },
           response => {
-            console.log(response)
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
           }
         );
       }
@@ -175,7 +173,7 @@ export class QueryEditor extends PureComponent<Props> {
   }
 
   /* Load Data Providers List */
-  loadDPFilters = (dp: SelectableValue<string> = {}, rfilter?: DPFilterResponse, parents?: Array<string>) => {
+  loadDPFilters = (dp: SelectableValue<string> = {}, rfilter?: DPFilterResponse, parents?: string[]) => {
     const { query, datasource } = this.props;
     
     // Load all related filters
@@ -252,8 +250,6 @@ export class QueryEditor extends PureComponent<Props> {
           });
         },
         response => {
-          console.log(response)
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
       );
     }
