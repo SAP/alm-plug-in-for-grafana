@@ -32,7 +32,7 @@ export class ConfigEditor extends PureComponent<Props> {
     this.getDPList();
   }
 
-  getDPList(): Promise<void | FetchResponse<void | Array<DPResponse>>> {
+  getDPList(): Promise<void | FetchResponse<void | DPResponse[]>> {
     let url = "";
     if (this.props.options.jsonData.isFRUN) {
       url = `/api/datasources/proxy/${this.props.options.id}${dpListPath}`;
@@ -211,7 +211,7 @@ export class ConfigEditor extends PureComponent<Props> {
           </div>
           {(jsonData.isFRUN) ? 
             <DataSourceHttpSettings
-              defaultUrl={'localhost'}
+              defaultUrl={'http://localhost:8080'}
               dataSourceConfig={options}
               showAccessOptions={true}
               onChange={this.onHTTPSettingsChange}
