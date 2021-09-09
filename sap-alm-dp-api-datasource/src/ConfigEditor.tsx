@@ -1,6 +1,11 @@
 import React, { PureComponent, ChangeEvent } from 'react';
 import { DataSourceHttpSettings, Select, Switch } from '@grafana/ui';
-import { DataSourceJsonData, DataSourcePluginOptionsEditorProps, DataSourceSettings, SelectableValue } from '@grafana/data';
+import {
+  DataSourceJsonData,
+  DataSourcePluginOptionsEditorProps,
+  DataSourceSettings,
+  SelectableValue,
+} from '@grafana/data';
 import { DPResponse, MyDataSourceOptions } from './types';
 import { Resolution } from 'format';
 import { FetchResponse, getBackendSrv } from '@grafana/runtime';
@@ -17,8 +22,8 @@ const resOptions = [
   { label: 'Years', value: Resolution.Year },
 ];
 
-const routePath = "/analytics";
-const dpListPath = "/providers";
+const routePath = '/analytics';
+const dpListPath = '/providers';
 
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
 
@@ -33,52 +38,54 @@ export class ConfigEditor extends PureComponent<Props> {
   }
 
   getDPList(): Promise<void | FetchResponse<void | DPResponse[]>> {
-    let url = "";
+    let url = '';
     if (this.props.options.jsonData.isFRUN) {
       url = `/api/datasources/proxy/${this.props.options.id}${dpListPath}`;
     } else {
       url = `/api/datasources/proxy/${this.props.options.id}/${this.props.options.jsonData.alias}${routePath}${dpListPath}`;
     }
     return getBackendSrv()
-    .fetch({
-      method: 'GET',
-      url: url,
-      // headers: this.headers,
-      // credentials: this.withCredentials ? "include" : undefined,
-    })
-    .toPromise()
-    .then((response: FetchResponse) => {
-      this.dataProviderOptions = [];
-      this.dataProviderVersionsOptions = [];
-      
-      response.data.sort((el1: DPResponse, el2: DPResponse) => {
-        if (el1.name > el2.name) {
-          return 1;
-        } else if (el1.name < el2.name) {
-          return -1;
-        }
-        return 0;
-      }).forEach((value: DPResponse) => {
-        this.dataProviderOptions.push({
-          label: value.description.split(" ").map(_.upperFirst).join(" "),
-          value: value.name,
-          description: value.description,
-        });
-        this.dataProviderVersionsOptions.push([{label: "Latest", value: "LATEST"}]);
-        if (value.version) {
-          value.version.forEach(v => {
-            this.dataProviderVersionsOptions[this.dataProviderOptions.length - 1].push({
-              label: v,
-              value: v
+      .fetch({
+        method: 'GET',
+        url: url,
+        // headers: this.headers,
+        // credentials: this.withCredentials ? "include" : undefined,
+      })
+      .toPromise()
+      .then((response: FetchResponse) => {
+        this.dataProviderOptions = [];
+        this.dataProviderVersionsOptions = [];
+
+        response.data
+          .sort((el1: DPResponse, el2: DPResponse) => {
+            if (el1.name > el2.name) {
+              return 1;
+            } else if (el1.name < el2.name) {
+              return -1;
+            }
+            return 0;
+          })
+          .forEach((value: DPResponse) => {
+            this.dataProviderOptions.push({
+              label: value.description.split(' ').map(_.upperFirst).join(' '),
+              value: value.name,
+              description: value.description,
             });
+            this.dataProviderVersionsOptions.push([{ label: 'Latest', value: 'LATEST' }]);
+            if (value.version) {
+              value.version.forEach((v) => {
+                this.dataProviderVersionsOptions[this.dataProviderOptions.length - 1].push({
+                  label: v,
+                  value: v,
+                });
+              });
+            }
           });
-        }
+
+        const { onOptionsChange, options } = this.props;
+
+        onOptionsChange({ ...options });
       });
-
-      const { onOptionsChange, options } = this.props;
-
-      onOptionsChange({ ...options });
-    });
   }
 
   onHTTPSettingsChange = (config: DataSourceSettings<DataSourceJsonData, {}>) => {
@@ -89,7 +96,7 @@ export class ConfigEditor extends PureComponent<Props> {
     }
 
     onOptionsChange({ ...options, ...config });
-  }
+  };
 
   onResolutionChange = (item: SelectableValue<Resolution>) => {
     const { onOptionsChange, options } = this.props;
@@ -98,7 +105,7 @@ export class ConfigEditor extends PureComponent<Props> {
       resolution: item.value,
     };
     onOptionsChange({ ...options, jsonData });
-  }
+  };
 
   onDPVersionChange = (item: SelectableValue<string>, i: number) => {
     const { onOptionsChange, options } = this.props;
@@ -114,7 +121,6 @@ export class ConfigEditor extends PureComponent<Props> {
         version: item,
       };
     }
-    
 
     const jsonData = {
       ...options.jsonData,
@@ -126,7 +132,7 @@ export class ConfigEditor extends PureComponent<Props> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  onIsFRUNChange = (e: { currentTarget: { checked: any; }; }) => {
+  onIsFRUNChange = (e: { currentTarget: { checked: any } }) => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -135,7 +141,7 @@ export class ConfigEditor extends PureComponent<Props> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  onIsCALMChange = (e: { currentTarget: { checked: any; }; }) => {
+  onIsCALMChange = (e: { currentTarget: { checked: any } }) => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -184,64 +190,44 @@ export class ConfigEditor extends PureComponent<Props> {
             <h6>Destination System</h6>
             <div className="gf-form-inline">
               <div className="gf-form-switch-container-react">
-                <label className="gf-form-label width-10">
-                  Cloud ALM
-                </label> 
+                <label className="gf-form-label width-10">Cloud ALM</label>
                 <div className="gf-form-switch">
-                  <Switch
-                    value={!jsonData.isFRUN}
-                    onChange={this.onIsCALMChange}
-                    css=""
-                  />
+                  <Switch value={!jsonData.isFRUN} onChange={this.onIsCALMChange} css="" />
                 </div>
               </div>
               <div className="gf-form-switch-container-react">
-                <label className="gf-form-label width-10">
-                  Focused RUN
-                </label> 
+                <label className="gf-form-label width-10">Focused RUN</label>
                 <div className="gf-form-switch">
-                  <Switch
-                    value={jsonData.isFRUN}
-                    onChange={this.onIsFRUNChange}
-                    css=""
-                  />
+                  <Switch value={jsonData.isFRUN} onChange={this.onIsFRUNChange} css="" />
                 </div>
               </div>
             </div>
           </div>
-          {(jsonData.isFRUN) ? 
+          {jsonData.isFRUN ? (
             <DataSourceHttpSettings
               defaultUrl={'http://localhost:8080'}
               dataSourceConfig={options}
               showAccessOptions={true}
               onChange={this.onHTTPSettingsChange}
             />
-          :
+          ) : (
             <div className="gf-form-group">
               <h6>System Settings</h6>
               <div className="gf-form">
-                <label className="gf-form-label width-10">
-                  Alias
-                </label>
-              
-                <input
-                  onChange={this.onAliasChange}
-                  value={jsonData.alias}
-                  className="gf-form-input"
-                />
+                <label className="gf-form-label width-10">Alias</label>
+
+                <input onChange={this.onAliasChange} value={jsonData.alias} className="gf-form-input" />
               </div>
             </div>
-          }
+          )}
         </div>
-        
+
         <div className="gf-form-group">
           <h3 className="page-heading">Global Query Settings</h3>
           <div className="gf-form-group">
             <div className="gf-form">
-              <label className="gf-form-label width-10">
-                Resolution
-              </label>
-            
+              <label className="gf-form-label width-10">Resolution</label>
+
               <Select
                 options={resOptions}
                 defaultValue={jsonData.resolution}
@@ -258,34 +244,36 @@ export class ConfigEditor extends PureComponent<Props> {
           </div>
           <div className="gf-form-group">
             <h6>Data Providers' Settings</h6>
-              <div className="gf-form">
-                <label className="gf-form-label width-13">Id</label>
-                <label className="gf-form-label width-18">Name</label>
-                <label className="gf-form-label width-6">Used Version</label>
-              </div>
-              {
-              this.dataProviderOptions.map((dp, i) => {
-                return (
-                  <div className="gf-form">
-                    <label className="gf-form-label width-13" title={dp.description}>
-                      {dp.value}
-                    </label>
-                    <label className="gf-form-label width-18" title={dp.description}>
-                      {dp.label}
-                    </label>
-                    <Select
-                      width={12}
-                      options={this.dataProviderVersionsOptions[i]}
-                      defaultValue={{value: "LATEST", label: "Latest"}}
-                      value={(jsonData.dataProviderConfigs && dp && dp.value && jsonData.dataProviderConfigs[dp.value]) ? jsonData.dataProviderConfigs[dp.value].version : undefined}
-                      onChange={(item) => {
-                        this.onDPVersionChange(item, i);
-                      }}
-                    />
-                  </div>
-                );
-              })
-              }
+            <div className="gf-form">
+              <label className="gf-form-label width-13">Id</label>
+              <label className="gf-form-label width-18">Name</label>
+              <label className="gf-form-label width-6">Used Version</label>
+            </div>
+            {this.dataProviderOptions.map((dp, i) => {
+              return (
+                <div className="gf-form">
+                  <label className="gf-form-label width-13" title={dp.description}>
+                    {dp.value}
+                  </label>
+                  <label className="gf-form-label width-18" title={dp.description}>
+                    {dp.label}
+                  </label>
+                  <Select
+                    width={12}
+                    options={this.dataProviderVersionsOptions[i]}
+                    defaultValue={{ value: 'LATEST', label: 'Latest' }}
+                    value={
+                      jsonData.dataProviderConfigs && dp && dp.value && jsonData.dataProviderConfigs[dp.value]
+                        ? jsonData.dataProviderConfigs[dp.value].version
+                        : undefined
+                    }
+                    onChange={(item) => {
+                      this.onDPVersionChange(item, i);
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 
