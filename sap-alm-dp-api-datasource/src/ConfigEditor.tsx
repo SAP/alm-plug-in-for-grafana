@@ -91,7 +91,7 @@ export class ConfigEditor extends PureComponent<Props> {
   onHTTPSettingsChange = (config: DataSourceSettings<DataSourceJsonData, {}>) => {
     const { onOptionsChange, options } = this.props;
 
-    if (config.url != options.url) {
+    if (config.url !== options.url) {
       this.getDPList();
     }
 
@@ -243,7 +243,7 @@ export class ConfigEditor extends PureComponent<Props> {
             /> */}
           </div>
           <div className="gf-form-group">
-            <h6>Data Providers' Settings</h6>
+            <h6>Data Providers Settings</h6>
             <div className="gf-form">
               <label className="gf-form-label width-13">Id</label>
               <label className="gf-form-label width-18">Name</label>
@@ -251,7 +251,7 @@ export class ConfigEditor extends PureComponent<Props> {
             </div>
             {this.dataProviderOptions.map((dp, i) => {
               return (
-                <div className="gf-form">
+                <div key={dp.value} className="gf-form">
                   <label className="gf-form-label width-13" title={dp.description}>
                     {dp.value}
                   </label>

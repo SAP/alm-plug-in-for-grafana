@@ -88,9 +88,9 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
   };
 
   /* Load Data Providers List */
-  const loadDPFilters = (dp: string = '', rfilter?: DPFilterResponse) => {
+  const loadDPFilters = (dp = '', rfilter?: DPFilterResponse) => {
     // Load all related filters
-    if (dp && dp != '') {
+    if (dp && dp !== '') {
       datasource.searchDataProviderFilters(dp, '').then(
         (result) => {
           if (!rfilter) {
@@ -100,7 +100,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
           result.forEach((filter, i) => {
             let exist = dataProviderFiltersValues[filter.key] ? true : false;
 
-            if (filter.type == 'attribute' || (filter.type === 'dimension' && filter.isAttribute)) {
+            if (filter.type === 'attribute' || (filter.type === 'dimension' && filter.isAttribute)) {
               dataProviderFiltersValues[filter.key] = filter;
               if (!exist) {
                 dataProviderFilterOptions.push({
@@ -112,7 +112,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
             }
 
             // Get list of dimensions
-            if (!exist && filter.type == 'dimension') {
+            if (!exist && filter.type === 'dimension') {
               dataProviderDimensionOptions.push({
                 value: filter.key,
                 label: filter.name,
@@ -121,7 +121,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
             }
 
             // Extract list of measures
-            if (!exist && filter.type == 'measure') {
+            if (!exist && filter.type === 'measure') {
               dataProviderMeasuresOptions = filter.values.map((value) => ({ label: value.label, value: value.key }));
             }
           });
@@ -185,7 +185,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
 
   const [state, setState] = useState(query);
 
-  if (query && query.type && query.type.value && query.type.value != '') {
+  if (query && query.type && query.type.value && query.type.value !== '') {
     updateValueOptions(query.type.value);
   }
 
