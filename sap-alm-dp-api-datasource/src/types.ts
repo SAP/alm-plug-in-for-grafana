@@ -40,7 +40,7 @@ export interface MyVariableQuery {
 }
 
 export const defaultQuery: Partial<MyQuery> = {
-  name: "",
+  name: '',
   type: Format.Timeseries,
   isConfig: false,
   dataProvider: {},
@@ -51,7 +51,7 @@ export const defaultQuery: Partial<MyQuery> = {
   },
   drilldown: {
     measures: [],
-    dimensions: []
+    dimensions: [],
   },
 };
 
@@ -69,7 +69,7 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
   oauthPassThru?: boolean;
   isFRUN?: boolean;
   alias?: string;
-  dataProviderConfigs?: {[key: string]: DataProviderConfig};
+  dataProviderConfigs?: { [key: string]: DataProviderConfig };
 }
 
 export interface TextValuePair {

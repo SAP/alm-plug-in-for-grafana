@@ -15,26 +15,31 @@ const resTypes = [
 interface VariableQueryProps {
   datasource: DataSource;
   query: MyVariableQuery;
-  onChange: (query: MyVariableQuery, definition: string) => void
+  onChange: (query: MyVariableQuery, definition: string) => void;
 }
 
 let dataProviderOptions: Array<SelectableValue<string>> = [];
 let dataProviderFilterOptions: Array<SelectableValue<string>> = [];
-let dataProviderFiltersValues: {[key: string]: DPFilterResponse} = { };
+let dataProviderFiltersValues: { [key: string]: DPFilterResponse } = {};
 let dataProviderDimensionOptions: Array<SelectableValue<string>> = [];
 let dataProviderMeasuresOptions: Array<SelectableValue<string>> = [];
 let valueOptions: Array<SelectableValue<string>> = [];
 
 export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, query, onChange }) => {
   const saveQuery = () => {
-    let text = "";
+    let text = '';
     if (state.dataProvider) {
-      text = text + (state.dataProvider.value ? `DP = "${state.dataProvider.label} [${state.dataProvider.value}]"` : "");
+      text =
+        text + (state.dataProvider.value ? `DP = "${state.dataProvider.label} [${state.dataProvider.value}]"` : '');
     }
     if (state.type && state.value) {
-      text = text + (state.type.value ? ` -- ${state.type.value} = "${state.value.value ? `${state.value.label} [${state.value.value}]` : ""}"` : "");
+      text =
+        text +
+        (state.type.value
+          ? ` -- ${state.type.value} = "${state.value.value ? `${state.value.label} [${state.value.value}]` : ''}"`
+          : '');
     }
-    
+
     onChange(state, text);
   };
 
@@ -42,13 +47,17 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
 
   /* Load Data Providers List */
   const loadDataProviders = (q: string) => {
-    return new Promise<Array<SelectableValue<string>>>(resolve => {
+    return new Promise<Array<SelectableValue<string>>>((resolve) => {
       if (dataProviderOptions.length === 0) {
         // Retrieval of data providers list and parse it to options list
-        datasource.searchDataProviders(q, "").then(
-          result => {
-            dataProviderOptions = result.map(value => ({label: value.text, value: value.value, description: value.value}));
-            const fdp = dataProviderOptions.find(dp => {
+        datasource.searchDataProviders(q, '').then(
+          (result) => {
+            dataProviderOptions = result.map((value) => ({
+              label: value.text,
+              value: value.value,
+              description: value.value,
+            }));
+            const fdp = dataProviderOptions.find((dp) => {
               return query && query.dataProvider && dp.value === query.dataProvider.value;
             });
 
@@ -61,12 +70,11 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
 
             resolve(dataProviderOptions);
           },
-          response => {
+          (response) => {
             throw new Error(response.statusText);
           }
         );
-      }
-      else {
+      } else {
         resolve(dataProviderOptions);
       }
     });
@@ -80,19 +88,19 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
   };
 
   /* Load Data Providers List */
-  const loadDPFilters = (dp:string = "", rfilter?: DPFilterResponse) => {
+  const loadDPFilters = (dp: string = '', rfilter?: DPFilterResponse) => {
     // Load all related filters
-    if (dp && dp != "") {
-      datasource.searchDataProviderFilters(dp, "").then(
-        result => {
+    if (dp && dp != '') {
+      datasource.searchDataProviderFilters(dp, '').then(
+        (result) => {
           if (!rfilter) {
             cleanUpDPFilters();
           }
-          
+
           result.forEach((filter, i) => {
             let exist = dataProviderFiltersValues[filter.key] ? true : false;
 
-            if (filter.type == "attribute" || (filter.type === "dimension" && filter.isAttribute)) {
+            if (filter.type == 'attribute' || (filter.type === 'dimension' && filter.isAttribute)) {
               dataProviderFiltersValues[filter.key] = filter;
               if (!exist) {
                 dataProviderFilterOptions.push({
@@ -101,10 +109,10 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
                   description: filter.description,
                 });
               }
-            } 
-            
+            }
+
             // Get list of dimensions
-            if (!exist && filter.type == "dimension") {
+            if (!exist && filter.type == 'dimension') {
               dataProviderDimensionOptions.push({
                 value: filter.key,
                 label: filter.name,
@@ -113,8 +121,8 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
             }
 
             // Extract list of measures
-            if (!exist && filter.type == "measure") {
-              dataProviderMeasuresOptions = filter.values.map(value => ({label: value.label, value: value.key}));
+            if (!exist && filter.type == 'measure') {
+              dataProviderMeasuresOptions = filter.values.map((value) => ({ label: value.label, value: value.key }));
             }
           });
 
@@ -123,7 +131,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
             updateValueOptions(state.type.value);
           }
         },
-        response => {
+        (response) => {
           throw new Error(response.statusText);
         }
       );
@@ -133,21 +141,21 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
   const updateValueOptions = (ptype?: string) => {
     valueOptions = [];
     switch (ptype) {
-      case "ATTR":
+      case 'ATTR':
         // Load attributes to values select box
-        dataProviderFilterOptions.forEach(f => {
+        dataProviderFilterOptions.forEach((f) => {
           valueOptions.push(f);
         });
         break;
-      case "DIM":
+      case 'DIM':
         // Load dimensions to values select box
-        dataProviderDimensionOptions.forEach(f => {
+        dataProviderDimensionOptions.forEach((f) => {
           valueOptions.push(f);
         });
         break;
-      case "MEAS":
+      case 'MEAS':
         // Load measures to values select box
-        dataProviderMeasuresOptions.forEach(f => {
+        dataProviderMeasuresOptions.forEach((f) => {
           valueOptions.push(f);
         });
         break;
@@ -160,24 +168,24 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
 
   /* Data Provider Selected Event */
   const onDataProviderChange = (value: SelectableValue<string>) => {
-    setState({ ...state, dataProvider: value});
+    setState({ ...state, dataProvider: value });
     loadDPFilters(value.value);
   };
 
   /* Property Type Change */
   const onTypeChange = (value: SelectableValue<string>) => {
-    setState({ ...state, type: value});
+    setState({ ...state, type: value });
     updateValueOptions(value.value);
   };
 
   /* Property Value Change */
   const onValueChange = (value: SelectableValue<string>) => {
-    setState({ ...state, value: value});
+    setState({ ...state, value: value });
   };
 
   const [state, setState] = useState(query);
 
-  if (query && query.type && query.type.value && query.type.value != "") {
+  if (query && query.type && query.type.value && query.type.value != '') {
     updateValueOptions(query.type.value);
   }
 
@@ -186,9 +194,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
   return (
     <>
       <div className="gf-form">
-        <label className="gf-form-label width-10">
-            Data Provider
-        </label>
+        <label className="gf-form-label width-10">Data Provider</label>
         <AsyncSelect
           placeholder="Select a data provider"
           loadOptions={loadDataProviders}
@@ -201,9 +207,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
       </div>
       <div className="gf-form-inline">
         <div className="gf-form max-width-21">
-          <label className="gf-form-label width-10">
-              Type
-          </label>
+          <label className="gf-form-label width-10">Type</label>
           <Select
             placeholder="Select a property type"
             options={resTypes}
@@ -213,13 +217,9 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
             allowCustomValue
           />
         </div>
-        {
-        (state.type && state.type.value === "ATTR") ?
-        
+        {state.type && state.type.value === 'ATTR' ? (
           <div className="gf-form max-width-21">
-            <label className="gf-form-label width-10">
-                Values of
-            </label>
+            <label className="gf-form-label width-10">Values of</label>
             <Select
               placeholder="Select a property"
               options={valueOptions}
@@ -229,10 +229,10 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
               allowCustomValue
             />
           </div>
-        :
-          ""
-        }
+        ) : (
+          ''
+        )}
       </div>
     </>
   );
-}
+};
