@@ -119,7 +119,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           filters[i].values.forEach((v) => {
             // Check for variables
             if (v.value) {
-              if (v.value?.substr(0, 1) == '$' || v.value?.substr(0, 2) == '{{') {
+              if (v.value?.substr(0, 1) === '$' || v.value?.substr(0, 2) === '{{') {
                 let t = getTemplateSrv().replace(v.value, options.scopedVars, 'csv');
                 t.split(',').forEach((ts) => {
                   tf.values.push(ts);
@@ -148,12 +148,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let dpv = '';
     if (dp && this.dataProviderConfigs && this.dataProviderConfigs[dp]) {
       dpv = this.dataProviderConfigs[dp].version.value || '';
-      if (dpv == 'LATEST') {
+      if (dpv === 'LATEST') {
         // Empty it out if version is latest, since empty is, by default, latest
         dpv = '';
       }
     }
-    if (dpv != '' && isForPath) {
+    if (dpv !== '' && isForPath) {
       dpv = `/${dpv}`;
     }
     return dpv;
@@ -168,7 +168,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let query: RequestQuery = {
       name: t.name,
       provider: t.dataProvider.value,
-      version: dpv != '' ? dpv : undefined,
+      version: dpv !== '' ? dpv : undefined,
       columns: {
         dimensions: [],
         metrics: [],
@@ -180,7 +180,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (t.drilldown.dimensions.length > 0) {
       t.drilldown.dimensions.forEach((v) => {
         // Check for variables
-        if (v.value?.substr(0, 1) == '$' || v.value?.substr(0, 2) == '{{') {
+        if (v.value?.substr(0, 1) === '$' || v.value?.substr(0, 2) === '{{') {
           let t = getTemplateSrv().replace(v.value, options.scopedVars, 'csv');
           t.split(',').forEach((ts) => {
             query.columns.dimensions.push(ts);
@@ -194,7 +194,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (t.drilldown.measures.length > 0) {
       t.drilldown.measures.forEach((v) => {
         // Check for variables
-        if (v.value?.value?.substr(0, 1) == '$' || v.value?.value?.substr(0, 2) == '{{') {
+        if (v.value?.value?.substr(0, 1) === '$' || v.value?.value?.substr(0, 2) === '{{') {
           let t = getTemplateSrv().replace(v.value.value, options.scopedVars, 'csv');
           t.split(',').forEach((ts) => {
             query.columns.metrics.push({ measure: ts, method: v.aggrMethod.value });
@@ -209,8 +209,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return query;
   }
 
-  getIntNumberInString(num: number, length: number = 2, withSign: boolean = false): string {
-    let str: string = '';
+  getIntNumberInString(num: number, length = 2, withSign = false): string {
+    let str = '';
     let temp = Math.trunc(num < 0 ? num * -1 : num);
     let numstr: string = temp.toString();
 
@@ -276,7 +276,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // Period number and suffix are get from to.
 
     // If range's raw data is provided as string, meaning relative time is provided.
-    if (rangeRaw && typeof rangeRaw.from == 'string' && typeof rangeRaw.to == 'string') {
+    if (rangeRaw && typeof rangeRaw.from === 'string' && typeof rangeRaw.to === 'string') {
       // Currently not support for the day before yesterday or future date, we have only last and current.
 
       // Check to for prefix.
@@ -284,34 +284,34 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       if (!rrts[1]) {
         let rrtu = rangeRaw.to.split('/');
         rrts = rrtu[0].split('-');
-        if (rrts.length == 2 && rrts[0] == 'now') {
+        if (rrts.length === 2 && rrts[0] === 'now') {
           // Get number from first split.
           let rrtn = Number(rrts[1].substring(0, rrts[1].length - 1));
           // More than 1 is not supported as stated.
-          if (rrtn == 1) {
+          if (rrtn === 1) {
             // Set L (last) as period prefix.
             period = period + 'L';
           }
-        } else if (rrts[0] == 'now') {
+        } else if (rrts[0] === 'now') {
           // Set C (current) as period prefix.
           period = period + 'C';
         }
       }
 
       // Continue if there's prefix.
-      if (period != '') {
+      if (period !== '') {
         // Check from for number and suffix.
         let rrfs = rangeRaw.from.split('+');
         if (!rrfs[1]) {
           let rrfu = rangeRaw.from.split('/');
           rrfs = rrfu[0].split('-');
-          if (rrfs.length == 2 && rrfs[0] == 'now') {
+          if (rrfs.length === 2 && rrfs[0] === 'now') {
             // Get number from first split.
             let rrfn = Number(rrfs[1].substring(0, rrfs[1].length - 1));
             let rrfsu = rrfs[1].substring(rrfs[1].length - 1);
             // Set period number and unit.
             period = period + rrfn + this.translateToPeriodUnit(rrfsu);
-          } else if (rrfs[0] == 'now') {
+          } else if (rrfs[0] === 'now') {
             // Set period number to 1.
             period = period + '1';
             // Set suffix to requested unit or hour by default.
@@ -526,10 +526,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // Period for request
     let period = this.getPeriodForRequest(options.range.raw);
     // From time stamp
-    // let from = period != "" ? undefined : this.getTimeStampForRequest(options.range.from);
+    // let from = period !== "" ? undefined : this.getTimeStampForRequest(options.range.from);
     let from = this.getTimeStampForRequest(options.range.from);
     // To time stamp
-    // let to = period != "" ? undefined : this.getTimeStampForRequest(options.range.to);
+    // let to = period !== "" ? undefined : this.getTimeStampForRequest(options.range.to);
     let to = this.getTimeStampForRequest(options.range.to);
     // Normal body payload
     let body = {

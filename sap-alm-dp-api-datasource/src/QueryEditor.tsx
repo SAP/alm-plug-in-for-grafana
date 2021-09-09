@@ -41,7 +41,7 @@ export class QueryEditor extends PureComponent<Props> {
   dataProviderCustomDimensionOptions: Array<SelectableValue<string>> = [];
   dataProviderMeasuresOptions: Array<SelectableValue<string>> = [];
   dataProviderCustomMeasuresOptions: Array<SelectableValue<string>> = [];
-  firstLoad: boolean = true;
+  firstLoad = true;
 
   /* ---------------- Utilities ---------------- */
 
@@ -167,9 +167,9 @@ export class QueryEditor extends PureComponent<Props> {
       if (
         dim &&
         dim.value &&
-        dim.value != '' &&
+        dim.value !== '' &&
         !this.dataProviderDimensionOptions.find((d) => {
-          return d.value == dim.value;
+          return d.value === dim.value;
         })
       ) {
         this.dataProviderCustomDimensionOptions.push(dim);
@@ -180,9 +180,9 @@ export class QueryEditor extends PureComponent<Props> {
         meas &&
         meas.value &&
         meas.value.value &&
-        meas.value.value != '' &&
+        meas.value.value !== '' &&
         !this.dataProviderMeasuresOptions.find((m) => {
-          return m.value == meas.value.value;
+          return m.value === meas.value.value;
         })
       ) {
         this.dataProviderCustomDimensionOptions.push(meas.value);
@@ -206,8 +206,8 @@ export class QueryEditor extends PureComponent<Props> {
             let exist = this.dataProviderFiltersValues[filter.key] ? true : false;
 
             if (
-              filter.type == 'attribute' ||
-              filter.type == 'measure' ||
+              filter.type === 'attribute' ||
+              filter.type === 'measure' ||
               (filter.type === 'dimension' && filter.isAttribute)
             ) {
               this.dataProviderFiltersValues[filter.key] = filter;
@@ -221,7 +221,7 @@ export class QueryEditor extends PureComponent<Props> {
             }
 
             // Get list of dimensions
-            if (!exist && filter.type == 'dimension') {
+            if (!exist && filter.type === 'dimension') {
               this.dataProviderDimensionOptions.push({
                 value: filter.key,
                 label: filter.name,
@@ -230,7 +230,7 @@ export class QueryEditor extends PureComponent<Props> {
             }
 
             // Extract list of measures
-            if (!exist && filter.type == 'measure') {
+            if (!exist && filter.type === 'measure') {
               this.dataProviderMeasuresOptions = filter.values.map((value) => ({
                 label: value.label,
                 value: value.key,
@@ -249,12 +249,12 @@ export class QueryEditor extends PureComponent<Props> {
             if (
               filter &&
               filter.key.value &&
-              filter.key.value != '' &&
+              filter.key.value !== '' &&
               !this.dataProviderFilterOptions.find((f) => {
-                return f.value == filter.key.value;
+                return f.value === filter.key.value;
               }) &&
               !this.dataProviderCustomFilterOptions.find((f) => {
-                return f.value == filter.key.value;
+                return f.value === filter.key.value;
               })
             ) {
               this.dataProviderCustomFilterOptions.push(filter);
@@ -265,10 +265,10 @@ export class QueryEditor extends PureComponent<Props> {
               if (
                 filter &&
                 filter.key.value &&
-                filter.key.value != '' &&
-                rfilter?.key != filter.key.value &&
+                filter.key.value !== '' &&
+                rfilter?.key !== filter.key.value &&
                 this.dataProviderFilterOptions.find((f) => {
-                  return f.value == filter.key.value;
+                  return f.value === filter.key.value;
                 }) &&
                 this.dataProviderFiltersValues[filter.key.value].triggerRefresh &&
                 (!parents || parents?.indexOf(filter.key.value) > -1)
@@ -296,7 +296,7 @@ export class QueryEditor extends PureComponent<Props> {
   loadDPFilterValueOptions = (
     filterKey: SelectableValue<string> = {},
     i: number,
-    filterValues: SelectableValue<string>[] = []
+    filterValues: Array<SelectableValue<string>> = []
   ) => {
     this.dataProviderFilterValueOptions[i] = [];
     this.dataProviderCustomFilterValueOptions[i] = [];
@@ -312,12 +312,12 @@ export class QueryEditor extends PureComponent<Props> {
       filterValues.forEach((fv) => {
         if (
           fv.value &&
-          fv.value != '' &&
+          fv.value !== '' &&
           !this.dataProviderFilterValueOptions[i].find((op) => {
-            return op.value == fv.value;
+            return op.value === fv.value;
           }) &&
           !this.dataProviderCustomFilterValueOptions[i].find((op) => {
-            return op.value == fv.value;
+            return op.value === fv.value;
           })
         ) {
           this.dataProviderCustomFilterValueOptions[i].push(fv);
@@ -326,7 +326,7 @@ export class QueryEditor extends PureComponent<Props> {
     }
   };
 
-  retrieveRelatedFilters = (filter: DPFilterResponse, parents?: Array<string>) => {
+  retrieveRelatedFilters = (filter: DPFilterResponse, parents?: string[]) => {
     const { query } = this.props;
     this.loadDPFilters(query.dataProvider, filter);
   };
@@ -555,12 +555,12 @@ export class QueryEditor extends PureComponent<Props> {
       if (
         filter &&
         filter.key.value &&
-        filter.key.value != '' &&
+        filter.key.value !== '' &&
         !this.dataProviderFilterOptions.find((f) => {
-          return f.value == filter.key.value;
+          return f.value === filter.key.value;
         }) &&
         !this.dataProviderCustomFilterOptions.find((f) => {
-          return f.value == filter.key.value;
+          return f.value === filter.key.value;
         })
       ) {
         this.dataProviderCustomFilterOptions.push(filter);
