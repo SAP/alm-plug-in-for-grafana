@@ -10,6 +10,7 @@ export enum Resolution {
   Week = 'W',
   Month = 'M',
   Year = 'Y',
+  Raw = 'R',
 }
 
 export enum AggrMethod {

@@ -21,6 +21,7 @@ const resOptions = [
   { label: 'Weeks', value: Resolution.Week },
   { label: 'Months', value: Resolution.Month },
   { label: 'Years', value: Resolution.Year },
+  { label: 'Raw', value: Resolution.Raw },
 ];
 
 const aggrMethods = [

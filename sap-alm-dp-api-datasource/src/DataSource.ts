@@ -268,7 +268,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return '';
   }
 
-  getPeriodForRequest(rangeRaw: RawTimeRange): string {
+  getPeriodForRequest(rangeRaw: RawTimeRange, resolution: string): string {
     let period = '';
 
     // Full format can be now-2d/d for both from and to.
@@ -305,21 +305,33 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         if (!rrfs[1]) {
           let rrfu = rangeRaw.from.split('/');
           rrfs = rrfu[0].split('-');
+          let rrfn;
+          let rrfsu;
           if (rrfs.length === 2 && rrfs[0] === 'now') {
             // Get number from first split.
-            let rrfn = Number(rrfs[1].substring(0, rrfs[1].length - 1));
-            let rrfsu = rrfs[1].substring(rrfs[1].length - 1);
-            // Set period number and unit.
-            period = period + rrfn + this.translateToPeriodUnit(rrfsu);
+            rrfn = Number(rrfs[1].substring(0, rrfs[1].length - 1));
+            rrfsu = rrfs[1].substring(rrfs[1].length - 1);
+            rrfsu = this.translateToPeriodUnit(rrfsu);
           } else if (rrfs[0] === 'now') {
             // Set period number to 1.
-            period = period + '1';
+            rrfn = '1';
             // Set suffix to requested unit or hour by default.
             if (rrfu[1]) {
-              period = period + this.translateToPeriodUnit(rrfu[1]);
+              rrfsu = this.translateToPeriodUnit(rrfu[1]);
             } else {
-              period = period + 'H';
+              rrfsu = 'H';
             }
+          }
+
+          if (rrfsu && rrfn) {
+            // Check for restriction of raw resolution.
+            if (resolution === Resolution.Raw && (rrfn > 2 || rrfsu !== 'H')) {
+              rrfsu = 'H';
+              rrfn = '2';
+            }
+
+            // Set period number and unit.
+            period = period + rrfn + rrfsu;
           }
         }
       }
@@ -333,10 +345,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let maxDataPoints = options.maxDataPoints || 101;
 
     // Get range in minutes
-    let dFrom = options.range.from.toDate().getTime() / (1000 * 60);
-    let dTo = options.range.to.toDate().getTime() / (1000 * 60);
+    // let dFrom = options.range.from.toDate().getTime() / (1000 * 60);
+    // let dTo = options.range.to.toDate().getTime() / (1000 * 60);
     // Get the differences in minutes
-    let nCal = Math.floor(dTo - dFrom);
+    let nCal = options.range.to.diff(options.range.from, 'minutes');
 
     if (nCal / 60 <= maxDataPoints) {
       // Check for hours
@@ -513,24 +525,34 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       }
     }
 
-    // options.range.raw.from
-
-    // Get time zone offset in hours
+    // Get time zone offset in hours.
     let tzOffset = options.range.from.utcOffset() / 60;
     let tzHoursStr = this.getIntNumberInString(tzOffset, 2, true);
-    // Get remaining time zone offset in minutes
+    // Get remaining time zone offset in minutes.
     let tzMinutes = Math.abs(options.range.from.utcOffset() % 60);
     let tzMinutesStr = this.getIntNumberInString(tzMinutes, 2);
-    // Get time zone offset into string
+    // Get time zone offset into string.
     let timezone = `${tzHoursStr}:${tzMinutesStr}`;
-    // Period for request
-    let period = this.getPeriodForRequest(options.range.raw);
-    // From time stamp
-    // let from = period !== "" ? undefined : this.getTimeStampForRequest(options.range.from);
-    let from = this.getTimeStampForRequest(options.range.from);
-    // To time stamp
+    // Period for request.
+    let period = this.getPeriodForRequest(options.range.raw, resolution);
+    // From and To time stamps.
+    let from;
+    let to;
+    // To time stamp.
     // let to = period !== "" ? undefined : this.getTimeStampForRequest(options.range.to);
-    let to = this.getTimeStampForRequest(options.range.to);
+    to = this.getTimeStampForRequest(options.range.to);
+    // From time stamp.
+    // Check for restriction of raw resolution.
+    if (
+      resolution === Resolution.Raw &&
+      (period === 'L2H' || period === 'C2H') &&
+      options.range.to.diff(options.range.from, 'hours') > 2
+    ) {
+      from = this.getTimeStampForRequest(options.range.to.subtract(2, 'hours'));
+    } else {
+      from = this.getTimeStampForRequest(options.range.from);
+    }
+
     // Normal body payload
     let body = {
       format: 'time_series',
