@@ -93,7 +93,7 @@ When it is available by using `grafana-cli` tool, you can do as follow:
  grafana-cli plugins install sap-alm-dp-api-datasource
  ```
 
-## Setup
+## Setup {#setup-id}
 
 ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png?raw=true)
 
@@ -318,7 +318,7 @@ Return is a list of dataset, where each dataset contains:
 
 ## Query Variables
 
-The plugin supports dashboard variables for query to provide a more dynamic approach to dashboard.
+The plugin supports dashboard variables for query to provide a more dynamic approach to dashboard. [Setup] (#setup-id)
 
 To configure query variables, go to `Dashboard Settings` (using cord wheel icon on top right corner), and select `Variables` tab.
 
