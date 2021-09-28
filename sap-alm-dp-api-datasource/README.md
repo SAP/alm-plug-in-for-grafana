@@ -78,7 +78,7 @@ This section will help you build the plugin and install it manually in your Graf
 - Use command `yarn build` to build the plugin. This should create `dist` folder.
 - Create `sap-alm-dp-api-datasource` folder in your Grafana plugins directory. Normally it should be in /data/plugins folder. For more information please refer to [Grafana Configuration Doc](https://grafana.com/docs/grafana/v7.5/administration/configuration).
 - Copy the newly created `dist` folder into the newly created `sap-alm-dp-api-datasource` in Grafana plugins directory.
- > If you are upgrading the plugin from a previous version, make sure to backup the `package.json` file first. This file could include several [Cloud ALM API](https://github.com/SAP/alm-plug-in-for-grafana/blob/master/sap-alm-dp-api-datasource/README.md#Setup) endpoints previously configured in the `routes` section.
+ > If you are upgrading the plugin from a previous version, make sure to backup the `package.json` file first. This file could include several [Cloud ALM API](#Setup) endpoints previously configured in the `routes` section.
 
 - Restart your Grafana or Grafana server to discover the plugin.
 - Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to grafana.ini: allow_loading_unsigned_plugins=sap-alm-dp-api-datasource
