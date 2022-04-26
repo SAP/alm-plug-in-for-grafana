@@ -72,7 +72,7 @@ This section will help you build the plugin and install it manually in your Graf
 - NodeJS >= 14
 - yarn
 
-### Assembly
+### Assembly and Installation
 - Open command and go to `sap-alm-dp-api-datasource` folder.
 - Use command `yarn install` to install dependency libraries.
 - Use command `yarn build` to build the plugin. This should create `dist` folder.
@@ -83,15 +83,6 @@ This section will help you build the plugin and install it manually in your Graf
 - Restart your Grafana or Grafana server to discover the plugin.
 - Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to grafana.ini: allow_loading_unsigned_plugins=sap-alm-dp-api-datasource
 
-## Installation
-
-Normally you can install the plugin using `grafana-cli` tool. However, it is not possible for now. Please contact us for signed copy of the plugin by create issue with label `install`.
-
-When it is available by using `grafana-cli` tool, you can do as follow:
-
-```sh
- grafana-cli plugins install sap-alm-dp-api-datasource
- ```
 
 ## Setup
 
