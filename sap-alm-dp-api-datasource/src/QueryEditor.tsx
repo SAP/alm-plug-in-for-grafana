@@ -767,9 +767,7 @@ export class QueryEditor extends PureComponent<Props> {
                 <label className="gf-form-label width-10">Dimensions</label>
                 <MultiSelect
                   maxMenuHeight={170}
-                  options={[
-                    ...this.dataProviderDimensionOptions, 
-                    ...this.dataProviderCustomDimensionOptions]}
+                  options={[...this.dataProviderDimensionOptions, ...this.dataProviderCustomDimensionOptions]}
                   value={drilldown.dimensions}
                   onChange={(value) => {
                     this.onDrilldownDimValuesChange(value);
@@ -804,9 +802,7 @@ export class QueryEditor extends PureComponent<Props> {
                     <Select
                       maxMenuHeight={170}
                       placeholder="Method"
-                      options={[
-                        ...this.dataProviderMeasuresOptions, 
-                        ...this.dataProviderCustomMeasuresOptions]}
+                      options={[...this.dataProviderMeasuresOptions, ...this.dataProviderCustomMeasuresOptions]}
                       value={m.value}
                       onChange={(value) => {
                         this.onDrilldownMeasureValueChange(value, i);
