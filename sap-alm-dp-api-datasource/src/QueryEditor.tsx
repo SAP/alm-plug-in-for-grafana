@@ -42,7 +42,6 @@ export class QueryEditor extends PureComponent<Props> {
   dataProviderCustomDimensionOptions: Array<SelectableValue<string>> = [];
   dataProviderMeasuresOptions: Array<SelectableValue<string>> = [];
   dataProviderCustomMeasuresOptions: Array<SelectableValue<string>> = [];
-  firstLoad = true;
 
   /* ---------------- Utilities ---------------- */
 
@@ -96,8 +95,8 @@ export class QueryEditor extends PureComponent<Props> {
 
     query.dataProviderFilters.push({ key: {}, values: [], keySelected: true, valuesSelected: true });
     this.loadDPFilterValueOptions(
-      query.dataProviderFilters[query.dataProviderFilters.length - 1].key,
-      query.dataProviderFilters.length - 1
+      query.dataProviderFilters.length - 1,
+      query.dataProviderFilters[query.dataProviderFilters.length - 1].key
     );
 
     onChange({ ...query, dataProviderFilters: query.dataProviderFilters });
@@ -119,30 +118,35 @@ export class QueryEditor extends PureComponent<Props> {
     return new Promise<Array<SelectableValue<string>>>((resolve) => {
       if (this.dataProviderOptions.length === 0) {
         // Retrieval of data providers list and parse it to options list
-        datasource.searchDataProviders(q, query.refId).then(
-          (result) => {
-            this.dataProviderOptions = result.map((value) => ({
-              label: value.text,
-              value: value.value,
-              description: value.value,
-            }));
-
-            const fdp = this.dataProviderOptions.find((dp) => {
-              return dp.value === query.dataProvider.value;
-            });
-
-            this.cleanUpDPFilters();
-
-            if (fdp) {
-              this.loadDPFilters(query.dataProvider);
-            } else {
-              this.checkCustomDimAndFil();
+        datasource.searchDataProviders(q, query.refId).then((result) => {
+          result.sort((a, b) => {
+            if (a.text > b.text) {
+              return 1;
+            } else if (a.text < b.text) {
+              return -1;
             }
+            return 0;
+          });
+          this.dataProviderOptions = result.map((value) => ({
+            label: value.text,
+            value: value.value,
+            description: value.value,
+          }));
 
-            resolve(this.dataProviderOptions);
-          },
-          (response) => {}
-        );
+          const fdp = this.dataProviderOptions.find((dp) => {
+            return dp.value === query.dataProvider.value;
+          });
+
+          this.cleanUpDPFilters();
+
+          if (fdp) {
+            this.loadDPFilters(query.dataProvider);
+          } else {
+            this.checkCustomDimAndFil();
+          }
+
+          resolve(this.dataProviderOptions);
+        });
       } else {
         resolve(this.dataProviderOptions);
       }
@@ -193,12 +197,13 @@ export class QueryEditor extends PureComponent<Props> {
 
   /* Load Data Providers List */
   loadDPFilters = (dp: SelectableValue<string> = {}, rfilter?: DPFilterResponse, parents?: string[]) => {
-    const { query, datasource } = this.props;
+    const { query, datasource, onChange } = this.props;
 
     // Load all related filters
     if (dp.value) {
-      datasource.searchDataProviderFilters(dp.value, query.refId, rfilter ? rfilter : undefined, query).then(
-        (result) => {
+      datasource
+        .searchDataProviderFilters(dp.value, query.refId, rfilter ? rfilter : undefined, query)
+        .then((result) => {
           if (!rfilter) {
             this.cleanUpDPFilters();
           }
@@ -262,41 +267,37 @@ export class QueryEditor extends PureComponent<Props> {
             }
 
             // Get related filters in case needed.
-            if (this.firstLoad) {
-              if (
-                filter &&
-                filter.key.value &&
-                filter.key.value !== '' &&
-                rfilter?.key !== filter.key.value &&
-                this.dataProviderFilterOptions.find((f) => {
-                  return f.value === filter.key.value;
-                }) &&
-                this.dataProviderFiltersValues[filter.key.value].triggerRefresh &&
-                (!parents || parents?.indexOf(filter.key.value) > -1)
-              ) {
-                if (!parents) {
-                  parents = [filter.key.value];
-                } else {
-                  parents.push(filter.key.value);
-                }
-                this.retrieveRelatedFilters(this.dataProviderFiltersValues[filter.key.value], parents);
+            if (
+              filter &&
+              filter.key.value &&
+              filter.key.value !== '' &&
+              rfilter?.key !== filter.key.value &&
+              this.dataProviderFilterOptions.find((f) => {
+                return f.value === filter.key.value;
+              }) &&
+              this.dataProviderFiltersValues[filter.key.value].triggerRefresh &&
+              (!parents || parents?.indexOf(filter.key.value) === -1)
+            ) {
+              if (!parents) {
+                parents = [filter.key.value];
+              } else {
+                parents.push(filter.key.value);
               }
-
-              this.firstLoad = false;
+              this.retrieveRelatedFilters(this.dataProviderFiltersValues[filter.key.value], parents);
             }
 
             // Load filters' values list
-            this.loadDPFilterValueOptions(filter.key, i, filter.values);
+            this.loadDPFilterValueOptions(i, filter.key, filter.values);
           });
-        },
-        (response) => {}
-      );
+
+          onChange({ ...query, drilldown: query.drilldown });
+        });
     }
   };
 
   loadDPFilterValueOptions = (
-    filterKey: SelectableValue<string> = {},
     i: number,
+    filterKey: SelectableValue<string> = {},
     filterValues: Array<SelectableValue<string>> = []
   ) => {
     this.dataProviderFilterValueOptions[i] = [];
@@ -329,7 +330,7 @@ export class QueryEditor extends PureComponent<Props> {
 
   retrieveRelatedFilters = (filter: DPFilterResponse, parents?: string[]) => {
     const { query } = this.props;
-    this.loadDPFilters(query.dataProvider, filter);
+    this.loadDPFilters(query.dataProvider, filter, parents);
   };
 
   /* Get combined selected filter values */
@@ -437,7 +438,7 @@ export class QueryEditor extends PureComponent<Props> {
 
     query.dataProviderFilters[i].key = value;
 
-    this.loadDPFilterValueOptions(value, i);
+    this.loadDPFilterValueOptions(i, value);
 
     onChange({ ...query, dataProviderFilters: query.dataProviderFilters });
   };
@@ -531,6 +532,14 @@ export class QueryEditor extends PureComponent<Props> {
   /* ------------------------------------------------ */
 
   render() {
+    const css = `
+    .filterVal-text-truncate {
+      width: 160px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    `;
     const defaultQuery: Partial<MyQuery> = {
       name: '',
       type: Format.Timeseries,
@@ -567,11 +576,12 @@ export class QueryEditor extends PureComponent<Props> {
         this.dataProviderCustomFilterOptions.push(filter);
       }
       // Load filters' values list
-      this.loadDPFilterValueOptions(filter.key, i, filter.values);
+      this.loadDPFilterValueOptions(i, filter.key, filter.values);
     });
 
     return (
       <>
+        <style>{css}</style>
         <div className="gf-form max-width-21">
           <label className="gf-form-label width-10">Configuration Query</label>
           <div className="gf-form-switch">
@@ -601,7 +611,13 @@ export class QueryEditor extends PureComponent<Props> {
             <div className="gf-form-inline">
               <div className="gf-form max-width-21">
                 <label className="gf-form-label width-10">Format As</label>
-                <Select options={formatAsOptions} defaultValue={type} value={type} onChange={this.onTypeChange} />
+                <Select
+                  maxMenuHeight={170}
+                  options={formatAsOptions}
+                  defaultValue={type}
+                  value={type}
+                  onChange={this.onTypeChange}
+                />
               </div>
               <div className="gf-form max-width-21">
                 <label className="gf-form-label width-10">Legend</label>
@@ -611,6 +627,7 @@ export class QueryEditor extends PureComponent<Props> {
             <div className="gf-form">
               <label className="gf-form-label width-10">Data Provider</label>
               <AsyncSelect
+                maxMenuHeight={170}
                 placeholder="Select a data provider"
                 loadOptions={this.loadDataProviders}
                 defaultOptions
@@ -638,7 +655,8 @@ export class QueryEditor extends PureComponent<Props> {
 
                     <span style={f.keySelected ? {} : { display: 'none' }}>
                       <Select
-                        width={15}
+                        maxMenuHeight={170}
+                        width={20}
                         options={[...this.dataProviderFilterOptions, ...this.dataProviderCustomFilterOptions]}
                         value={f.key}
                         onBlur={() => {
@@ -662,9 +680,11 @@ export class QueryEditor extends PureComponent<Props> {
                     <span>&nbsp;</span>
                     <a
                       style={f.valuesSelected ? { display: 'none' } : {}}
+                      className="filterVal-text-truncate"
                       onClick={() => {
                         this.dpfSetValueSelectedState(i, true);
                       }}
+                      title={this.getCombinedFilterValues(f.values)}
                     >
                       {this.getCombinedFilterValues(f.values)}
                     </a>
@@ -673,7 +693,8 @@ export class QueryEditor extends PureComponent<Props> {
                       this.dataProviderFiltersValues[f.key.value] &&
                       !this.dataProviderFiltersValues[f.key.value].isMultiple ? (
                         <Select
-                          width={15}
+                          maxMenuHeight={170}
+                          width={20}
                           options={[
                             ...this.dataProviderFilterValueOptions[i],
                             ...this.dataProviderCustomFilterValueOptions[i],
@@ -696,7 +717,8 @@ export class QueryEditor extends PureComponent<Props> {
                         />
                       ) : (
                         <MultiSelect
-                          width={15}
+                          maxMenuHeight={170}
+                          width={20}
                           options={[
                             ...this.dataProviderFilterValueOptions[i],
                             ...this.dataProviderCustomFilterValueOptions[i],
@@ -744,7 +766,10 @@ export class QueryEditor extends PureComponent<Props> {
               <div className="gf-form max-width-21">
                 <label className="gf-form-label width-10">Dimensions</label>
                 <MultiSelect
-                  options={[...this.dataProviderDimensionOptions, ...this.dataProviderCustomDimensionOptions]}
+                  maxMenuHeight={170}
+                  options={[
+                    ...this.dataProviderDimensionOptions, 
+                    ...this.dataProviderCustomDimensionOptions]}
                   value={drilldown.dimensions}
                   onChange={(value) => {
                     this.onDrilldownDimValuesChange(value);
@@ -764,6 +789,8 @@ export class QueryEditor extends PureComponent<Props> {
                 {drilldown.measures.map((m, i) => (
                   <span className="gf-form-label" key={i}>
                     <Select
+                      width={20}
+                      maxMenuHeight={170}
                       placeholder="Method"
                       options={aggrMethods}
                       value={m.aggrMethod}
@@ -775,8 +802,11 @@ export class QueryEditor extends PureComponent<Props> {
                     <div className="query-segment-operator">(</div>
                     <span>&nbsp;</span>
                     <Select
+                      maxMenuHeight={170}
                       placeholder="Method"
-                      options={[...this.dataProviderMeasuresOptions, ...this.dataProviderCustomMeasuresOptions]}
+                      options={[
+                        ...this.dataProviderMeasuresOptions, 
+                        ...this.dataProviderCustomMeasuresOptions]}
                       value={m.value}
                       onChange={(value) => {
                         this.onDrilldownMeasureValueChange(value, i);
