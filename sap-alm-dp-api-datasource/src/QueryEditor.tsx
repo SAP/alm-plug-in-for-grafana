@@ -418,6 +418,8 @@ export class QueryEditor extends PureComponent<Props> {
 
     this.loadDPFilters(value);
 
+    query.dataProvider = value;
+
     onChange({ ...query, dataProvider: value });
     // executes the query
     onRunQuery();
