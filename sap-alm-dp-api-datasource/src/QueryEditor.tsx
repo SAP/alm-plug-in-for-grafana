@@ -219,10 +219,7 @@ export class QueryEditor extends PureComponent<Props> {
               this.dataProviderFiltersValues[filter.key] = filter;
             }
 
-            if (!exist 
-              && (filter.type === 'attribute'
-                || (filter.type === 'dimension' && filter.isAttribute))
-            ) {
+            if (!exist && (filter.type === 'attribute' || (filter.type === 'dimension' && filter.isAttribute))) {
               this.dataProviderFilterOptions.push({
                 value: filter.key,
                 label: filter.name,
