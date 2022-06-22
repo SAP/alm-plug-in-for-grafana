@@ -408,7 +408,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return error;
   }
 
-  sortSeriesDataPoints(points: Array<Array<number>>) {
+  sortSeriesDataPoints(points: number[][]) {
     points = points.sort((p1: number[], p2: number[]) => {
       return p1[1] - p2[1];
     });
