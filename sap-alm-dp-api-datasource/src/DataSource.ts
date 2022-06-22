@@ -408,6 +408,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return error;
   }
 
+  sortSeriesDataPoints(points: Array<Array<number>>) {
+    points = points.sort((p1: number[], p2: number[]) => {
+      return p1[1] - p2[1];
+    });
+  }
+
   processTimeSeriesResult(queries: any, response: FetchResponse): DataQueryResponse {
     const data: ResultData[] = [];
     let error: DataQueryError | undefined = undefined;
@@ -421,6 +427,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         for (let j = 0; j < qseries.length; j++) {
           const series = qseries[j];
           if (series) {
+            this.sortSeriesDataPoints(series.dataPoints);
             data.push({ target: series.serieName, datapoints: series.dataPoints, refId: queries[i].refId }); //this.parseSeriesPoints(series.dataPoints)
           }
         }
