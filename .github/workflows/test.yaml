@@ -19,12 +19,12 @@ jobs:
         cache: 'yarn'
 
     - name: Install Dependencies
-      run: yarn --frozen-lockfile
+      run: cd sap-alm-dp-api-datasource && yarn --frozen-lockfile
 
     - name: Build
-      run: yarn build
+      run: cd sap-alm-dp-api-datasource && yarn build
       env:
         ENABLE_CLDR: 1
 
     - name: Test
-      run: yarn test:${{ matrix.suite }}
+      run: cd sap-alm-dp-api-datasource && yarn test:${{ matrix.suite }}
