@@ -11,7 +11,7 @@ jobs:
 strategy:
       matrix:
         suite: ['base', 'main:suite-1', 'main:suite-2', 'fiori']
- 
+
 steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
@@ -24,8 +24,6 @@ steps:
 
     - name: Build
       run: yarn build
-      env:
-       	ENABLE_CLDR: 1
 
  - name: Test
       run: yarn test:${{ matrix.suite }}
