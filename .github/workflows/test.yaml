@@ -19,7 +19,7 @@ jobs:
         cache: 'yarn'
 
     - name: Install Dependencies
-      run: cd sap-alm-dp-api-datasource && yarn --frozen-lockfile
+      run: cd sap-alm-dp-api-datasource && yarn --version
 
     - name: Build
       run: cd sap-alm-dp-api-datasource && yarn build
