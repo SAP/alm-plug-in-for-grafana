@@ -7,7 +7,7 @@ The ALM plug-in for Grafana (alm-plug-in-for-grafana) lets you extend your analy
 This plugin is based on the SAP Cloud ALM analytics API, which is documented [here](https://api.sap.com/api/CALM_ANALYTICS/overview). 
 This API enables you to build dashboards and reports aggregating all types of data managed by SAP Cloud ALM. It comes with OData and REST endpoints exposing analytics data.
 
-With the SAP ALM plug-in for REST interface you are able to connect your **SAP Cloud ALM tenants** and get data in table format or time-series format to get new insights into your various ALM processes.
+With  the SAP ALM plug-in for REST interface you are able to connect your **SAP Cloud ALM tenants** and get data in table format or time-series format to get new insights into your various ALM processes.
 
 The goals of the SAP Cloud ALM analytics API are:
 - Access SAP Cloud ALM analytics through a generic single-entry point.
