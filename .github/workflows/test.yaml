@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'test_ci'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+ 
+steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'yarn'
+
+    - name: Install Dependencies
+      run: yarn --frozen-lockfile
+
+    - name: Build
+      run: yarn build
