@@ -8,11 +8,10 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-strategy:
+    strategy:
       matrix:
         suite: ['base', 'main:suite-1', 'main:suite-2', 'fiori']
-
-steps:
+    steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
       with:
@@ -24,6 +23,8 @@ steps:
 
     - name: Build
       run: yarn build
+      env:
+        ENABLE_CLDR: 1
 
- - name: Test
+    - name: Test
       run: yarn test:${{ matrix.suite }}
