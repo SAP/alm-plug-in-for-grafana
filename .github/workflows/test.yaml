@@ -11,9 +11,9 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        suite: ['base', 'main:suite-1', 'main:suite-2', 'fiori']
+#    strategy:
+ #     matrix:
+ #       suite: ['base', 'main:suite-1', 'main:suite-2', 'fiori']
     steps:
     - run: echo "This job was automatically triggered by a ${{github.event_name}} event."
     - run: echo "This job is running on a ${{runner.os}} server"
@@ -32,5 +32,5 @@ jobs:
       #env:
   #      ENABLE_CLDR: 1
 
-    - name: Test
-      run: cd sap-alm-dp-api-datasource && yarn test:${{ matrix.suite }}
+#    - name: Test
+ #     run: cd sap-alm-dp-api-datasource && yarn test:${{ matrix.suite }}
