@@ -20,6 +20,7 @@ jobs:
       with:
         node-version: 16
         cache: 'yarn'
+        cache-dependency-path: sap-alm-dp-api-datasource/yarn.lock
 
     - name: Install Dependencies
       run: cd sap-alm-dp-api-datasource && pwd && yarn --version
