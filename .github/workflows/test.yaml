@@ -25,9 +25,9 @@ jobs:
     - name: Install Dependencies
       run: cd sap-alm-dp-api-datasource && pwd && yarn --frozen-lockfile
 
-  #  - name: Build
-  #    run: cd sap-alm-dp-api-datasource && yarn build
-  #    env:
+    - name: Build
+      run: cd sap-alm-dp-api-datasource && yarn build
+      #env:
   #      ENABLE_CLDR: 1
 
   #  - name: Test
