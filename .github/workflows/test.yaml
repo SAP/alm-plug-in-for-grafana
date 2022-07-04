@@ -25,7 +25,7 @@ jobs:
         cache-dependency-path: sap-alm-dp-api-datasource/yarn.lock
 
     - name: Install Dependencies
-      run: cd sap-alm-dp-api-datasource && pwd && yarn --frozen-lockfile
+      run: cd sap-alm-dp-api-datasource && pwd && yarn install
 
     - name: Build
       run: cd sap-alm-dp-api-datasource && yarn build
