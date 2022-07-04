@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "test_ci" ]
+    branches: [ "test_ci*" ]
   pull_request:
-    branches: [ "test_ci" ]
+    branches: [ "test_ci*" ]
 # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
