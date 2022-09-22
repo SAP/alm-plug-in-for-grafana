@@ -432,7 +432,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           labels: labels,
           config: {
             displayNameFromDS: series.serieName,
-          }
+          },
         },
         {
           name: 'Time',
