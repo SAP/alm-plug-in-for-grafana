@@ -426,14 +426,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       refId: refId,
       name: series.serieName,
       fields: [{
-        name: "Value",
+        name: 'Value',
         type: FieldType.number,
         labels: labels,
         config: {
           displayNameFromDS: series.serieName
         }
       }, {
-        name: "Time",
+        name: 'Time',
         type: FieldType.time
       }]
     });
@@ -481,13 +481,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         name: col.text,
         type: col.type
       });
-      if (col.type === "time") {
+      if (col.type === 'time') {
         iTime.push(idx);
       }
     });
 
     table.ROWS.forEach((row: any[]) => {
-      iTime.forEach(i => {
+      iTime.forEach((i) => {
         row[i] = Number(row[i]);
       });
 
