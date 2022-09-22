@@ -5,15 +5,17 @@ import {
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
-  // MutableDataFrame,
-  // FieldType,
+  // toDataFrame,
+  MutableDataFrame,
+  FieldType,
   DataQueryError,
-  TableData,
-  TimeSeries,
+  // TableData,
+  // TimeSeries,
   DateTime,
   TimeRange,
   MetricFindValue,
   RawTimeRange,
+  Labels,
 } from '@grafana/data';
 
 import { FetchResponse, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
@@ -31,7 +33,7 @@ import { merge, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Format, Resolution } from 'format';
 
-type ResultData = TimeSeries | TableData;
+// type ResultData = TimeSeries | TableData;
 
 const routePath = '/analytics';
 const dpListPath = '/providers';
@@ -414,8 +416,37 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     });
   }
 
+  getDataFrameFromTimeSeries(series: any, refId: string): MutableDataFrame {
+    let labels: Labels = {};
+    series.attributes.forEach((attr: any) => {
+      labels[attr.key] = attr.value;
+    });
+
+    const frame = new MutableDataFrame({
+      refId: refId,
+      name: series.serieName,
+      fields: [{
+        name: "Value",
+        type: FieldType.number,
+        labels: labels,
+        config: {
+          displayNameFromDS: series.serieName
+        }
+      }, {
+        name: "Time",
+        type: FieldType.time
+      }]
+    });
+
+    series.dataPoints.forEach((point: any[]) => {
+      frame.appendRow(point);
+    });
+    return frame;
+  }
+
   processTimeSeriesResult(queries: any, response: FetchResponse): DataQueryResponse {
-    const data: ResultData[] = [];
+    // const data: ResultData[] = [];
+    const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
 
     if (response.data.error) {
@@ -428,7 +459,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           const series = qseries[j];
           if (series) {
             this.sortSeriesDataPoints(series.dataPoints);
-            data.push({ target: series.serieName, datapoints: series.dataPoints, refId: queries[i].refId }); //this.parseSeriesPoints(series.dataPoints)
+            data.push(this.getDataFrameFromTimeSeries(series, queries[i].refId));
           }
         }
       }
@@ -437,8 +468,36 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return { data, error };
   }
 
+  getDataFrameFromTable(table: any, refId: string): MutableDataFrame {
+    const frame = new MutableDataFrame({
+      refId: refId,
+      fields: []
+    });
+
+    let iTime: number[] = [];
+
+    table.COLUMNS.forEach((col: any, idx: number) => {
+      frame.addField({
+        name: col.text,
+        type: col.type
+      });
+      if (col.type === "time") {
+        iTime.push(idx);
+      }
+    });
+
+    table.ROWS.forEach((row: any[]) => {
+      iTime.forEach(i => {
+        row[i] = Number(row[i]);
+      });
+
+      frame.appendRow(row);
+    });
+    return frame;
+  }
+
   processTableResult(queries: any, response: FetchResponse): DataQueryResponse {
-    const data: ResultData[] = [];
+    const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
 
     if (response.data.error) {
@@ -460,10 +519,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         //   }
         // }
 
-        const table = response.data[i] as TableData;
-        table.name = queries[i].name;
-        table.type = 'table';
-        data.push(table);
+        const table = response.data[i];
+        data.push(this.getDataFrameFromTable(table, queries[i].refId));
       }
     }
 
