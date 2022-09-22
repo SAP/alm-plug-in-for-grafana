@@ -425,17 +425,20 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const frame = new MutableDataFrame({
       refId: refId,
       name: series.serieName,
-      fields: [{
-        name: 'Value',
-        type: FieldType.number,
-        labels: labels,
-        config: {
-          displayNameFromDS: series.serieName
-        }
-      }, {
-        name: 'Time',
-        type: FieldType.time
-      }]
+      fields: [
+        {
+          name: 'Value',
+          type: FieldType.number,
+          labels: labels,
+          config: {
+            displayNameFromDS: series.serieName,
+          }
+        },
+        {
+          name: 'Time',
+          type: FieldType.time,
+        },
+      ],
     });
 
     series.dataPoints.forEach((point: any[]) => {
@@ -471,7 +474,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   getDataFrameFromTable(table: any, refId: string): MutableDataFrame {
     const frame = new MutableDataFrame({
       refId: refId,
-      fields: []
+      fields: [],
     });
 
     let iTime: number[] = [];
@@ -479,7 +482,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     table.COLUMNS.forEach((col: any, idx: number) => {
       frame.addField({
         name: col.text,
-        type: col.type
+        type: col.type,
       });
       if (col.type === 'time') {
         iTime.push(idx);
