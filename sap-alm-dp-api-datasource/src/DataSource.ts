@@ -479,7 +479,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     let iTime: number[] = [];
 
-    table.COLUMNS.forEach((col: any, idx: number) => {
+    const colProp = table.COLUMNS ? 'COLUMNS' : 'columns';
+    const rowProp = table.ROWS ? 'ROWS' : 'rows';
+
+    table[colProp].forEach((col: any, idx: number) => {
       frame.addField({
         name: col.text,
         type: col.type,
@@ -489,7 +492,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       }
     });
 
-    table.ROWS.forEach((row: any[]) => {
+    table[rowProp].forEach((row: any[]) => {
       iTime.forEach((i) => {
         row[i] = Number(row[i]);
       });
