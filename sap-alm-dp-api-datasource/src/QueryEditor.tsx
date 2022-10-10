@@ -575,7 +575,7 @@ export class QueryEditor extends PureComponent<Props> {
     };
     const query = defaults(this.props.query, defaultQuery);
     const { type, name, dataProvider, dataProviderFilters, drilldown, isConfig, resolution, ignoreSemanticPeriod } =
-     query;
+      query;
 
     // Check if selected filter is correct, load filter's values
     // This needs to be done to ini custom filter options
