@@ -31,9 +31,11 @@ export interface MyQuery extends DataQuery {
   dataProviderFilters: DataProviderFilter[];
   resolution?: ConfigQueryResolution;
   drilldown: QueryDrilldown;
+  ignoreSemanticPeriod?: boolean;
 }
 
 export interface MyVariableQuery {
+  dpASKey: string | null | undefined;
   dataProvider: SelectableValue<string>;
   type: SelectableValue<string>;
   value: SelectableValue<string>;

@@ -6,6 +6,7 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { AggrMethod, Format, Resolution } from './format';
 import { DPFilterResponse, MyDataSourceOptions, MyQuery } from './types';
+// import { getTemplateSrv } from '@grafana/runtime';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -138,7 +139,6 @@ export class QueryEditor extends PureComponent<Props> {
           });
 
           this.cleanUpDPFilters();
-
           if (fdp) {
             this.loadDPFilters(query.dataProvider);
           } else {
@@ -395,6 +395,17 @@ export class QueryEditor extends PureComponent<Props> {
     onRunQuery();
   };
 
+  onIgnoreSemPeriodChange = (e: { currentTarget: { checked: any } }) => {
+    const { onChange, query, onRunQuery } = this.props;
+
+    onChange({
+      ...query,
+      ignoreSemanticPeriod: e.currentTarget.checked,
+    });
+    // executes the query
+    onRunQuery();
+  };
+
   /* Query Type Change */
   onTypeChange = (value: SelectableValue<Format>) => {
     const { onChange, query, onRunQuery } = this.props;
@@ -542,6 +553,9 @@ export class QueryEditor extends PureComponent<Props> {
       overflow: hidden;
       white-space: nowrap;
     }
+    .marginL4px {
+      margin-left: 4px;
+    }
     `;
     const defaultQuery: Partial<MyQuery> = {
       name: '',
@@ -557,9 +571,11 @@ export class QueryEditor extends PureComponent<Props> {
         measures: [],
         dimensions: [],
       },
+      ignoreSemanticPeriod: false,
     };
     const query = defaults(this.props.query, defaultQuery);
-    const { type, name, dataProvider, dataProviderFilters, isConfig, resolution, drilldown } = query;
+    const { type, name, dataProvider, dataProviderFilters, drilldown, isConfig, resolution, ignoreSemanticPeriod } =
+      query;
 
     // Check if selected filter is correct, load filter's values
     // This needs to be done to ini custom filter options
@@ -598,15 +614,20 @@ export class QueryEditor extends PureComponent<Props> {
               <div className="gf-form-switch">
                 <Switch value={resolution?.autoDecide} onChange={this.onAutoDecideChange} css="" />
               </div>
-            </div>
-            <div className="gf-form">
-              <label className="gf-form-label width-10">Default Resolution</label>
+              <label className="gf-form-label marginL4px width-10">Default Resolution</label>
               <Select
+                className="width-10"
                 options={resOptions}
                 defaultValue={resolution?.default}
                 value={resolution?.default}
                 onChange={this.onResolutionChange}
               />
+            </div>
+            <div className="gf-form">
+              <label className="gf-form-label width-10">Ignore Semantic Period</label>
+              <div className="gf-form-switch">
+                <Switch value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} css="" />
+              </div>
             </div>
           </>
         ) : (
@@ -623,7 +644,7 @@ export class QueryEditor extends PureComponent<Props> {
                 />
               </div>
               <div className="gf-form max-width-21">
-                <label className="gf-form-label width-10">Legend</label>
+                <label className="gf-form-label marginL4px width-10">Legend</label>
                 <input onChange={this.onNameChange} value={name} className="gf-form-input" />
               </div>
             </div>
