@@ -34,8 +34,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
     }
     if (state.type && state.value) {
       let val = state.value.value ? `${state.value.label} [${state.value.value}]` : '';
-      text =
-        text + (state.type.value ? ` -- ${state.type.value} = "${val}"` : '');
+      text = text + (state.type.value ? ` -- ${state.type.value} = "${val}"` : '');
     }
 
     onChange(state, text);
