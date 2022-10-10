@@ -113,34 +113,25 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     var f = [];
     for (let i = 0; i < filters.length; i++) {
       if (filters[i].key.value) {
-        if (options) {
-          let tf: { key: string | undefined; values: string[] } = {
-            key: filters[i].key.value,
-            values: [],
-          };
-          filters[i].values.forEach((v) => {
-            // Check for variables
-            if (v.value) {
-              if (v.value?.substr(0, 1) === '$' || v.value?.substr(0, 2) === '{{') {
-                let t = getTemplateSrv().replace(v.value, options.scopedVars, 'csv');
-                t.split(',').forEach((ts) => {
-                  tf.values.push(ts);
-                });
-              } else {
-                // Otherwise simply add
-                tf.values.push(v.value);
-              }
+        let tf: { key: string | undefined; values: string[] } = {
+          key: filters[i].key.value,
+          values: [],
+        };
+        filters[i].values.forEach((v) => {
+          // Check for variables
+          if (v.value) {
+            if (v.value?.substr(0, 1) === '$' || v.value?.substr(0, 2) === '{{') {
+              let t = getTemplateSrv().replace(v.value, options ? options.scopedVars : {}, 'csv');
+              t.split(',').forEach((ts) => {
+                tf.values.push(ts);
+              });
+            } else {
+              // Otherwise simply add
+              tf.values.push(v.value);
             }
-          });
-          f.push(tf);
-        } else {
-          f.push({
-            key: filters[i].key.value,
-            values: filters[i].values.map((value, idx) => {
-              return value.value;
-            }),
-          });
-        }
+          }
+        });
+        f.push(tf);
       }
     }
     return f;
@@ -542,6 +533,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     let isConfigChecked = false;
     let resolution: string = this.resolution;
+    let ignoreSemPeriod = false;
 
     // Start streams and prepare queries
     for (const target of options.targets) {
@@ -553,13 +545,16 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       if (target.isConfig && !isConfigChecked) {
         isConfigChecked = true;
         if (target.resolution && target.resolution.autoDecide) {
+          // Get automatic resolution
           resolution = this.getAutomaticResolution({
             maxDataPoints: options.maxDataPoints,
             range: options.range,
           });
         } else if (target.resolution && target.resolution.default) {
+          // Get default resolution
           resolution = target.resolution.default;
         }
+        ignoreSemPeriod = target.ignoreSemanticPeriod ? target.ignoreSemanticPeriod : false;
       } else {
         if (!target.dataProvider || !target.dataProvider.value) {
           continue;
@@ -604,7 +599,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // Get time zone offset into string.
     let timezone = `${tzHoursStr}:${tzMinutesStr}`;
     // Period for request.
-    let period = this.getPeriodForRequest(options.range.raw, resolution);
+    let period = ignoreSemPeriod ? '' : this.getPeriodForRequest(options.range.raw, resolution);
     // From and To time stamps.
     let from;
     let to;
@@ -784,10 +779,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             (filter.type === 'attribute' || filter.isAttribute)) || // For attribute
           (query.type.value === 'MEAS' && filter.type === 'measure') // For measure
         ) {
-          values = filter.values.map((value) => ({ text: value.key }));
+          values = filter.values.map((value) => ({ text: value.label, value: value.key }));
         } else if (query.type.value === 'DIM' && filter.type === 'dimension') {
           // For dimension
-          values.push({ text: filter.key });
+          values.push({ text: filter.name, value: filter.key });
         }
       });
     }

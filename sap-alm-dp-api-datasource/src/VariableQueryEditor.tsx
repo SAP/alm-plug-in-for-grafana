@@ -1,7 +1,7 @@
 // import defaults from 'lodash/defaults';
 
-import React, { useState } from 'react';
-import { AsyncSelect, Select } from '@grafana/ui';
+import React, { useState, MouseEvent } from 'react';
+import { AsyncSelect, Button, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { DPFilterResponse, MyVariableQuery } from './types';
@@ -33,11 +33,9 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
         text + (state.dataProvider.value ? `DP = "${state.dataProvider.label} [${state.dataProvider.value}]"` : '');
     }
     if (state.type && state.value) {
+      let val = state.value.value ? `${state.value.label} [${state.value.value}]` : '';
       text =
-        text +
-        (state.type.value
-          ? ` -- ${state.type.value} = "${state.value.value ? `${state.value.label} [${state.value.value}]` : ''}"`
-          : '');
+        text + (state.type.value ? ` -- ${state.type.value} = "${val}"` : '');
     }
 
     onChange(state, text);
@@ -48,35 +46,31 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
   /* Load Data Providers List */
   const loadDataProviders = (q: string) => {
     return new Promise<Array<SelectableValue<string>>>((resolve) => {
-      if (dataProviderOptions.length === 0) {
-        // Retrieval of data providers list and parse it to options list
-        datasource.searchDataProviders(q, '').then(
-          (result) => {
-            dataProviderOptions = result.map((value) => ({
-              label: value.text,
-              value: value.value,
-              description: value.value,
-            }));
-            const fdp = dataProviderOptions.find((dp) => {
-              return query && query.dataProvider && dp.value === query.dataProvider.value;
-            });
+      // Retrieval of data providers list and parse it to options list
+      datasource.searchDataProviders(q, '').then(
+        (result) => {
+          dataProviderOptions = result.map((value) => ({
+            label: value.text,
+            value: value.value,
+            description: value.value,
+          }));
+          const fdp = dataProviderOptions.find((dp) => {
+            return query && query.dataProvider && dp.value === query.dataProvider.value;
+          });
 
-            cleanUpDPFilters();
+          cleanUpDPFilters();
 
-            if (fdp) {
-              // setDataProvider(fdp);
-              loadDPFilters(query.dataProvider.value);
-            }
-
-            resolve(dataProviderOptions);
-          },
-          (response) => {
-            throw new Error(response.statusText);
+          if (fdp) {
+            // setDataProvider(fdp);
+            loadDPFilters(query.dataProvider.value);
           }
-        );
-      } else {
-        resolve(dataProviderOptions);
-      }
+
+          resolve(dataProviderOptions);
+        },
+        (response) => {
+          throw new Error(response.statusText);
+        }
+      );
     });
   };
 
@@ -96,7 +90,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
           if (!rfilter) {
             cleanUpDPFilters();
           }
-
+          // Process result
           result.forEach((filter, i) => {
             let exist = dataProviderFiltersValues[filter.key] ? true : false;
 
@@ -166,6 +160,10 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
 
   /* ---------------- Event Handlers ---------------- */
 
+  const onRefreshDPList = (event: MouseEvent<HTMLButtonElement>) => {
+    setState({ ...state, dpASKey: Date.now().toString() });
+  };
+
   /* Data Provider Selected Event */
   const onDataProviderChange = (value: SelectableValue<string>) => {
     setState({ ...state, dataProvider: value });
@@ -196,13 +194,22 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
       <div className="gf-form">
         <label className="gf-form-label width-10">Data Provider</label>
         <AsyncSelect
+          key={JSON.stringify(state.dpASKey)}
           placeholder="Select a data provider"
           loadOptions={loadDataProviders}
           defaultOptions
           onChange={onDataProviderChange}
           onBlur={saveQuery}
           value={state.dataProvider}
+          cacheOptions={false}
           allowCustomValue
+        />
+        <Button
+          icon="sync"
+          variant="secondary"
+          title="Refresh Data Providers List"
+          onClick={onRefreshDPList}
+          className="gf-form-label query-part"
         />
       </div>
       <div className="gf-form-inline">
