@@ -9,7 +9,7 @@ Grafana supports a wide range of data sources, including Prometheus, MySQL, and 
 ## Compatibilities
 The current version of the ALM plug-in for Grafana supports the following products:
 - SAP Cloud ALM Analytics API.
-- SAP Focused RUN 3.0 FP01 ALM Advanced Analytics API (Beta version).
+- SAP Focused RUN 3.0 FP01 (Beta version) and higher releases.
 
 
 ## Pre-requisites
