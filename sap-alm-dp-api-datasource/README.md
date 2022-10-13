@@ -111,7 +111,7 @@ CALM REST Service may have different versions for specific data provider. You ma
 
 
 - For SAP Focused Run:
-  - Make sure you have activated the necessary SICF service as described in ![SAP Advanced Analytics Rest API](https://support.sap.com/en/alm/sap-focused-run/expert-portal/sap-advanced-analytics-rest-api.html) 
+  - Make sure you have activated the necessary SICF service as described in [SAP Advanced Analytics Rest API](https://support.sap.com/en/alm/sap-focused-run/expert-portal/sap-advanced-analytics-rest-api.html) 
   - Select "Focused RUN" as a destination system in the `Connection` settings
   - In the `HTTP` section enter the endpoint related to the `dp` SICF service of your `SAP Focused Run` system
       - The url is usually `http(s)://<frunhost>:<frunport>/sap/frun/fi/dp`
