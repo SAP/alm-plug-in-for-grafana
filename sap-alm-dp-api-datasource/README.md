@@ -88,7 +88,7 @@ This section will help you build the plugin and install it manually in your Graf
 
 ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png?raw=true)
 
-When adding datasource, you need to provide your API end point for data source to make requests to. However there are differences when adding API endpoint with their respective authentication methods for the two types of destination. Details are as follow:
+When adding a datasource, you need to provide your API end point for data source to make requests to. However there are differences when adding API endpoint with their respective authentication methods for the two types of destination. Details are as follow:
 
 - For Cloud ALM:
     - Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work.
@@ -107,6 +107,17 @@ When adding datasource, you need to provide your API end point for data source t
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
 
 ![Data Source Setup - Data Providers Version Selection](../../assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png?raw=true)
+
+
+
+- For SAP Focused Run:
+  - Make sure you have activated the necessary SICF service as described in ![SAP Advanced Analytics Rest API](https://support.sap.com/en/alm/sap-focused-run/expert-portal/sap-advanced-analytics-rest-api.html) 
+  - Select "Focused RUN" as a destination system in the `Connection` settings
+  - In the `HTTP` section enter the endpoint related to the `dp` SICF service of your `SAP Focused Run` system
+      - The url is usually `http(s)://<frunhost>:<frunport>/sap/frun/fi/dp`
+  - In the `Auth` section, select a proper authentication method
+    - In case HTTPS is selected (this is the recommended option), you might get a `bad gateway` error in case the TLS certificate is self-signed. This can be avoided by activating the `With CA Cert` option and entering the PEM certificate of the server in the `TLS/SSL Auth Details` section.
+  - Click on the `Save and Test` button to make sure the data source is working
 
 Once data source setup has been done, you are ready to configure queries for data retrieval.
 
