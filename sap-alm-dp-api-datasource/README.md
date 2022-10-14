@@ -9,7 +9,7 @@ Grafana supports a wide range of data sources, including Prometheus, MySQL, and 
 ## Compatibilities
 The current version of the ALM plug-in for Grafana supports the following products:
 - SAP Cloud ALM Analytics API.
-- SAP Focused RUN 3.0 FP01 ALM Advanced Analytics API (Beta version).
+- SAP Focused RUN 3.0 FP01 (Beta version) and higher releases.
 
 
 ## Pre-requisites
@@ -76,37 +76,72 @@ This section will help you build the plugin and install it manually in your Graf
 - Open command and go to `sap-alm-dp-api-datasource` folder.
 - Use command `yarn install` to install dependency libraries.
 - Use command `yarn build` to build the plugin. This should create `dist` folder.
-- Create `sap-alm-dp-api-datasource` folder in your Grafana plugins directory. Normally it should be in /data/plugins folder. For more information please refer to [Grafana Configuration Doc](https://grafana.com/docs/grafana/v7.5/administration/configuration).
+- Create `sap-alm-dp-api-datasource` folder in your Grafana plugins directory. Normally it should be in /data/plugins folder. For more information please refer to [Grafana Configuration Doc](https://grafana.com/docs/grafana/latest/).
 - Copy the newly created `dist` folder into the newly created `sap-alm-dp-api-datasource` in Grafana plugins directory.
  > If you are upgrading the plugin from a previous version, make sure to backup the `package.json` file first. This file could include several [Cloud ALM API](#Setup) endpoints previously configured in the `routes` section.
 
 - Restart your Grafana or Grafana server to discover the plugin.
-- Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to grafana.ini: allow_loading_unsigned_plugins=sap-alm-dp-api-datasource
+- Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to `grafana.ini` file: `allow_loading_unsigned_plugins=sap-alm-dp-api-datasource`
 
 
 ## Setup
 
+
+Once the plugin has been successfully installed, a new `SAP ALM DP API` data source can be created in the `Configuration` - `Data Sources` section by clicking on the `Add data source` button
+
+![Configuration - Add Data Source](../../assets/SAP_ALM_DP_API_ADD_DS.png?raw=true)
+
+and selecting the `SAP ALM DP API` data source.
+
+![Configuration - Data Source](../../assets/SAP_ALM_DP_API_SELECT.png?raw=true)
+
+When adding a datasource, the first thing to do is to select the proper `Destination System` in the `Connection` section.
+
 ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png?raw=true)
 
-When adding datasource, you need to provide your API end point for data source to make requests to. However there are differences when adding API endpoint with their respective authentication methods for the two types of destination. Details are as follow:
+The configuration is different depending on the type of connection, `SAP Cloud ALM` or `SAP Focused Run`.
 
-- For Cloud ALM:
-    - Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work.
-    ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png?raw=true)
-        - `path`: Your destination alias. To be used in data source settings.
-        - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
-        - `tokenAuth`: Authentication via Token.
-            - `url`: Authentication end point.
-            - `params`: Parameters for authentication.
-                - `grant_type`: Type of token provider.
-                - `client_id`: Your authentication client id.
-                - `client_secret`: Your authentication client secret.
-    - Use the value in the `path` field as `alias` field in data source settings.
+#### SAP Cloud ALM
+
+- Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work. ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png?raw=true)
+
+  - `path`: Your destination alias. To be used in data source settings.
+  - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
+  - `tokenAuth`: Authentication via Token.
+    - `url`: Authentication end point.
+    - `params`: Parameters for authentication.
+      - `grant_type`: Type of token provider.
+      - `client_id`: Your authentication client id.
+      - `client_secret`: Your authentication client secret.
+- Use the value in the `path` field as `alias` field in data source settings.
     ![Data Source Setup - CALM Alias](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
 
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
 
 ![Data Source Setup - Data Providers Version Selection](../../assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png?raw=true)
+
+
+
+#### SAP Focused Run
+  - Make sure you have activated the necessary SICF service as described in [SAP Advanced Analytics Rest API](https://support.sap.com/en/alm/sap-focused-run/expert-portal/sap-advanced-analytics-rest-api.html)
+  - Select "Focused RUN" as a destination system in the `Connection` settings
+
+    ![Data Source Setup - Destination](../../assets/SAP_FRUN_CONNECTION_DESTINATION.png?raw=true)
+
+  - In the `HTTP` section enter the endpoint related to the `dp` SICF service of your `SAP Focused Run` system
+      - The url is usually `http(s)://<frunhost>:<frunport>/sap/frun/fi/dp`
+
+    ![Data Source Setup - HTTP](../../assets/SAP_FRUN_HTTP_URL.png?raw=true)
+
+  - In the `Auth` section, select a proper authentication method
+    - In case HTTPS is selected (this is the recommended option), you might get a `bad gateway` error in case the TLS certificate is self-signed. This can be avoided by activating the `With CA Cert` option and entering the PEM certificate of the SAP Focused Run server in the `TLS/SSL Auth Details` section.
+
+    ![Data Source Setup - Auth](../../assets/SAP_FRUN_AUTH.png?raw=true)
+
+  - Click on the `Save and Test` button to make sure the data source is working
+
+    ![Data Source Setup - Save](../../assets/SAP_FRUN_SAVE.png?raw=true)
+
 
 Once data source setup has been done, you are ready to configure queries for data retrieval.
 
@@ -137,15 +172,15 @@ The query can be defined as normal query or `Configuration Query`. The differenc
 
 ![Data Source Setup - Configuration Query](../../assets/SAP%20CALM%20DP%20API%20DS%20Config%20Query.png?raw=true)
 
-`Configuration Query` can be used to defined requested resoution for all queries.
+`Configuration Query` can be used to define a resolution for all queries.
 
-If `Automatic Resolution` is used, data source will decide resolution based on maximum number of points supported by panel, and the requested period.
+If `Automatic Resolution` is used, the data source will decide the resolution based on the maximum number of points supported by the panel and the requested period.
 
-Otherwise, data source will use provided `Default Resolution` as resolution for queries' request.
+Otherwise, the data source will use the `Default Resolution` for all the queries.
 
 ### Normal Query
 
-This is where you configure the criterias by which the `Data Provider` uses to retrieve data.
+This is where you configure the criteria by which the `Data Provider` retrieves data.
 
 ![Data Source Setup - Query](../../assets/SAP%20CALM%20DP%20API%20DS%20Query.png?raw=true)
 
