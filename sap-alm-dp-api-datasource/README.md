@@ -95,7 +95,7 @@ and selecting the `SAP ALM DP API` data source.
 
 ![Configuration - Data Source](../../assets/SAP_ALM_DP_API_SELECT.png?raw=true)
 
-When adding a datasource, the first thing to do is to select the proper `destination system` in the `Connection` section.
+When adding a datasource, the first thing to do is to select the proper `Destination System` in the `Connection` section.
 
 ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png?raw=true)
 
