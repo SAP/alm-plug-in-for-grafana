@@ -32,6 +32,7 @@ export interface MyQuery extends DataQuery {
   resolution?: ConfigQueryResolution;
   drilldown: QueryDrilldown;
   ignoreSemanticPeriod?: boolean;
+  completeTimeSeriesWZero?: boolean;
 }
 
 export interface MyVariableQuery {
@@ -55,6 +56,8 @@ export const defaultQuery: Partial<MyQuery> = {
     measures: [],
     dimensions: [],
   },
+  ignoreSemanticPeriod: false,
+  completeTimeSeriesWZero: false,
 };
 
 /**
