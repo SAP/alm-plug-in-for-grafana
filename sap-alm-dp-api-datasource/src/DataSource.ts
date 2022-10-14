@@ -660,7 +660,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             ...body,
             format: 'table',
             tableType: 'raw',
-            'table_format': 'raw',
+            table_format: 'raw',
             queries: queriesRTable,
           },
         })
