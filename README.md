@@ -1,4 +1,4 @@
-[![REUSE status](https://api.reuse.software/badge/github.com/SAP/alm-plug-in-for-grafana)](https://api.reuse.software/info/github.com/SAP/alm-plug-in-for-grafana) [![Release]](https://img.shields.io/github/v/release/SAP/alm-plug-in-for-grafana)
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP/alm-plug-in-for-grafana)](https://api.reuse.software/info/github.com/SAP/alm-plug-in-for-grafana) [![Release](https://img.shields.io/github/v/release/SAP/alm-plug-in-for-grafana)]
 # ALM Plug-In for Grafana
 
 
