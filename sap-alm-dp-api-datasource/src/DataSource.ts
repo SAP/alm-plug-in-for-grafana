@@ -438,10 +438,20 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return frame;
   }
 
-  processTimeSeriesResult(queries: any, response: FetchResponse): DataQueryResponse {
+  fillSeriesGaps(series: any, value: string | number, query: any, settings?: any) {
+    console.log('Query:');
+    console.log(query);
+    console.log('Series:');
+    console.log(series);
+    console.log("Settings:");
+    console.log(settings)
+  }
+
+  processTimeSeriesResult(queries: any, response: FetchResponse, settings?: any): DataQueryResponse {
     // const data: ResultData[] = [];
     const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
+    let completeSeriesWZeros = settings && settings.completeSeriesWZeros ? true : false;
 
     if (response.data.error) {
       error = this.getErrorFromResponse(response);
@@ -453,6 +463,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           const series = qseries[j];
           if (series) {
             this.sortSeriesDataPoints(series.dataPoints);
+            if (completeSeriesWZeros && qseries.length === 1) {
+              this.fillSeriesGaps(series, 0, queries[i], settings);
+            }
             data.push(this.getDataFrameFromTimeSeries(series, queries[i].refId));
           }
         }
@@ -534,6 +547,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let isConfigChecked = false;
     let resolution: string = this.resolution;
     let ignoreSemPeriod = false;
+    let completeSeriesWZero = false;
 
     // Start streams and prepare queries
     for (const target of options.targets) {
@@ -555,6 +569,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           resolution = target.resolution.default;
         }
         ignoreSemPeriod = target.ignoreSemanticPeriod ? target.ignoreSemanticPeriod : false;
+        completeSeriesWZero = target.completeTimeSeriesWZero ? target.completeTimeSeriesWZero : false;
       } else {
         if (!target.dataProvider || !target.dataProvider.value) {
           continue;
@@ -644,7 +659,16 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             queries: queriesTSeries,
           },
         })
-        .pipe(map((response) => this.processTimeSeriesResult(queriesTSeries, response)));
+        .pipe(
+          map((response) =>
+            this.processTimeSeriesResult(queriesTSeries, response, {
+              completeSeriesWZeros: completeSeriesWZero,
+              timeRange: body.timeRange,
+              resolution: resolution,
+              timezone: timezone,
+            })
+          )
+        );
 
       streams.push(stream);
     }

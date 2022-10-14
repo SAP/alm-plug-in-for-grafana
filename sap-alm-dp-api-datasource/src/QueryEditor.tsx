@@ -406,6 +406,17 @@ export class QueryEditor extends PureComponent<Props> {
     onRunQuery();
   };
 
+  onCompleteSeriesWZeroChange = (e: { currentTarget: { checked: any } }) => {
+    const { onChange, query, onRunQuery } = this.props;
+
+    onChange({
+      ...query,
+      completeTimeSeriesWZero: e.currentTarget.checked,
+    });
+    // executes the query
+    onRunQuery();
+  };
+
   /* Query Type Change */
   onTypeChange = (value: SelectableValue<Format>) => {
     const { onChange, query, onRunQuery } = this.props;
@@ -572,10 +583,20 @@ export class QueryEditor extends PureComponent<Props> {
         dimensions: [],
       },
       ignoreSemanticPeriod: false,
+      completeTimeSeriesWZero: false,
     };
     const query = defaults(this.props.query, defaultQuery);
-    const { type, name, dataProvider, dataProviderFilters, drilldown, isConfig, resolution, ignoreSemanticPeriod } =
-      query;
+    const {
+      type,
+      name,
+      dataProvider,
+      dataProviderFilters,
+      drilldown,
+      isConfig,
+      resolution,
+      ignoreSemanticPeriod,
+      completeTimeSeriesWZero,
+    } = query;
 
     // Check if selected filter is correct, load filter's values
     // This needs to be done to ini custom filter options
@@ -614,6 +635,7 @@ export class QueryEditor extends PureComponent<Props> {
               <div className="gf-form-switch">
                 <Switch value={resolution?.autoDecide} onChange={this.onAutoDecideChange} css="" />
               </div>
+
               <label className="gf-form-label marginL4px width-10">Default Resolution</label>
               <Select
                 className="width-10"
@@ -627,6 +649,11 @@ export class QueryEditor extends PureComponent<Props> {
               <label className="gf-form-label width-10">Ignore Semantic Period</label>
               <div className="gf-form-switch">
                 <Switch value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} css="" />
+              </div>
+
+              <label className="gf-form-label marginL4px width-15">Complete Time Series with Zeros</label>
+              <div className="gf-form-switch">
+                <Switch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} css="" />
               </div>
             </div>
           </>
