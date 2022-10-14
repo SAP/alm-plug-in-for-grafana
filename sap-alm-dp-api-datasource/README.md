@@ -103,17 +103,17 @@ The configuration is different depending on the type of connection, `SAP Cloud A
 
 #### SAP Cloud ALM
 
-    - Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work.
-    ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png?raw=true)
-        - `path`: Your destination alias. To be used in data source settings.
-        - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
-        - `tokenAuth`: Authentication via Token.
-            - `url`: Authentication end point.
-            - `params`: Parameters for authentication.
-                - `grant_type`: Type of token provider.
-                - `client_id`: Your authentication client id.
-                - `client_secret`: Your authentication client secret.
-    - Use the value in the `path` field as `alias` field in data source settings.
+- Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work. ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png?raw=true)
+
+  - `path`: Your destination alias. To be used in data source settings.
+  - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
+  - `tokenAuth`: Authentication via Token.
+    - `url`: Authentication end point.
+    - `params`: Parameters for authentication.
+      - `grant_type`: Type of token provider.
+      - `client_id`: Your authentication client id.
+      - `client_secret`: Your authentication client secret.
+- Use the value in the `path` field as `alias` field in data source settings.
     ![Data Source Setup - CALM Alias](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
 
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
@@ -122,7 +122,7 @@ CALM REST Service may have different versions for specific data provider. You ma
 
 
 
-#### For SAP Focused Run:
+#### SAP Focused Run
   - Make sure you have activated the necessary SICF service as described in [SAP Advanced Analytics Rest API](https://support.sap.com/en/alm/sap-focused-run/expert-portal/sap-advanced-analytics-rest-api.html)
   - Select "Focused RUN" as a destination system in the `Connection` settings
 
