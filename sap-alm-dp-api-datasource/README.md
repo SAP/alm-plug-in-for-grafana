@@ -118,9 +118,18 @@ CALM REST Service may have different versions for specific data provider. You ma
 
   - In the `HTTP` section enter the endpoint related to the `dp` SICF service of your `SAP Focused Run` system
       - The url is usually `http(s)://<frunhost>:<frunport>/sap/frun/fi/dp`
+
+    ![Data Source Setup - HTTP](../../assets/SAP_FRUN_HTTP_URL.png?raw=true)
+
   - In the `Auth` section, select a proper authentication method
     - In case HTTPS is selected (this is the recommended option), you might get a `bad gateway` error in case the TLS certificate is self-signed. This can be avoided by activating the `With CA Cert` option and entering the PEM certificate of the SAP Focused Run server in the `TLS/SSL Auth Details` section.
+
+    ![Data Source Setup - Auth](../../assets/SAP_FRUN_AUTH.png?raw=true)
+
   - Click on the `Save and Test` button to make sure the data source is working
+
+    ![Data Source Setup - Save](../../assets/SAP_FRUN_SAVE.png?raw=true)
+
 
 Once data source setup has been done, you are ready to configure queries for data retrieval.
 
