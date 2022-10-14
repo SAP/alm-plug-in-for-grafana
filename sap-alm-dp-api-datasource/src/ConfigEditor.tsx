@@ -191,13 +191,13 @@ export class ConfigEditor extends PureComponent<Props> {
             <h6>Destination System</h6>
             <div className="gf-form-inline">
               <div className="gf-form-switch-container-react">
-                <label className="gf-form-label width-10">Cloud ALM</label>
+                <label className="gf-form-label width-10">SAP Cloud ALM</label>
                 <div className="gf-form-switch">
                   <Switch value={!jsonData.isFRUN} onChange={this.onIsCALMChange} css="" />
                 </div>
               </div>
               <div className="gf-form-switch-container-react">
-                <label className="gf-form-label width-10">Focused RUN</label>
+                <label className="gf-form-label width-10">SAP Focused Run</label>
                 <div className="gf-form-switch">
                   <Switch value={jsonData.isFRUN} onChange={this.onIsFRUNChange} css="" />
                 </div>
