@@ -102,6 +102,7 @@ When adding a datasource, the first thing to do is to select the proper `Destina
 The configuration is different depending on the type of connection, `SAP Cloud ALM` or `SAP Focused Run`.
 
 #### SAP Cloud ALM
+
     - Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work.
     ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png?raw=true)
         - `path`: Your destination alias. To be used in data source settings.
