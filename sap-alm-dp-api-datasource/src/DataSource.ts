@@ -120,7 +120,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         filters[i].values.forEach((v) => {
           // Check for variables
           if (v.value) {
-            if (v.value?.substr(0, 1) === '$' || v.value?.substr(0, 2) === '{{') {
+            if (v.value?.substring(0, 1) === '$' || v.value?.substring(0, 2) === '{{') {
               let t = getTemplateSrv().replace(v.value, options ? options.scopedVars : {}, 'csv');
               t.split(',').forEach((ts) => {
                 tf.values.push(ts);
@@ -173,7 +173,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (t.drilldown.dimensions.length > 0) {
       t.drilldown.dimensions.forEach((v) => {
         // Check for variables
-        if (v.value?.substr(0, 1) === '$' || v.value?.substr(0, 2) === '{{') {
+        if (v.value?.substring(0, 1) === '$' || v.value?.substring(0, 2) === '{{') {
           let t = getTemplateSrv().replace(v.value, options.scopedVars, 'csv');
           t.split(',').forEach((ts) => {
             query.columns.dimensions.push(ts);
@@ -187,7 +187,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (t.drilldown.measures.length > 0) {
       t.drilldown.measures.forEach((v) => {
         // Check for variables
-        if (v.value?.value?.substr(0, 1) === '$' || v.value?.value?.substr(0, 2) === '{{') {
+        if (v.value?.value?.substring(0, 1) === '$' || v.value?.value?.substring(0, 2) === '{{') {
           let t = getTemplateSrv().replace(v.value.value, options.scopedVars, 'csv');
           t.split(',').forEach((ts) => {
             query.columns.metrics.push({ measure: ts, method: v.aggrMethod.value });
@@ -366,12 +366,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   getLinuxTimeFromTimeStamp(ts: string): number {
     const d = new Date(
       Date.UTC(
-        Number(ts.substr(0, 4)),
-        Number(ts.substr(4, 2)) - 1,
-        Number(ts.substr(6, 2)),
-        Number(ts.substr(8, 2)),
-        Number(ts.substr(10, 2)),
-        Number(ts.substr(12, 2))
+        Number(ts.substring(0, 4)),
+        Number(ts.substring(4, 6)) - 1,
+        Number(ts.substring(6, 8)),
+        Number(ts.substring(8, 10)),
+        Number(ts.substring(10, 12)),
+        Number(ts.substring(12, 14))
       )
     );
     // let dt: DateTime = dateTime(d);
@@ -438,7 +438,97 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return frame;
   }
 
-  processTimeSeriesResult(queries: any, response: FetchResponse): DataQueryResponse {
+  getDateFromTS(ts: string, tz: string): Date {
+    let y = ts.substring(0, 4),
+      m = ts.substring(4, 6),
+      d = ts.substring(6, 8),
+      h = ts.substring(8, 10),
+      mi = ts.substring(10, 12);
+    // s = Number(ts.substring(12));
+
+    return new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
+  }
+
+  getPossibleTimestamps(settings: any): Number[] {
+    let ts: Number[] = [];
+
+    if (!settings || !settings.resolution || !settings.timeRange || !settings.timezone) {
+      return ts;
+    }
+
+    // When there is from-to as period
+    if (settings.timeRange.from && settings.timeRange.to) {
+      let oF = this.getDateFromTS(settings.timeRange.from, settings.timezone);
+      let oT = this.getDateFromTS(settings.timeRange.to, settings.timezone);
+      let tsF = oF.getTime();
+      let tsT = oT.getTime();
+      let step = 0;
+
+      if (!isNaN(tsF) && !isNaN(tsT)) {
+        switch (settings.resolution) {
+          case 'H':
+            step = 60 * 60000;
+            break;
+          case 'D':
+            step = 24 * 60 * 60000;
+            break;
+          case 'W':
+            step = 7 * 24 * 60 * 60000;
+            break;
+          case 'M':
+            step = 30 * 24 * 60 * 60000;
+            break;
+          case 'Y':
+            step = 365 * 24 * 60 * 60000;
+            break;
+          default:
+            step = 60000;
+        }
+
+        ts.push(tsF);
+        while (tsF + step < tsT) {
+          tsF = tsF + step;
+          ts.push(tsF);
+        }
+        // ts.push(tsT);
+      }
+    }
+
+    return ts;
+  }
+
+  fillSeriesGaps(series: any, value: string | number, query: any, settings: any) {
+    if (!settings || !settings.resolution || !settings.timeRange) {
+      return;
+    }
+
+    // Get all possible timestamps
+    let aTS = this.getPossibleTimestamps(settings);
+
+    // Check needed to fill
+    if (aTS.length > series.dataPoints.length) {
+      let iS = 0,
+        iT = 0;
+      while (iS < series.dataPoints.length) {
+        if (series.dataPoints[iS][1] > aTS[iT]) {
+          series.dataPoints.splice(iS, 0, [value, aTS[iT]]);
+          iT++;
+          iS++;
+        } else if (series.dataPoints[iS][1] === aTS[iT]) {
+          iS++;
+          iT++;
+        } else {
+          iS++;
+        }
+      }
+      while (iT < aTS.length) {
+        series.dataPoints.push([value, aTS[iT]]);
+        iT++;
+      }
+    }
+  }
+
+  processTimeSeriesResult(queries: any, response: FetchResponse, settings: any): DataQueryResponse {
     // const data: ResultData[] = [];
     const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
@@ -446,13 +536,27 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (response.data.error) {
       error = this.getErrorFromResponse(response);
     } else {
-      // Each query has their own array of series in response.data
       for (let i = 0; i < response.data.length; i++) {
+        // Each query has their own array of series in response.data
         const qseries = response.data[i];
+        // If no series return for query, create an empty series
+        if (qseries.length === 0) {
+          qseries.push({
+            attributes: [],
+            dataPoints: [],
+            serieName: queries[i].name,
+          });
+        }
+
+        // Process each series of the query
         for (let j = 0; j < qseries.length; j++) {
           const series = qseries[j];
           if (series) {
             this.sortSeriesDataPoints(series.dataPoints);
+            // Only fill for query that has 1 series in return
+            if (settings.completeSeriesWZeros && qseries.length === 1) {
+              this.fillSeriesGaps(series, 0, queries[i], settings);
+            }
             data.push(this.getDataFrameFromTimeSeries(series, queries[i].refId));
           }
         }
@@ -534,6 +638,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let isConfigChecked = false;
     let resolution: string = this.resolution;
     let ignoreSemPeriod = false;
+    let completeSeriesWZero = false;
 
     // Start streams and prepare queries
     for (const target of options.targets) {
@@ -555,6 +660,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           resolution = target.resolution.default;
         }
         ignoreSemPeriod = target.ignoreSemanticPeriod ? target.ignoreSemanticPeriod : false;
+        completeSeriesWZero = target.completeTimeSeriesWZero ? target.completeTimeSeriesWZero : false;
       } else {
         if (!target.dataProvider || !target.dataProvider.value) {
           continue;
@@ -644,7 +750,16 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             queries: queriesTSeries,
           },
         })
-        .pipe(map((response) => this.processTimeSeriesResult(queriesTSeries, response)));
+        .pipe(
+          map((response) =>
+            this.processTimeSeriesResult(queriesTSeries, response, {
+              completeSeriesWZeros: completeSeriesWZero,
+              timeRange: body.timeRange,
+              resolution: resolution,
+              timezone: timezone,
+            })
+          )
+        );
 
       streams.push(stream);
     }

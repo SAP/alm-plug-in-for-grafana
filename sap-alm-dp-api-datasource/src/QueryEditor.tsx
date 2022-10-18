@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
 import React, { MouseEvent, PureComponent, ChangeEvent } from 'react';
-import { AsyncSelect, Button, MultiSelect, Select, Switch } from '@grafana/ui';
+import { AsyncSelect, Button, IconButton, MultiSelect, Select, Switch } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { AggrMethod, Format, Resolution } from './format';
@@ -406,6 +406,17 @@ export class QueryEditor extends PureComponent<Props> {
     onRunQuery();
   };
 
+  onCompleteSeriesWZeroChange = (e: { currentTarget: { checked: any } }) => {
+    const { onChange, query, onRunQuery } = this.props;
+
+    onChange({
+      ...query,
+      completeTimeSeriesWZero: e.currentTarget.checked,
+    });
+    // executes the query
+    onRunQuery();
+  };
+
   /* Query Type Change */
   onTypeChange = (value: SelectableValue<Format>) => {
     const { onChange, query, onRunQuery } = this.props;
@@ -572,10 +583,20 @@ export class QueryEditor extends PureComponent<Props> {
         dimensions: [],
       },
       ignoreSemanticPeriod: false,
+      completeTimeSeriesWZero: false,
     };
     const query = defaults(this.props.query, defaultQuery);
-    const { type, name, dataProvider, dataProviderFilters, drilldown, isConfig, resolution, ignoreSemanticPeriod } =
-      query;
+    const {
+      type,
+      name,
+      dataProvider,
+      dataProviderFilters,
+      drilldown,
+      isConfig,
+      resolution,
+      ignoreSemanticPeriod,
+      completeTimeSeriesWZero,
+    } = query;
 
     // Check if selected filter is correct, load filter's values
     // This needs to be done to ini custom filter options
@@ -602,7 +623,7 @@ export class QueryEditor extends PureComponent<Props> {
       <>
         <style>{css}</style>
         <div className="gf-form max-width-21">
-          <label className="gf-form-label width-10">Configuration Query</label>
+          <label className="gf-form-label width-11">Configuration Query</label>
           <div className="gf-form-switch">
             <Switch value={isConfig} onChange={this.onIsConfigChange} css="" />
           </div>
@@ -610,13 +631,17 @@ export class QueryEditor extends PureComponent<Props> {
         {isConfig ? (
           <>
             <div className="gf-form">
-              <label className="gf-form-label width-10">Automatic Resolution</label>
+              <label className="gf-form-label width-11">Automatic Resolution</label>
               <div className="gf-form-switch">
                 <Switch value={resolution?.autoDecide} onChange={this.onAutoDecideChange} css="" />
               </div>
-              <label className="gf-form-label marginL4px width-10">Default Resolution</label>
+
+              <label className="gf-form-label marginL4px width-11">
+                Default Resolution
+                <IconButton name="info-circle" tooltip="This is used when auto-resolution is off." />
+              </label>
               <Select
-                className="width-10"
+                className="width-8"
                 options={resOptions}
                 defaultValue={resolution?.default}
                 value={resolution?.default}
@@ -624,9 +649,23 @@ export class QueryEditor extends PureComponent<Props> {
               />
             </div>
             <div className="gf-form">
-              <label className="gf-form-label width-10">Ignore Semantic Period</label>
+              <label className="gf-form-label width-11">
+                Ignore Semantic Period
+                <IconButton name="info-circle" tooltip="To not use semantic period in data request." />
+              </label>
               <div className="gf-form-switch">
                 <Switch value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} css="" />
+              </div>
+
+              <label className="gf-form-label marginL4px width-15">
+                Complete Time Series with Zeros
+                <IconButton
+                  name="info-circle"
+                  tooltip="Fill missing data points for time series (Only for queries with single response)."
+                />
+              </label>
+              <div className="gf-form-switch">
+                <Switch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} css="" />
               </div>
             </div>
           </>
@@ -634,7 +673,7 @@ export class QueryEditor extends PureComponent<Props> {
           <>
             <div className="gf-form-inline">
               <div className="gf-form max-width-21">
-                <label className="gf-form-label width-10">Format As</label>
+                <label className="gf-form-label width-11">Format As</label>
                 <Select
                   maxMenuHeight={170}
                   options={formatAsOptions}
@@ -644,12 +683,12 @@ export class QueryEditor extends PureComponent<Props> {
                 />
               </div>
               <div className="gf-form max-width-21">
-                <label className="gf-form-label marginL4px width-10">Legend</label>
+                <label className="gf-form-label marginL4px width-5">Legend</label>
                 <input onChange={this.onNameChange} value={name} className="gf-form-input" />
               </div>
             </div>
             <div className="gf-form">
-              <label className="gf-form-label width-10">Data Provider</label>
+              <label className="gf-form-label width-11">Data Provider</label>
               <AsyncSelect
                 maxMenuHeight={170}
                 placeholder="Select a data provider"
@@ -663,7 +702,7 @@ export class QueryEditor extends PureComponent<Props> {
               />
             </div>
             <div className="gf-form">
-              <label className="gf-form-label width-10">Filters</label>
+              <label className="gf-form-label width-11">Filters</label>
               {dataProviderFilters?.map((f, i) => {
                 return (
                   <span className="gf-form-label" key={i}>
@@ -788,7 +827,7 @@ export class QueryEditor extends PureComponent<Props> {
             </div>
             <div className="gf-form-inline">
               <div className="gf-form max-width-21">
-                <label className="gf-form-label width-10">Dimensions</label>
+                <label className="gf-form-label width-11">Dimensions</label>
                 <MultiSelect
                   maxMenuHeight={170}
                   options={[...this.dataProviderDimensionOptions, ...this.dataProviderCustomDimensionOptions]}
@@ -807,7 +846,7 @@ export class QueryEditor extends PureComponent<Props> {
                 />
               </div>
               <div className="gf-form">
-                <label className="gf-form-label width-10">Measures</label>
+                <label className="gf-form-label width-11">Measures</label>
                 {drilldown.measures.map((m, i) => (
                   <span className="gf-form-label" key={i}>
                     <Select
