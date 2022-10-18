@@ -464,32 +464,34 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       let tsT = oT.getTime();
       let step = 0;
 
-      switch (settings.resolution) {
-        case 'H':
-          step = 60 * 60000;
-          break;
-        case 'D':
-          step = 24 * 60 * 60000;
-          break;
-        case 'W':
-          step = 7 * 24 * 60 * 60000;
-          break;
-        case 'M':
-          step = 30 * 24 * 60 * 60000;
-          break;
-        case 'Y':
-          step = 365 * 24 * 60 * 60000;
-          break;
-        default:
-          step = 60000;
-      }
+      if (!isNaN(tsF) && !isNaN(tsT)) {
+        switch (settings.resolution) {
+          case 'H':
+            step = 60 * 60000;
+            break;
+          case 'D':
+            step = 24 * 60 * 60000;
+            break;
+          case 'W':
+            step = 7 * 24 * 60 * 60000;
+            break;
+          case 'M':
+            step = 30 * 24 * 60 * 60000;
+            break;
+          case 'Y':
+            step = 365 * 24 * 60 * 60000;
+            break;
+          default:
+            step = 60000;
+        }
 
-      ts.push(tsF);
-      while (tsF + step < tsT) {
-        tsF = tsF + step;
         ts.push(tsF);
+        while (tsF + step < tsT) {
+          tsF = tsF + step;
+          ts.push(tsF);
+        }
+        // ts.push(tsT);
       }
-      // ts.push(tsT);
     }
 
     return ts;
