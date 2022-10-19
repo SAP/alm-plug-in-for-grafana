@@ -22,6 +22,9 @@ jobs:
 #        cache: 'yarn'
 #        cache-dependency-path: sap-alm-dp-api-datasource/yarn.lock
 
+    - name: REUSE Compliance Check
+      uses: fsfe/reuse-action@v1.2.0
+
     - name: Install Dependencies
       run: cd sap-alm-dp-api-datasource && yarn install
 
