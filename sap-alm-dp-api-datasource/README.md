@@ -89,21 +89,21 @@ This section will help you build the plugin and install it manually in your Graf
 
 Once the plugin has been successfully installed, a new `SAP ALM DP API` data source can be created in the `Configuration` - `Data Sources` section by clicking on the `Add data source` button
 
-![Configuration - Add Data Source](../../assets/SAP_ALM_DP_API_ADD_DS.png?raw=true)
+![Configuration - Add Data Source](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP_ALM_DP_API_ADD_DS.png)
 
 and selecting the `SAP ALM DP API` data source.
 
-![Configuration - Data Source](../../assets/SAP_ALM_DP_API_SELECT.png?raw=true)
+![Configuration - Data Source](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP_ALM_DP_API_SELECT.png)
 
 When adding a datasource, the first thing to do is to select the proper `Destination System` in the `Connection` section.
 
-![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png?raw=true)
+![Data Source Setup - URL](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png)
 
 The configuration is different depending on the type of connection, `SAP Cloud ALM` or `SAP Focused Run`.
 
 #### SAP Cloud ALM
 
-- Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work. ![Data Source Setup - URL](../../assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png?raw=true)
+- Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work. ![Data Source Setup - URL](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png)
 
   - `path`: Your destination alias. To be used in data source settings.
   - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
@@ -114,11 +114,11 @@ The configuration is different depending on the type of connection, `SAP Cloud A
       - `client_id`: Your authentication client id.
       - `client_secret`: Your authentication client secret.
 - Use the value in the `path` field as `alias` field in data source settings.
-    ![Data Source Setup - CALM Alias](../../assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png?raw=true)
+    ![Data Source Setup - CALM Alias](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png)
 
 CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
 
-![Data Source Setup - Data Providers Version Selection](../../assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png?raw=true)
+![Data Source Setup - Data Providers Version Selection](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png)
 
 
 
@@ -126,21 +126,21 @@ CALM REST Service may have different versions for specific data provider. You ma
   - Make sure you have activated the necessary SICF service as described in [SAP Advanced Analytics Rest API](https://support.sap.com/en/alm/sap-focused-run/expert-portal/sap-advanced-analytics-rest-api.html)
   - Select "Focused RUN" as a destination system in the `Connection` settings
 
-    ![Data Source Setup - Destination](../../assets/SAP_FRUN_CONNECTION_DESTINATION.png?raw=true)
+    ![Data Source Setup - Destination](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP_FRUN_CONNECTION_DESTINATION.png)
 
   - In the `HTTP` section enter the endpoint related to the `dp` SICF service of your `SAP Focused Run` system
       - The url is usually `http(s)://<frunhost>:<frunport>/sap/frun/fi/dp`
 
-    ![Data Source Setup - HTTP](../../assets/SAP_FRUN_HTTP_URL.png?raw=true)
+    ![Data Source Setup - HTTP](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP_FRUN_HTTP_URL.png)
 
   - In the `Auth` section, select a proper authentication method
     - In case HTTPS is selected (this is the recommended option), you might get a `bad gateway` error in case the TLS certificate is self-signed. This can be avoided by activating the `With CA Cert` option and entering the PEM certificate of the SAP Focused Run server in the `TLS/SSL Auth Details` section.
 
-    ![Data Source Setup - Auth](../../assets/SAP_FRUN_AUTH.png?raw=true)
+    ![Data Source Setup - Auth](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP_FRUN_AUTH.png)
 
   - Click on the `Save and Test` button to make sure the data source is working
 
-    ![Data Source Setup - Save](../../assets/SAP_FRUN_SAVE.png?raw=true)
+    ![Data Source Setup - Save](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP_FRUN_SAVE.png)
 
 
 Once data source setup has been done, you are ready to configure queries for data retrieval.
@@ -149,7 +149,7 @@ Once data source setup has been done, you are ready to configure queries for dat
 
 Before going into query configuration, let's have a general view on organization of DP API REST Serivce.
 
-![Data Source Setup - DP REST API](../../assets/SAP%20CALM%20DP%20API%20DS%20DP%20API.png?raw=true)
+![Data Source Setup - DP REST API](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20DP%20API.png)
 
 The service provides data for different areas or applications of the destination. These areas or applications are called `Data Provider`s by the service.
 
@@ -159,7 +159,7 @@ Normally data will be requested for a specific time period with a specific resol
 
 Resolution can be defined universally for all panels using data source in data source set up, or in `Configuration Query`. More on it can be found later.
 
-![Data Source Setup - Global Resolution](../../assets/SAP%20CALM%20DP%20API%20DS%20Res%20Global.png?raw=true)
+![Data Source Setup - Global Resolution](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20Res%20Global.png)
 
 If no resolution is instructed, `Data Provider` will decide what's best.
 
@@ -170,7 +170,7 @@ The query can be defined as normal query or `Configuration Query`. The differenc
 ### Configuration Query
 `Configuration Query` is declared by toggle the switch for it to on. You can toggle multiple queries switch on, but only the first one will be accounted for.
 
-![Data Source Setup - Configuration Query](../../assets/SAP%20CALM%20DP%20API%20DS%20Config%20Query.png?raw=true)
+![Data Source Setup - Configuration Query](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20Config%20Query.png)
 
 `Configuration Query` can be used to define a resolution for all queries.
 
@@ -182,7 +182,7 @@ Otherwise, the data source will use the `Default Resolution` for all the queries
 
 This is where you configure the criteria by which the `Data Provider` retrieves data.
 
-![Data Source Setup - Query](../../assets/SAP%20CALM%20DP%20API%20DS%20Query.png?raw=true)
+![Data Source Setup - Query](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20Query.png)
 
 The information one query can hold is as follow:
 - `Format As`: responded data should be formatted as provided. Options are:
@@ -348,7 +348,7 @@ The plugin supports dashboard variables for query to provide a more dynamic appr
 
 To configure query variables, go to `Dashboard Settings` (using cord wheel icon on top right corner), and select `Variables` tab.
 
-![Dashboard Settings - Query Variables](../../assets/Query%20Variables.png?raw=true)
+![Dashboard Settings - Query Variables](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/Query%20Variables.png)
 
 - Click `New` button to add a new variable, or select variable's name to edit.
 - In `General` section of variable editor:
@@ -367,6 +367,6 @@ For further flexibility, you can use `Multi-value` and/or `Include All option` i
 
 To use it in the query, type in the name of variable preceeding with `$` into the needed fields, for example: `$dimension`.
 
-![Query Configuration - Query Variables](../../assets/Variable%20Usage.png?raw=true)
+![Query Configuration - Query Variables](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/Variable%20Usage.png)
 
 Now to can select variable in dashboard to see the effects.
