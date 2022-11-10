@@ -81,7 +81,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
-  fetchData(options: BackendSrvRequest, process: Function, complete?: Function): Observable<any> {
+  fetchData(options: BackendSrvRequest, process: Function, complete?: Function, errHandled?: boolean): Observable<any> {
     return getBackendSrv()
       .fetch(options)
       .pipe(
@@ -91,7 +91,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             if (complete) {
               complete();
             }
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+            if (errHandled) {
+              result = process(response);
+            } else {
+              throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
           } else {
             result = process(response);
           }
@@ -118,24 +122,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     };
 
     this.fetchData(options, this.processCSRFResponse, () => { this.isUpdatingCSRFToken = false; }).subscribe();
-    // getBackendSrv()
-    //   .fetch({
-    //     url: this.url,
-    //     method: 'GET',
-    //     headers: { ...this.headers, 'X-CSRF-Token': 'fetch' },
-    //   })
-    //   .toPromise()
-    //   .then(
-    //     (response) => {
-    //       if (response.headers.has('X-CSRF-Token') && response.headers.get('X-CSRF-Token') !== null) {
-    //         this.headers['X-CSRF-Token'] = response.headers.get('X-CSRF-Token');
-    //       }
-    //       this.isUpdatingCSRFToken = false;
-    //     },
-    //     (response) => {
-
-    //     }
-    //   );
   }
 
   getFiltersForQuery(filters: DataProviderFilter[], options?: DataQueryRequest<MyQuery>) {
@@ -466,7 +452,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return frame;
   }
 
-  getDateFromTS(ts: string, tz: string): Date {
+  getDateFromTS(ts: string, tz: string, isFRUN: boolean, resolution: string): Date {
     let y = ts.substring(0, 4),
       m = ts.substring(4, 6),
       d = ts.substring(6, 8),
@@ -485,8 +471,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     // When there is from-to as period
     if (settings.timeRange.from && settings.timeRange.to) {
-      let oF = this.getDateFromTS(settings.timeRange.from, settings.timezone);
-      let oT = this.getDateFromTS(settings.timeRange.to, settings.timezone);
+      let oF = this.getDateFromTS(settings.timeRange.from, settings.timezone, settings.isFRUN, settings.resolution);
+      let oT = this.getDateFromTS(settings.timeRange.to, settings.timezone, settings.isFRUN, settings.resolution);
       let tsF = oF.getTime();
       let tsT = oT.getTime();
       let step = 0;
@@ -797,12 +783,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         },
       }, (response: FetchResponse) =>
         this.processTimeSeriesResult(queriesTSeries, response, {
+          isFRUN: this.isFRUN,
           completeSeriesWZeros: completeSeriesWZero,
           timeRange: body.timeRange,
           resolution: resolution,
           timezone: timezone,
         })
-      );
+      , undefined, true);
 
       streams.push(stream);
     }
@@ -822,7 +809,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         },
       }, (response: FetchResponse) =>
         this.processTableResult(queriesRTable, response)
-      );
+      , undefined, true);
 
       streams.push(stream);
     }
@@ -840,7 +827,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         },
       }, (response: FetchResponse) =>
         this.processTableResult(queriesTable, response)
-      );
+      , undefined, true);
 
       streams.push(stream);
     }
