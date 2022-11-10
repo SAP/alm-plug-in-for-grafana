@@ -10,6 +10,8 @@ import { DPResponse, MyDataSourceOptions } from './types';
 import { Resolution } from 'format';
 import { FetchResponse, getBackendSrv } from '@grafana/runtime';
 import _ from 'lodash';
+import { lastValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 // const { FormField } = LegacyForms;
 // const { SecretFormField, FormField } = LegacyForms;
@@ -38,55 +40,59 @@ export class ConfigEditor extends PureComponent<Props> {
     this.getDPList();
   }
 
-  getDPList(): Promise<void | FetchResponse<void | DPResponse[]>> {
+  async getDPList(): Promise<void | FetchResponse<void | DPResponse[]>> {
     let url = '';
     if (this.props.options.jsonData.isFRUN) {
       url = `/api/datasources/proxy/${this.props.options.id}${dpListPath}`;
     } else {
       url = `/api/datasources/proxy/${this.props.options.id}/${this.props.options.jsonData.alias}${routePath}${dpListPath}`;
     }
-    return getBackendSrv()
+    const obsver = getBackendSrv()
       .fetch({
         method: 'GET',
         url: url,
         // headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
       })
-      .toPromise()
-      .then((response: FetchResponse) => {
-        this.dataProviderOptions = [];
-        this.dataProviderVersionsOptions = [];
+      .pipe(
+        map((response: FetchResponse) => {
+          this.dataProviderOptions = [];
+          this.dataProviderVersionsOptions = [];
 
-        response.data
-          .sort((el1: DPResponse, el2: DPResponse) => {
-            if (el1.name > el2.name) {
-              return 1;
-            } else if (el1.name < el2.name) {
-              return -1;
-            }
-            return 0;
-          })
-          .forEach((value: DPResponse) => {
-            this.dataProviderOptions.push({
-              label: value.description.split(' ').map(_.upperFirst).join(' '),
-              value: value.name,
-              description: value.description,
-            });
-            this.dataProviderVersionsOptions.push([{ label: 'Latest', value: 'LATEST' }]);
-            if (value.version) {
-              value.version.forEach((v) => {
-                this.dataProviderVersionsOptions[this.dataProviderOptions.length - 1].push({
-                  label: v,
-                  value: v,
-                });
+          response.data
+            .sort((el1: DPResponse, el2: DPResponse) => {
+              if (el1.name > el2.name) {
+                return 1;
+              } else if (el1.name < el2.name) {
+                return -1;
+              }
+              return 0;
+            })
+            .forEach((value: DPResponse) => {
+              this.dataProviderOptions.push({
+                label: value.description.split(' ').map(_.upperFirst).join(' '),
+                value: value.name,
+                description: value.description,
               });
-            }
-          });
+              this.dataProviderVersionsOptions.push([{ label: 'Latest', value: 'LATEST' }]);
+              if (value.version) {
+                value.version.forEach((v) => {
+                  this.dataProviderVersionsOptions[this.dataProviderOptions.length - 1].push({
+                    label: v,
+                    value: v,
+                  });
+                });
+              }
+            });
 
-        const { onOptionsChange, options } = this.props;
+          const { onOptionsChange, options } = this.props;
 
-        onOptionsChange({ ...options });
-      });
+          onOptionsChange({ ...options });
+        })
+      );
+
+    const result = await lastValueFrom(obsver);
+    return result;
   }
 
   onHTTPSettingsChange = (config: DataSourceSettings<DataSourceJsonData, {}>) => {
@@ -160,23 +166,6 @@ export class ConfigEditor extends PureComponent<Props> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  // Secure field (only sent to the backend)
-  // Old from template, left for reference for what we can do with it.
-  // onResetAPIKey = () => {
-  //   const { onOptionsChange, options } = this.props;
-  //   onOptionsChange({
-  //     ...options,
-  //     secureJsonFields: {
-  //       ...options.secureJsonFields,
-  //       apiKey: false,
-  //     },
-  //     secureJsonData: {
-  //       ...options.secureJsonData,
-  //       apiKey: '',
-  //     },
-  //   });
-  // };
-
   render() {
     const { options } = this.props;
     const { jsonData } = options;
@@ -193,13 +182,13 @@ export class ConfigEditor extends PureComponent<Props> {
               <div className="gf-form-switch-container-react">
                 <label className="gf-form-label width-10">SAP Cloud ALM</label>
                 <div className="gf-form-switch">
-                  <Switch value={!jsonData.isFRUN} onChange={this.onIsCALMChange} css="" />
+                  <Switch value={!jsonData.isFRUN} onChange={this.onIsCALMChange} />
                 </div>
               </div>
               <div className="gf-form-switch-container-react">
                 <label className="gf-form-label width-10">SAP Focused Run</label>
                 <div className="gf-form-switch">
-                  <Switch value={jsonData.isFRUN} onChange={this.onIsFRUNChange} css="" />
+                  <Switch value={jsonData.isFRUN} onChange={this.onIsFRUNChange} />
                 </div>
               </div>
             </div>
@@ -236,12 +225,6 @@ export class ConfigEditor extends PureComponent<Props> {
                 onChange={this.onResolutionChange}
               />
             </div>
-            {/* <FormField
-              label="Resolution"
-              onChange={this.onResolutionChange}
-              value={jsonData.resolution || ''}
-              placeholder="Enter a number"
-            /> */}
           </div>
           <div className="gf-form-group">
             <h6>Data Providers Settings</h6>
@@ -277,21 +260,6 @@ export class ConfigEditor extends PureComponent<Props> {
             })}
           </div>
         </div>
-
-        {/* <div className="gf-form-inline">
-          <div className="gf-form">
-            <SecretFormField
-              isConfigured={(secureJsonFields && secureJsonFields.apiKey) as boolean}
-              value={secureJsonData.apiKey || ''}
-              label="API Key"
-              placeholder="secure json field (backend only)"
-              labelWidth={6}
-              inputWidth={20}
-              onReset={this.onResetAPIKey}
-              onChange={this.onAPIKeyChange}
-            />
-          </div>
-        </div> */}
       </>
     );
   }

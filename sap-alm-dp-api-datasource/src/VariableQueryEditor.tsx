@@ -46,30 +46,25 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
   const loadDataProviders = (q: string) => {
     return new Promise<Array<SelectableValue<string>>>((resolve) => {
       // Retrieval of data providers list and parse it to options list
-      datasource.searchDataProviders(q, '').then(
-        (result) => {
-          dataProviderOptions = result.map((value) => ({
-            label: value.text,
-            value: value.value,
-            description: value.value,
-          }));
-          const fdp = dataProviderOptions.find((dp) => {
-            return query && query.dataProvider && dp.value === query.dataProvider.value;
-          });
+      datasource.searchDataProviders(q, '').subscribe((result) => {
+        dataProviderOptions = result.map((value) => ({
+          label: value.text,
+          value: value.value,
+          description: value.value,
+        }));
+        const fdp = dataProviderOptions.find((dp) => {
+          return query && query.dataProvider && dp.value === query.dataProvider.value;
+        });
 
-          cleanUpDPFilters();
+        cleanUpDPFilters();
 
-          if (fdp) {
-            // setDataProvider(fdp);
-            loadDPFilters(query.dataProvider.value);
-          }
-
-          resolve(dataProviderOptions);
-        },
-        (response) => {
-          throw new Error(response.statusText);
+        if (fdp) {
+          // setDataProvider(fdp);
+          loadDPFilters(query.dataProvider.value);
         }
-      );
+
+        resolve(dataProviderOptions);
+      });
     });
   };
 
@@ -84,50 +79,45 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
   const loadDPFilters = (dp = '', rfilter?: DPFilterResponse) => {
     // Load all related filters
     if (dp && dp !== '') {
-      datasource.searchDataProviderFilters(dp, '').then(
-        (result) => {
-          if (!rfilter) {
-            cleanUpDPFilters();
-          }
-          // Process result
-          result.forEach((filter, i) => {
-            let exist = dataProviderFiltersValues[filter.key] ? true : false;
+      datasource.searchDataProviderFilters(dp, '').subscribe((result) => {
+        if (!rfilter) {
+          cleanUpDPFilters();
+        }
+        // Process result
+        result.forEach((filter, i) => {
+          let exist = dataProviderFiltersValues[filter.key] ? true : false;
 
-            if (filter.type === 'attribute' || (filter.type === 'dimension' && filter.isAttribute)) {
-              dataProviderFiltersValues[filter.key] = filter;
-              if (!exist) {
-                dataProviderFilterOptions.push({
-                  value: filter.key,
-                  label: filter.name,
-                  description: filter.description,
-                });
-              }
-            }
-
-            // Get list of dimensions
-            if (!exist && filter.type === 'dimension') {
-              dataProviderDimensionOptions.push({
+          if (filter.type === 'attribute' || (filter.type === 'dimension' && filter.isAttribute)) {
+            dataProviderFiltersValues[filter.key] = filter;
+            if (!exist) {
+              dataProviderFilterOptions.push({
                 value: filter.key,
                 label: filter.name,
                 description: filter.description,
               });
             }
-
-            // Extract list of measures
-            if (!exist && filter.type === 'measure') {
-              dataProviderMeasuresOptions = filter.values.map((value) => ({ label: value.label, value: value.key }));
-            }
-          });
-
-          // Update value options
-          if (state.type && state.type.value) {
-            updateValueOptions(state.type.value);
           }
-        },
-        (response) => {
-          throw new Error(response.statusText);
+
+          // Get list of dimensions
+          if (!exist && filter.type === 'dimension') {
+            dataProviderDimensionOptions.push({
+              value: filter.key,
+              label: filter.name,
+              description: filter.description,
+            });
+          }
+
+          // Extract list of measures
+          if (!exist && filter.type === 'measure') {
+            dataProviderMeasuresOptions = filter.values.map((value) => ({ label: value.label, value: value.key }));
+          }
+        });
+
+        // Update value options
+        if (state.type && state.type.value) {
+          updateValueOptions(state.type.value);
         }
-      );
+      });
     }
   };
 

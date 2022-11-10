@@ -5,12 +5,9 @@ import {
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
-  // toDataFrame,
   MutableDataFrame,
   FieldType,
   DataQueryError,
-  // TableData,
-  // TimeSeries,
   DateTime,
   TimeRange,
   MetricFindValue,
@@ -18,7 +15,7 @@ import {
   Labels,
 } from '@grafana/data';
 
-import { FetchResponse, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
+import { BackendSrvRequest, FetchResponse, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import {
   MyQuery,
   MyDataSourceOptions,
@@ -29,11 +26,9 @@ import {
   MyVariableQuery,
   DataProviderConfig,
 } from './types';
-import { merge, Observable } from 'rxjs';
+import { merge, Observable, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Format, Resolution } from 'format';
-
-// type ResultData = TimeSeries | TableData;
 
 const routePath = '/analytics';
 const dpListPath = '/providers';
@@ -86,38 +81,72 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
-  updateCSRFToken() {
-    this.isUpdatingCSRFToken = true;
-    getBackendSrv()
-      .fetch({
-        url: this.url,
-        method: 'GET',
-        headers: { ...this.headers, 'X-CSRF-Token': 'fetch' },
-      })
-      .toPromise()
-      .then(
-        (response) => {
-          if (response.headers.has('X-CSRF-Token') && response.headers.get('X-CSRF-Token') !== null) {
-            this.headers['X-CSRF-Token'] = response.headers.get('X-CSRF-Token');
+  fetchData(options: BackendSrvRequest, process: Function, complete?: Function): Observable<any> {
+    return getBackendSrv()
+      .fetch(options)
+      .pipe(
+        map((response: FetchResponse) => {
+          let result;
+          if (response.data.error) {
+            if (complete) {
+              complete();
+            }
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          } else {
+            result = process(response);
           }
-          this.isUpdatingCSRFToken = false;
-        },
-        (response) => {
-          this.isUpdatingCSRFToken = false;
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
+          if (complete) {
+            complete();
+          }
+          return result;
+        })
       );
   }
 
+  processCSRFResponse(response: FetchResponse) {
+    if (response.headers.has('X-CSRF-Token') && response.headers.get('X-CSRF-Token') !== null) {
+      this.headers['X-CSRF-Token'] = response.headers.get('X-CSRF-Token');
+    }
+  }
+
+  updateCSRFToken() {
+    this.isUpdatingCSRFToken = true;
+    const options = {
+      url: this.url,
+      method: 'GET',
+      headers: { ...this.headers, 'X-CSRF-Token': 'fetch' },
+    };
+
+    this.fetchData(options, this.processCSRFResponse, () => { this.isUpdatingCSRFToken = false; }).subscribe();
+    // getBackendSrv()
+    //   .fetch({
+    //     url: this.url,
+    //     method: 'GET',
+    //     headers: { ...this.headers, 'X-CSRF-Token': 'fetch' },
+    //   })
+    //   .toPromise()
+    //   .then(
+    //     (response) => {
+    //       if (response.headers.has('X-CSRF-Token') && response.headers.get('X-CSRF-Token') !== null) {
+    //         this.headers['X-CSRF-Token'] = response.headers.get('X-CSRF-Token');
+    //       }
+    //       this.isUpdatingCSRFToken = false;
+    //     },
+    //     (response) => {
+
+    //     }
+    //   );
+  }
+
   getFiltersForQuery(filters: DataProviderFilter[], options?: DataQueryRequest<MyQuery>) {
-    var f = [];
-    for (let i = 0; i < filters.length; i++) {
-      if (filters[i].key.value) {
+    let f = [];
+    for (const filter of filters) {
+      if (filter.key.value) {
         let tf: { key: string | undefined; values: string[] } = {
-          key: filters[i].key.value,
+          key: filter.key.value,
           values: [],
         };
-        filters[i].values.forEach((v) => {
+        filter.values.forEach((v) => {
           // Check for variables
           if (v.value) {
             if (v.value?.substring(0, 1) === '$' || v.value?.substring(0, 2) === '{{') {
@@ -374,7 +403,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         Number(ts.substring(12, 14))
       )
     );
-    // let dt: DateTime = dateTime(d);
     return d.getTime();
   }
 
@@ -394,7 +422,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         message: response.data.message,
         error: response.data.error,
       },
-      status: response.status.toString(),
+      status: response.status,
       statusText: response.statusText,
     };
 
@@ -402,7 +430,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   sortSeriesDataPoints(points: number[][]) {
-    points = points.sort((p1: number[], p2: number[]) => {
+    points.sort((p1: number[], p2: number[]) => {
       return p1[1] - p2[1];
     });
   }
@@ -444,13 +472,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       d = ts.substring(6, 8),
       h = ts.substring(8, 10),
       mi = ts.substring(10, 12);
-    // s = Number(ts.substring(12));
 
     return new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
   }
 
-  getPossibleTimestamps(settings: any): Number[] {
-    let ts: Number[] = [];
+  getPossibleTimestamps(settings: any): number[] {
+    let ts: number[] = [];
 
     if (!settings || !settings.resolution || !settings.timeRange || !settings.timezone) {
       return ts;
@@ -490,7 +517,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           tsF = tsF + step;
           ts.push(tsF);
         }
-        // ts.push(tsT);
       }
     }
 
@@ -528,8 +554,17 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
+  checkResSeries(query: any, series: any) {
+    if (series.length === 0) {
+      series.push({
+        attributes: [],
+        dataPoints: [],
+        serieName: query.name,
+      });
+    }
+  }
+
   processTimeSeriesResult(queries: any, response: FetchResponse, settings: any): DataQueryResponse {
-    // const data: ResultData[] = [];
     const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
 
@@ -540,25 +575,19 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         // Each query has their own array of series in response.data
         const qseries = response.data[i];
         // If no series return for query, create an empty series
-        if (qseries.length === 0) {
-          qseries.push({
-            attributes: [],
-            dataPoints: [],
-            serieName: queries[i].name,
-          });
-        }
+        this.checkResSeries(queries[i], qseries);
 
         // Process each series of the query
-        for (let j = 0; j < qseries.length; j++) {
-          const series = qseries[j];
-          if (series) {
-            this.sortSeriesDataPoints(series.dataPoints);
-            // Only fill for query that has 1 series in return
-            if (settings.completeSeriesWZeros && qseries.length === 1) {
-              this.fillSeriesGaps(series, 0, queries[i], settings);
-            }
-            data.push(this.getDataFrameFromTimeSeries(series, queries[i].refId));
+        for (const series of qseries) {
+          if (!series) {
+            continue;
           }
+          this.sortSeriesDataPoints(series.dataPoints);
+          // Only fill for query that has 1 series in return
+          if (settings.completeSeriesWZeros && qseries.length === 1) {
+            this.fillSeriesGaps(series, 0, queries[i], settings);
+          }
+          data.push(this.getDataFrameFromTimeSeries(series, queries[i].refId));
         }
       }
     }
@@ -605,21 +634,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       error = this.getErrorFromResponse(response);
     } else {
       for (let i = 0; i < response.data.length; i++) {
-        // Need to convert for each time column to unix value
-        // let ti: number[] = [];
-        // response.data[i].columns.forEach((col: {type: string}, i: number) => {
-        //   if (col.type === "time") {
-        //     ti.push(i);
-        //   }
-        // });
-        // if (ti.length > 0) {
-        //   for (let j = 0; j < response.data[i].rows.length; j++) {
-        //     ti.forEach((v, i) => {
-        //       response.data[i].rows[j][v] = this.getLinuxTimeFromTimeStamp(response.data[i].rows[j][v]);
-        //     });
-        //   }
-        // }
-
         const table = response.data[i];
         data.push(this.getDataFrameFromTable(table, queries[i].refId));
       }
@@ -628,19 +642,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return { data, error };
   }
 
-  // Query data for panel
-  query(options: DataQueryRequest<MyQuery>): Observable<DataQueryResponse> {
-    const queriesTSeries: any[] = [];
-    const queriesTable: any[] = [];
-    const queriesRTable: any[] = [];
-    const streams: Array<Observable<DataQueryResponse>> = [];
-
+  prepareForQuery(options: DataQueryRequest<MyQuery>, queries: any): any {
     let isConfigChecked = false;
     let resolution: string = this.resolution;
     let ignoreSemPeriod = false;
     let completeSeriesWZero = false;
 
-    // Start streams and prepare queries
     for (const target of options.targets) {
       if (target.hide) {
         continue;
@@ -666,7 +673,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           continue;
         }
         if (target.type === Format.Timeseries) {
-          queriesTSeries.push({
+          queries.tSeries.push({
             ...this.getQueryForRequest(target, options),
             refId: target.refId,
             // intervalMs: options.intervalMs,
@@ -675,7 +682,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             // alias: getTemplateSrv().replace(target.alias || '', options.scopedVars),
           });
         } else if (target.type === Format.RawTable) {
-          queriesRTable.push({
+          queries.rTable.push({
             ...this.getQueryForRequest(target, options),
             refId: target.refId,
             // intervalMs: options.intervalMs,
@@ -684,7 +691,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             // alias: getTemplateSrv().replace(target.alias || '', options.scopedVars),
           });
         } else {
-          queriesTable.push({
+          queries.table.push({
             ...this.getQueryForRequest(target, options),
             refId: target.refId,
             // intervalMs: options.intervalMs,
@@ -696,6 +703,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       }
     }
 
+    return {
+      resolution: resolution,
+      ignoreSemPeriod: ignoreSemPeriod,
+      completeSeriesWZero: completeSeriesWZero
+    };
+  }
+
+  prepareTimeRangeForQuery(options: DataQueryRequest<MyQuery>, settings: any): any {
     // Get time zone offset in hours.
     let tzOffset = options.range.from.utcOffset() / 60;
     let tzHoursStr = this.getIntNumberInString(tzOffset, 2, true);
@@ -705,7 +720,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // Get time zone offset into string.
     let timezone = `${tzHoursStr}:${tzMinutesStr}`;
     // Period for request.
-    let period = ignoreSemPeriod ? '' : this.getPeriodForRequest(options.range.raw, resolution);
+    let period = settings.ignoreSemPeriod ? '' : this.getPeriodForRequest(options.range.raw, settings.resolution);
     // From and To time stamps.
     let from;
     let to;
@@ -715,7 +730,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // From time stamp.
     // Check for restriction of raw resolution.
     if (
-      resolution === Resolution.Raw &&
+      settings.resolution === Resolution.Raw &&
       (period === 'L2H' || period === 'C2H') &&
       options.range.to.diff(options.range.from, 'hours') > 2
     ) {
@@ -723,6 +738,38 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     } else {
       from = this.getTimeStampForRequest(options.range.from);
     }
+
+    return {
+      period: period,
+      from: from,
+      to: to,
+      timezone: timezone
+    };
+  }
+
+  // Query data for panel
+  query(options: DataQueryRequest<MyQuery>): Observable<DataQueryResponse> {
+    const queriesTSeries: any[] = [];
+    const queriesTable: any[] = [];
+    const queriesRTable: any[] = [];
+    const streams: Array<Observable<DataQueryResponse>> = [];
+
+    // let isConfigChecked = false;
+    // let resolution: string = this.resolution;
+    // let ignoreSemPeriod = false;
+    // let completeSeriesWZero = false;
+
+    // Start streams and prepare queries
+    let { resolution, ignoreSemPeriod, completeSeriesWZero } = this.prepareForQuery(options, {
+      tSeries: queriesTSeries,
+      table: queriesTable,
+      rTable: queriesRTable
+    });
+    // Prepare time range
+    let { period, from, to, timezone } = this.prepareTimeRangeForQuery(options, {
+      ignoreSemPeriod: ignoreSemPeriod,
+      resolution: resolution
+    });
 
     // Normal body payload
     let body = {
@@ -738,66 +785,62 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     };
 
     if (queriesTSeries.length) {
-      const stream = getBackendSrv()
-        .fetch({
-          method: 'POST',
-          url: this.getRootURL() + dpDataPath,
-          headers: this.headers,
-          // credentials: this.withCredentials ? "include" : undefined,
-          requestId: `${options.dashboardId}-${options.panelId}-querydata-timeseries`,
-          data: {
-            ...body,
-            queries: queriesTSeries,
-          },
+      const stream = this.fetchData({
+        method: 'POST',
+        url: this.getRootURL() + dpDataPath,
+        headers: this.headers,
+        // credentials: this.withCredentials ? "include" : undefined,
+        requestId: `${options.dashboardId}-${options.panelId}-querydata-timeseries`,
+        data: {
+          ...body,
+          queries: queriesTSeries,
+        },
+      }, (response: FetchResponse) =>
+        this.processTimeSeriesResult(queriesTSeries, response, {
+          completeSeriesWZeros: completeSeriesWZero,
+          timeRange: body.timeRange,
+          resolution: resolution,
+          timezone: timezone,
         })
-        .pipe(
-          map((response) =>
-            this.processTimeSeriesResult(queriesTSeries, response, {
-              completeSeriesWZeros: completeSeriesWZero,
-              timeRange: body.timeRange,
-              resolution: resolution,
-              timezone: timezone,
-            })
-          )
-        );
+      );
 
       streams.push(stream);
     }
     if (queriesRTable.length) {
-      const stream = getBackendSrv()
-        .fetch({
-          method: 'POST',
-          url: this.getRootURL() + dpDataPath,
-          headers: this.headers,
-          // credentials: this.withCredentials ? "include" : undefined,
-          requestId: `${options.dashboardId}-${options.panelId}-querydata-tableraw`,
-          data: {
-            ...body,
-            format: 'table',
-            tableType: 'raw',
-            table_format: 'raw',
-            queries: queriesRTable,
-          },
-        })
-        .pipe(map((response) => this.processTableResult(queriesRTable, response)));
+      const stream = this.fetchData({
+        method: 'POST',
+        url: this.getRootURL() + dpDataPath,
+        headers: this.headers,
+        // credentials: this.withCredentials ? "include" : undefined,
+        requestId: `${options.dashboardId}-${options.panelId}-querydata-tableraw`,
+        data: {
+          ...body,
+          format: 'table',
+          tableType: 'raw',
+          table_format: 'raw',
+          queries: queriesRTable,
+        },
+      }, (response: FetchResponse) =>
+        this.processTableResult(queriesRTable, response)
+      );
 
       streams.push(stream);
     }
     if (queriesTable.length) {
-      const stream = getBackendSrv()
-        .fetch({
-          method: 'POST',
-          url: this.getRootURL() + dpDataPath,
-          headers: this.headers,
-          // credentials: this.withCredentials ? "include" : undefined,
-          requestId: `${options.dashboardId}-${options.panelId}-querydata-table`,
-          data: {
-            ...body,
-            format: 'table',
-            queries: queriesTable,
-          },
-        })
-        .pipe(map((response) => this.processTableResult(queriesTable, response)));
+      const stream = this.fetchData({
+        method: 'POST',
+        url: this.getRootURL() + dpDataPath,
+        headers: this.headers,
+        // credentials: this.withCredentials ? "include" : undefined,
+        requestId: `${options.dashboardId}-${options.panelId}-querydata-table`,
+        data: {
+          ...body,
+          format: 'table',
+          queries: queriesTable,
+        },
+      }, (response: FetchResponse) =>
+        this.processTableResult(queriesTable, response)
+      );
 
       streams.push(stream);
     }
@@ -813,27 +856,31 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
-  async testDatasource() {
-    return getBackendSrv()
-      .fetch({
-        method: 'GET',
-        url: this.getRootURL() + dpListPath,
-      })
-      .toPromise()
-      .then((response) => {
-        if (response.status === 200) {
-          return { status: 'success', message: 'Data source is working', title: 'Success' };
-        }
+  processTestDS(response: FetchResponse): any {
+    if (response.status === 200) {
+      return { status: 'success', message: 'Data source is working', title: 'Success' };
+    }
 
-        return {
-          status: 'error',
-          message: `Data source is not working: ${response.statusText}`,
-          title: 'Error',
-        };
-      });
+    return {
+      status: 'error',
+      message: `Data source is not working: ${response.statusText}`,
+      title: 'Error',
+    };
   }
 
-  metricFindQuery(query: MyVariableQuery, options?: any): Promise<MetricFindValue[]> {
+  async testDatasource() {
+    const options = {
+      method: 'GET',
+      url: this.getRootURL() + dpListPath,
+    };
+    const obsver = this.fetchData(options, this.processTestDS);
+    const testResult = await lastValueFrom(obsver);
+
+    return testResult;
+
+  }
+
+  async metricFindQuery(query: MyVariableQuery, options?: any): Promise<MetricFindValue[]> {
     let dp;
     if (query.dataProvider) {
       dp = query.dataProvider.value;
@@ -844,36 +891,33 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         providerVersion: dpv,
       };
 
-      return getBackendSrv()
-        .fetch({
-          method: 'POST',
-          url: this.getRootURL() + dpFiltersPath,
-          data: body,
-          headers: this.headers,
-          // credentials: this.withCredentials ? "include" : undefined,
-          // requestId: this.uid + queryId + "-searchdp",
-        })
-        .pipe(map((response) => this.processMetrics(response, query)))
-        .toPromise();
+      const options = {
+        method: 'POST',
+        url: this.getRootURL() + dpFiltersPath,
+        data: body,
+        headers: this.headers,
+        // credentials: this.withCredentials ? "include" : undefined,
+        // requestId: this.uid + queryId + "-searchdp",
+      };
+
+      const obsver = this.fetchData(options, (response: FetchResponse) => this.processMetrics(response, query));
+      const data = await lastValueFrom(obsver);
+      return data;
     }
 
     // Return empty
-    return new Promise((resolve) => {
-      resolve([]);
-    });
+    return Promise.resolve([]);
   }
 
-  searchDataProviders(query: string, queryId: string, options?: any, type?: string): Promise<TextValuePair[]> {
-    return getBackendSrv()
-      .fetch({
-        method: 'GET',
-        url: this.getRootURL() + dpListPath,
-        // headers: this.headers,
-        // credentials: this.withCredentials ? "include" : undefined,
-        requestId: this.uid + queryId + '-searchdp',
-      })
-      .pipe(map((response) => this.processDataProvidersSearch(response)))
-      .toPromise();
+  searchDataProviders(query: string, queryId: string, options?: any, type?: string): Observable<TextValuePair[]> {
+    const payload = {
+      method: 'GET',
+      url: this.getRootURL() + dpListPath,
+      // headers: this.headers,
+      // credentials: this.withCredentials ? "include" : undefined,
+      requestId: this.uid + queryId + '-searchdp',
+    };
+    return this.fetchData(payload, this.processDataProvidersSearch);
   }
 
   processDataProvidersSearch(response: FetchResponse): TextValuePair[] {
@@ -910,7 +954,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     queryId: string,
     filter?: DPFilterResponse,
     query?: MyQuery
-  ): Promise<DPFilterResponse[]> {
+  ): Observable<DPFilterResponse[]> {
     const t = defaults(query, defaultQuery);
     const dpv = this.getDPVersion(dp);
     let body;
@@ -928,17 +972,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       };
     }
 
-    return getBackendSrv()
-      .fetch({
-        method: 'POST',
-        url: this.getRootURL() + dpFiltersPath,
-        headers: this.headers,
-        // credentials: this.withCredentials ? "include" : undefined,
-        requestId: this.uid + queryId + '-searchfilters',
-        data: body,
-      })
-      .pipe(map((response) => this.processDataProviderFiltersSearch(response)))
-      .toPromise();
+    const options = {
+      method: 'POST',
+      url: this.getRootURL() + dpFiltersPath,
+      headers: this.headers,
+      // credentials: this.withCredentials ? "include" : undefined,
+      requestId: this.uid + queryId + '-searchfilters',
+      data: body,
+    };
+    return this.fetchData(options, this.processDataProviderFiltersSearch);
   }
 
   processDataProviderFiltersSearch(response: FetchResponse): DPFilterResponse[] {

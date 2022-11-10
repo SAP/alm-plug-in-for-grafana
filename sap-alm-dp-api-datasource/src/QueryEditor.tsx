@@ -6,7 +6,6 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { AggrMethod, Format, Resolution } from './format';
 import { DPFilterResponse, MyDataSourceOptions, MyQuery } from './types';
-// import { getTemplateSrv } from '@grafana/runtime';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -119,7 +118,7 @@ export class QueryEditor extends PureComponent<Props> {
     return new Promise<Array<SelectableValue<string>>>((resolve) => {
       if (this.dataProviderOptions.length === 0) {
         // Retrieval of data providers list and parse it to options list
-        datasource.searchDataProviders(q, query.refId).then((result) => {
+        datasource.searchDataProviders(q, query.refId).subscribe((result) => {
           result.sort((a, b) => {
             if (a.text > b.text) {
               return 1;
@@ -203,7 +202,7 @@ export class QueryEditor extends PureComponent<Props> {
     if (dp.value) {
       datasource
         .searchDataProviderFilters(dp.value, query.refId, rfilter ? rfilter : undefined, query)
-        .then((result) => {
+        .subscribe((result) => {
           if (!rfilter) {
             this.cleanUpDPFilters();
           }
@@ -304,7 +303,7 @@ export class QueryEditor extends PureComponent<Props> {
     this.dataProviderFilterValueOptions[i] = [];
     this.dataProviderCustomFilterValueOptions[i] = [];
     if (filterKey.value) {
-      var rfilter = this.dataProviderFiltersValues[filterKey.value];
+      let rfilter = this.dataProviderFiltersValues[filterKey.value];
       if (rfilter) {
         this.dataProviderFilterValueOptions[i] = rfilter.values.map((value) => ({
           value: value.key,
@@ -625,7 +624,7 @@ export class QueryEditor extends PureComponent<Props> {
         <div className="gf-form max-width-21">
           <label className="gf-form-label width-11">Configuration Query</label>
           <div className="gf-form-switch">
-            <Switch value={isConfig} onChange={this.onIsConfigChange} css="" />
+            <Switch value={isConfig} onChange={this.onIsConfigChange} />
           </div>
         </div>
         {isConfig ? (
@@ -633,7 +632,7 @@ export class QueryEditor extends PureComponent<Props> {
             <div className="gf-form">
               <label className="gf-form-label width-11">Automatic Resolution</label>
               <div className="gf-form-switch">
-                <Switch value={resolution?.autoDecide} onChange={this.onAutoDecideChange} css="" />
+                <Switch value={resolution?.autoDecide} onChange={this.onAutoDecideChange} />
               </div>
 
               <label className="gf-form-label marginL4px width-11">
@@ -654,7 +653,7 @@ export class QueryEditor extends PureComponent<Props> {
                 <IconButton name="info-circle" tooltip="To not use semantic period in data request." />
               </label>
               <div className="gf-form-switch">
-                <Switch value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} css="" />
+                <Switch value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} />
               </div>
 
               <label className="gf-form-label marginL4px width-15">
@@ -665,7 +664,7 @@ export class QueryEditor extends PureComponent<Props> {
                 />
               </label>
               <div className="gf-form-switch">
-                <Switch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} css="" />
+                <Switch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} />
               </div>
             </div>
           </>
