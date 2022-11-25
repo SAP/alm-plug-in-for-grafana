@@ -452,13 +452,45 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return frame;
   }
 
-  getDateFromTS(ts: string, tz: string, isFRUN: boolean, resolution: string): Date {
+  getDateFromTS(ts: string, tz: string, resolution: string, fdow = 1): Date {
     let y = ts.substring(0, 4),
       m = ts.substring(4, 6),
       d = ts.substring(6, 8),
       h = ts.substring(8, 10),
       mi = ts.substring(10, 12);
-
+      
+    switch (resolution) {
+      case 'H':
+        mi = '00';
+        break;
+      case 'D':
+        mi = '00';
+        h = '00';
+        break;
+      case 'M':
+        mi = '00';
+        h = '00';
+        d = '01';
+        break;
+      case 'y':
+        mi = '00';
+        h = '00';
+        d = '01';
+        m = '01';
+        break;
+      case 'W':
+        let val = new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
+        let cd = val.getDay();
+        let diff = (cd - fdow) * 24 * 60 * 60 * 1000;
+        let newVal = new Date(val.getTime() - diff);
+        let td = newVal.getDate().toString();
+        d = td.length < 2 ? `0${td}` : td;
+        mi = '00';
+        h = '00';
+        break;
+      default:
+        // Nothing
+    }
     return new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
   }
 
@@ -471,8 +503,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     // When there is from-to as period
     if (settings.timeRange.from && settings.timeRange.to) {
-      let oF = this.getDateFromTS(settings.timeRange.from, settings.timezone, settings.isFRUN, settings.resolution);
-      let oT = this.getDateFromTS(settings.timeRange.to, settings.timezone, settings.isFRUN, settings.resolution);
+      let oF = this.getDateFromTS(settings.timeRange.from, settings.timezone, settings.resolution);
+      let oT = this.getDateFromTS(settings.timeRange.to, settings.timezone, settings.resolution);
       let tsF = oF.getTime();
       let tsT = oT.getTime();
       let step = 0;
@@ -499,7 +531,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         }
 
         ts.push(tsF);
-        while (tsF + step < tsT) {
+        while (tsF + step <= tsT) {
           tsF = tsF + step;
           ts.push(tsF);
         }
@@ -509,8 +541,53 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return ts;
   }
 
-  fillSeriesGaps(series: any, value: string | number, query: any, settings: any) {
-    if (!settings || !settings.resolution || !settings.timeRange) {
+  insertPointToSeries(series: any, idx: number, ts: number, value: string | number | null, settings: any) {
+    // Before inserting, need to check if they represent the same point granularitily speaking
+    // For example, if resolution is 'D' (Day), then 20020202000000 and 20020202101010 are the same
+    let seriesDate = new Date(series.dataPoints[idx][1]);
+    let insertDate = new Date(ts);
+    let scales =  ['Y', 'M', 'D', 'H', 'Mi'];
+    let stop = settings.resolution === 'W' ? 'D' : settings.resolution;
+    let is = 0;
+    let bSame = true;
+
+    while (scales[is] !== stop && is < scales.length) {
+      let v1, v2;
+      switch (scales[is]) {
+        case 'Y':
+          v1 = seriesDate.getFullYear();
+          v2 = insertDate.getFullYear();
+          break;
+        case 'M':
+          v1 = seriesDate.getMonth();
+          v2 = insertDate.getMonth();
+          break;
+        case 'D':
+          v1 = seriesDate.getDate();
+          v2 = insertDate.getDate();
+          break;
+        case 'H':
+          v1 = seriesDate.getHours();
+          v2 = insertDate.getHours();
+          break;
+        default:
+          v1 = seriesDate.getMinutes();
+          v2 = insertDate.getMinutes();
+      }
+      if (v1 !== v2) {
+        bSame = false;
+        break;
+      }
+      is++;
+    }
+
+    if (!bSame) {
+      series.dataPoints.splice(idx, 0, [value, ts]);
+    }
+  }
+
+  fillSeriesGaps(series: any, value: string | number | null, query: any, settings: any) {
+    if (!settings || !settings.resolution || settings.resolution === 'R' || !settings.timeRange) {
       return;
     }
 
@@ -523,9 +600,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         iT = 0;
       while (iS < series.dataPoints.length) {
         if (series.dataPoints[iS][1] > aTS[iT]) {
-          series.dataPoints.splice(iS, 0, [value, aTS[iT]]);
+          this.insertPointToSeries(series, iS, aTS[iT], value, settings);
           iT++;
-          iS++;
+          // iS++;
         } else if (series.dataPoints[iS][1] === aTS[iT]) {
           iS++;
           iT++;
