@@ -586,7 +586,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         if (series.dataPoints[iS][1] > aTS[iT]) {
           this.insertPointToSeries(series, iS, aTS[iT], value, settings);
           iT++;
-          // iS++;
         } else if (series.dataPoints[iS][1] === aTS[iT]) {
           iS++;
           iT++;
@@ -800,11 +799,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const queriesTable: any[] = [];
     const queriesRTable: any[] = [];
     const streams: Array<Observable<DataQueryResponse>> = [];
-
-    // let isConfigChecked = false;
-    // let resolution: string = this.resolution;
-    // let ignoreSemPeriod = false;
-    // let completeSeriesWZero = false;
 
     // Start streams and prepare queries
     let { resolution, ignoreSemPeriod, completeSeriesWZero } = this.prepareForQuery(options, {
