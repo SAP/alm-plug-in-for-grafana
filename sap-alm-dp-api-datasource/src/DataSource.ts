@@ -453,44 +453,28 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   getDateFromTS(ts: string, tz: string, resolution: string, fdow = 1): Date {
+    let toBegin = {
+      mi: ['H', 'D', 'M', 'Y', 'W'],
+      h: ['D', 'M', 'Y', 'W'],
+      d: ['M', 'Y'],
+      m: ['Y']
+    };
     let y = ts.substring(0, 4),
-      m = ts.substring(4, 6),
-      d = ts.substring(6, 8),
-      h = ts.substring(8, 10),
-      mi = ts.substring(10, 12);
-      
-    switch (resolution) {
-      case 'H':
-        mi = '00';
-        break;
-      case 'D':
-        mi = '00';
-        h = '00';
-        break;
-      case 'M':
-        mi = '00';
-        h = '00';
-        d = '01';
-        break;
-      case 'y':
-        mi = '00';
-        h = '00';
-        d = '01';
-        m = '01';
-        break;
-      case 'W':
-        let val = new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
-        let cd = val.getDay();
-        let diff = (cd - fdow) * 24 * 60 * 60 * 1000;
-        let newVal = new Date(val.getTime() - diff);
-        let td = newVal.getDate().toString();
-        d = td.length < 2 ? `0${td}` : td;
-        mi = '00';
-        h = '00';
-        break;
-      default:
-        // Nothing
+      m = (toBegin.m.indexOf(resolution) >= 0) ? '01' : ts.substring(4, 6),
+      d = (toBegin.d.indexOf(resolution) >= 0) ? '01' : ts.substring(6, 8),
+      h = (toBegin.h.indexOf(resolution) >= 0) ? '00' : ts.substring(8, 10),
+      mi = (toBegin.mi.indexOf(resolution) >= 0) ? '00' : ts.substring(10, 12);
+    
+    // Take care of weekly granularity to look for first day of the week
+    if (resolution === 'W') {
+      let val = new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
+      let cd = val.getDay();
+      let diff = (cd - fdow) * 24 * 60 * 60 * 1000;
+      let newVal = new Date(val.getTime() - diff);
+      let td = newVal.getDate().toString();
+      d = td.length < 2 ? `0${td}` : td;
     }
+
     return new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
   }
 
