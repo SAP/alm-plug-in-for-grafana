@@ -16,12 +16,17 @@ const formatAsOptions = [
 ];
 
 const resOptions = [
+  { label: '5 Minutes', value: Resolution.Min5 },
+  { label: '10 Minutes', value: Resolution.Min10 },
+  { label: '15 Minutes', value: Resolution.Min15 },
+  { label: '30 Minutes', value: Resolution.Min30 },
   { label: 'Hours', value: Resolution.Hour },
   { label: 'Days', value: Resolution.Day },
   { label: 'Weeks', value: Resolution.Week },
   { label: 'Months', value: Resolution.Month },
   { label: 'Years', value: Resolution.Year },
   { label: 'Raw', value: Resolution.Raw },
+  { label: 'Period', value: Resolution.Period },
 ];
 
 const aggrMethods = [
