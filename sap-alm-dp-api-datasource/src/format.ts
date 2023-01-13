@@ -11,6 +11,11 @@ export enum Resolution {
   Month = 'M',
   Year = 'Y',
   Raw = 'R',
+  Period = 'P',
+  Min5 = '5Mi',
+  Min10 = '10Mi',
+  Min15 = '15Mi',
+  Min30 = '30Mi',
 }
 
 export enum AggrMethod {
