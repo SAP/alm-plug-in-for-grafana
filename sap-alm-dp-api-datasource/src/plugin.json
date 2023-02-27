@@ -3,6 +3,7 @@
   "name": "SAP ALM DP API",
   "id": "sap-alm-dp-api-datasource",
   "metrics": true,
+  "logs": true,
   "info": {
     "description": "SAP ALM DP API Datasource",
     "author": {
