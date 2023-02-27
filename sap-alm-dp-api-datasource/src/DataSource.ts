@@ -421,6 +421,53 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     });
   }
 
+  getLogLevelByMsgType(type: string): string {
+    switch (type) {
+      case "W":
+        return "warn";
+      case "E":
+        return "error";
+      default:
+        return "info";
+    }
+  }
+
+  getDataFrameForLogs(response: FetchResponse): MutableDataFrame | undefined {
+    const headerField = "sap-message";
+    if (!response.headers.has(headerField) && !response.data.error) {
+      return undefined;
+    }
+
+    const frame = new MutableDataFrame({
+      fields: [
+        {
+          name: 'time',
+          type: FieldType.time,
+        },
+        {
+          name: 'content',
+          type: FieldType.string,
+        },
+        {
+          name: 'level',
+          type: FieldType.string,
+        },
+      ],
+    });
+
+    if (response.data.error) {
+      frame.add({time: Date.now(), content: response.data.message, level: this.getLogLevelByMsgType("E")});
+    }
+
+    let sapMsg = response.headers.get(headerField);
+    let allMsgs = JSON.parse(sapMsg === null ? "[]" : sapMsg);
+
+    allMsgs.forEach((msg: any) => {
+      frame.add({time: this.getLinuxTimeFromTimeStamp(`${msg.time}`), content: msg.content, level: this.getLogLevelByMsgType(msg.type)});
+    });
+    return frame;
+  }
+
   getDataFrameFromTimeSeries(series: any, refId: string): MutableDataFrame {
     let labels: Labels = {};
     series.attributes.forEach((attr: any) => {
@@ -509,6 +556,18 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             break;
           case 'Y':
             step = 365 * 24 * 60 * 60000;
+            break;
+          case '5Mi':
+            step = 5 * 60000;
+            break;
+          case '10Mi':
+            step = 10 * 60000;
+            break;
+          case '15Mi':
+            step = 15 * 60000;
+            break;
+          case '30Mi':
+            step = 30 * 60000;
             break;
           default:
             step = 60000;
@@ -614,6 +673,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
 
+    const logsFrame = this.getDataFrameForLogs(response);
+    if (logsFrame) {
+      data.push(logsFrame);
+    }
+    
     if (response.data.error) {
       error = this.getErrorFromResponse(response);
     } else {
@@ -637,7 +701,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         }
       }
     }
-
+    
     return { data, error };
   }
 
@@ -675,6 +739,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   processTableResult(queries: any, response: FetchResponse): DataQueryResponse {
     const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
+
+    const logsFrame = this.getDataFrameForLogs(response);
+    if (logsFrame) {
+      data.push(logsFrame);
+    }
 
     if (response.data.error) {
       error = this.getErrorFromResponse(response);

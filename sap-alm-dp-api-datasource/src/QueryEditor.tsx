@@ -200,7 +200,7 @@ export class QueryEditor extends PureComponent<Props> {
   };
 
   /* Load Data Providers List */
-  loadDPFilters = (dp: SelectableValue<string> = {}, rfilter?: DPFilterResponse, parents?: string[]) => {
+  loadDPFilters = (dp: SelectableValue<string> = {}, rfilter?: DPFilterResponse, parents?: string[], fromValSel = false) => {
     const { query, datasource, onChange } = this.props;
 
     // Load all related filters
@@ -273,6 +273,7 @@ export class QueryEditor extends PureComponent<Props> {
 
             // Get related filters in case needed.
             if (
+              !fromValSel &&
               filter &&
               filter.key.value &&
               filter.key.value !== '' &&
@@ -333,9 +334,9 @@ export class QueryEditor extends PureComponent<Props> {
     }
   };
 
-  retrieveRelatedFilters = (filter: DPFilterResponse, parents?: string[]) => {
+  retrieveRelatedFilters = (filter: DPFilterResponse, parents?: string[], fromValSel = false) => {
     const { query } = this.props;
-    this.loadDPFilters(query.dataProvider, filter, parents);
+    this.loadDPFilters(query.dataProvider, filter, parents, fromValSel);
   };
 
   /* Get combined selected filter values */
@@ -481,7 +482,7 @@ export class QueryEditor extends PureComponent<Props> {
     // Check for refresh action
     let fv = query.dataProviderFilters[i].key.value;
     if (fv && this.dataProviderFiltersValues[fv].triggerRefresh) {
-      this.retrieveRelatedFilters(this.dataProviderFiltersValues[fv]);
+      this.retrieveRelatedFilters(this.dataProviderFiltersValues[fv], undefined, true);
     }
 
     onChange({ ...query, dataProviderFilters: query.dataProviderFilters });
@@ -499,7 +500,7 @@ export class QueryEditor extends PureComponent<Props> {
     // Check for refresh action
     let fv = query.dataProviderFilters[i].key.value;
     if (fv && this.dataProviderFiltersValues[fv].triggerRefresh) {
-      this.retrieveRelatedFilters(this.dataProviderFiltersValues[fv]);
+      this.retrieveRelatedFilters(this.dataProviderFiltersValues[fv], undefined, true);
     }
 
     onChange({ ...query, dataProviderFilters: query.dataProviderFilters });
