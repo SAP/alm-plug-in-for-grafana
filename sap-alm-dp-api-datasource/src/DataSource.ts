@@ -1,4 +1,5 @@
 import defaults from 'lodash/defaults';
+import moment from 'moment-timezone';
 
 import {
   DataQueryRequest,
@@ -827,31 +828,43 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   prepareTimeRangeForQuery(options: DataQueryRequest<MyQuery>, settings: any): any {
     // Get time zone offset in hours.
-    let tzOffset = options.range.from.utcOffset() / 60;
-    let tzHoursStr = this.getIntNumberInString(tzOffset, 2, true);
+    let utcOffset;
+    let reqFrom = moment(options.range.from.format()), reqTo = moment(options.range.to.format());
+    if (options.timezone !== "browser") {
+      utcOffset = moment().tz(options.timezone).format("Z");
+      reqFrom.tz(options.timezone);
+      reqTo.tz(options.timezone);
+    } else {
+      utcOffset = options.range.from.format("Z");
+    }
+    
+    // let tzOffset = utcOffset / 60;
+    // let tzHoursStr = this.getIntNumberInString(tzOffset, 2, true);
     // Get remaining time zone offset in minutes.
-    let tzMinutes = Math.abs(options.range.from.utcOffset() % 60);
-    let tzMinutesStr = this.getIntNumberInString(tzMinutes, 2);
+    // let tzMinutes = Math.abs(utcOffset % 60);
+    // let tzMinutesStr = this.getIntNumberInString(tzMinutes, 2);
     // Get time zone offset into string.
-    let timezone = `${tzHoursStr}:${tzMinutesStr}`;
+    // let timezone = `${tzHoursStr}:${tzMinutesStr}`;
+    let timezone = utcOffset;
     // Period for request.
     let period = settings.ignoreSemPeriod ? '' : this.getPeriodForRequest(options.range.raw, settings.resolution);
     // From and To time stamps.
     let from;
     let to;
+    const dtFormat = 'YYYYMMDDHHmmss';
     // To time stamp.
     // let to = period !== "" ? undefined : this.getTimeStampForRequest(options.range.to);
-    to = this.getTimeStampForRequest(options.range.to);
+    to = reqTo.format(dtFormat);
     // From time stamp.
     // Check for restriction of raw resolution.
     if (
       settings.resolution === Resolution.Raw &&
       (period === 'L2H' || period === 'C2H') &&
-      options.range.to.diff(options.range.from, 'hours') > 2
+      reqTo.diff(reqFrom, 'hours') > 2
     ) {
-      from = this.getTimeStampForRequest(options.range.to.subtract(2, 'hours'));
+      from = reqTo.subtract(2, 'hours').format(dtFormat);
     } else {
-      from = this.getTimeStampForRequest(options.range.from);
+      from = reqFrom.format(dtFormat);
     }
 
     return {
