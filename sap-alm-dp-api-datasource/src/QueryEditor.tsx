@@ -37,6 +37,7 @@ const aggrMethods = [
 ];
 
 export class QueryEditor extends PureComponent<Props> {
+  dataProviderOptionsBackup: Array<SelectableValue<string>> = [];
   dataProviderOptions: Array<SelectableValue<string>> = [];
   dataProviderFilterOptions: Array<SelectableValue<string>> = [];
   dataProviderCustomFilterOptions: Array<SelectableValue<string>> = [];
@@ -116,12 +117,34 @@ export class QueryEditor extends PureComponent<Props> {
     onChange({ ...query, dataProviderFilters: query.dataProviderFilters });
   };
 
+  searchDP = (q: string) => {
+    this.dataProviderOptions = [];
+    if (q && q !== '') {
+      this.dataProviderOptionsBackup.forEach((option) => {
+        if ((option.label && option.label.indexOf(q) > -1)
+        || (option.value && option.value.indexOf(q) > -1)) {
+          this.dataProviderOptions.push({
+            label: option.label,
+            value: option.value,
+            description: option.description,
+          });
+        }
+      });
+    } else {
+      this.dataProviderOptions = this.dataProviderOptionsBackup.map((option) => ({
+        label: option.label,
+        value: option.value,
+        description: option.description,
+      }));
+    }
+  };
+
   /* Load Data Providers List */
   loadDataProviders = (q: string) => {
     const { query, datasource } = this.props;
 
     return new Promise<Array<SelectableValue<string>>>((resolve) => {
-      if (this.dataProviderOptions.length === 0) {
+      if (this.dataProviderOptionsBackup.length === 0) {
         // Retrieval of data providers list and parse it to options list
         datasource.searchDataProviders(q, query.refId).subscribe((result) => {
           result.sort((a, b) => {
@@ -132,11 +155,13 @@ export class QueryEditor extends PureComponent<Props> {
             }
             return 0;
           });
-          this.dataProviderOptions = result.map((value) => ({
+          this.dataProviderOptionsBackup = result.map((value) => ({
             label: value.text,
             value: value.value,
             description: value.value,
           }));
+
+          this.searchDP(q);
 
           const fdp = this.dataProviderOptions.find((dp) => {
             return dp.value === query.dataProvider.value;
@@ -152,6 +177,7 @@ export class QueryEditor extends PureComponent<Props> {
           resolve(this.dataProviderOptions);
         });
       } else {
+        this.searchDP(q);
         resolve(this.dataProviderOptions);
       }
     });
@@ -200,7 +226,12 @@ export class QueryEditor extends PureComponent<Props> {
   };
 
   /* Load Data Providers List */
-  loadDPFilters = (dp: SelectableValue<string> = {}, rfilter?: DPFilterResponse, parents?: string[], fromValSel = false) => {
+  loadDPFilters = (
+    dp: SelectableValue<string> = {},
+    rfilter?: DPFilterResponse,
+    parents?: string[],
+    fromValSel = false
+  ) => {
     const { query, datasource, onChange } = this.props;
 
     // Load all related filters
