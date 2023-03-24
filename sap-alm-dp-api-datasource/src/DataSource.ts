@@ -208,7 +208,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           t.split(',').forEach((ts) => {
             query.columns.metrics.push({ measure: ts, method: v.aggrMethod.value });
           });
-        } else {
+        } else  if (v.value.value && v.aggrMethod.value) {
           // Otherwise simply add
           query.columns.metrics.push({ measure: v.value.value, method: v.aggrMethod.value });
         }
