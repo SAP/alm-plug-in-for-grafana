@@ -591,7 +591,20 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let seriesDate = new Date(series.dataPoints[idx][1]);
     let insertDate = new Date(ts);
     let scales =  ['Y', 'M', 'D', 'H', 'Mi'];
-    let stop = settings.resolution === 'W' ? 'D' : settings.resolution;
+    let stop;
+    switch (settings.resolution) {
+      case 'W':
+        stop = 'D';
+        break;
+      case '5Mi':
+      case '10Mi':
+      case '15Mi':
+      case '30Mi':
+        stop = 'Mi';
+        break;
+      default:
+        stop = settings.resolution;
+    }
     let is = 0;
     let bSame = true;
 
