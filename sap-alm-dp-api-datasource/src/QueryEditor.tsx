@@ -274,8 +274,9 @@ export class QueryEditor extends PureComponent<Props> {
             // Extract list of measures
             if (!exist && filter.type === 'measure') {
               this.dataProviderMeasuresOptions = filter.values.map((value) => ({
-                label: value.label,
+                label: value.key,
                 value: value.key,
+                description: value.label
               }));
             }
           });
