@@ -76,12 +76,15 @@ This section will help you build the plugin and install it manually in your Graf
 - Open command and go to `sap-alm-dp-api-datasource` folder.
 - Use command `yarn install` to install dependency libraries.
 - Use command `yarn build` to build the plugin. This should create `dist` folder.
-- Create `sap-alm-dp-api-datasource` folder in your Grafana plugins directory. Normally it should be in /data/plugins folder. For more information please refer to [Grafana Configuration Doc](https://grafana.com/docs/grafana/latest/).
+- Create `sap-alm-dp-api-datasource` folder in your Grafana plugins directory (check the plugins parameter in the [PATHS](https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#paths) section in your *.ini file). 
+  - Linux: the plugin directory is usually /var/lib/grafana/plugins.
+  - [Windows](https://grafana.com/docs/grafana/latest/setup-grafana/installation/windows/): the plugin directory can be $WORKING_DIR/plugins-bundled.  
+- For more information please refer to [Grafana Configuration Doc](https://grafana.com/docs/grafana/latest/).
 - Copy the newly created `dist` folder into the newly created `sap-alm-dp-api-datasource` in Grafana plugins directory.
  > If you are upgrading the plugin from a previous version, make sure to backup the `package.json` file first. This file could include several [Cloud ALM API](#Setup) endpoints previously configured in the `routes` section.
 
 - Restart your Grafana or Grafana server to discover the plugin.
-- Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to `grafana.ini` file: `allow_loading_unsigned_plugins=sap-alm-dp-api-datasource`
+- Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to `grafana.ini` file (`custom.ini` in windows): `allow_loading_unsigned_plugins=sap-alm-dp-api-datasource`
 
 
 ## Setup
