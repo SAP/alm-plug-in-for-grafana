@@ -84,7 +84,7 @@ This section will help you build the plugin and install it manually in your Graf
  > If you are upgrading the plugin from a previous version, make sure to backup the `package.json` file first. This file could include several [Cloud ALM API](#Setup) endpoints previously configured in the `routes` section.
 
 - Restart your Grafana or Grafana server to discover the plugin.
-- Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to `grafana.ini` file: `allow_loading_unsigned_plugins=sap-alm-dp-api-datasource`
+- Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to `grafana.ini` file (`custom.ini` in windows): `allow_loading_unsigned_plugins=sap-alm-dp-api-datasource`
 
 
 ## Setup
