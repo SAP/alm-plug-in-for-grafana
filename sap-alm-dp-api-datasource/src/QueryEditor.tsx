@@ -454,6 +454,17 @@ export class QueryEditor extends PureComponent<Props> {
     onRunQuery();
   };
 
+  onProgressLastDataPointChange = (e: { currentTarget: { checked: any } }) => {
+    const { onChange, query, onRunQuery } = this.props;
+
+    onChange({
+      ...query,
+      progressLastDataPoint: e.currentTarget.checked,
+    });
+    // executes the query
+    onRunQuery();
+  };
+
   /* Query Type Change */
   onTypeChange = (value: SelectableValue<Format>) => {
     const { onChange, query, onRunQuery } = this.props;
@@ -633,6 +644,7 @@ export class QueryEditor extends PureComponent<Props> {
       resolution,
       ignoreSemanticPeriod,
       completeTimeSeriesWZero,
+      progressLastDataPoint,
     } = query;
 
     // Check if selected filter is correct, load filter's values
@@ -703,6 +715,17 @@ export class QueryEditor extends PureComponent<Props> {
               </label>
               <div className="gf-form-switch">
                 <Switch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} />
+              </div>
+
+              <label className="gf-form-label marginL4px width-15">
+                Progressive Last Data Point
+                <IconButton
+                  name="info-circle"
+                  tooltip="The data point's value of current time stamp has not finished yet. This will update the approriate last time stamp to current time."
+                />
+              </label>
+              <div className="gf-form-switch">
+                <Switch value={progressLastDataPoint} onChange={this.onProgressLastDataPointChange} />
               </div>
             </div>
           </>

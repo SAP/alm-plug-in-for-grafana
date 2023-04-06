@@ -379,18 +379,24 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return resolution;
   }
 
-  getLinuxTimeFromTimeStamp(ts: string): number {
-    const d = new Date(
-      Date.UTC(
-        Number(ts.substring(0, 4)),
-        Number(ts.substring(4, 6)) - 1,
-        Number(ts.substring(6, 8)),
-        Number(ts.substring(8, 10)),
-        Number(ts.substring(10, 12)),
-        Number(ts.substring(12, 14))
-      )
-    );
-    return d.getTime();
+  getLinuxTimeFromTimeStamp(ts: string, tz?: string): number {
+    let D;
+    let y = Number(ts.substring(0, 4)),
+        m = Number(ts.substring(4, 6)) - 1,
+        d = Number(ts.substring(6, 8)),
+        h = Number(ts.substring(8, 10)),
+        mi = Number(ts.substring(10, 12)),
+        s = Number(ts.substring(12, 14))
+
+    if (tz && tz !== null) {
+      D = new Date(`${y}-${m}-${d}T${h}:${mi}:${s}.000${tz}`);
+    } else {
+      D = new Date(
+        Date.UTC(y,m,d,h,mi,s)
+      );
+    }
+    
+    return D.getTime();
   }
 
   parseSeriesPoints(points: Array<{ x: any; y: any }>): any[] {
@@ -643,7 +649,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
-  fillSeriesGaps(series: any, value: string | number | null, query: any, settings: any) {
+  fillSeriesGaps(series: any, value: string | number | null, settings: any) {
     if (!settings || !settings.resolution || settings.resolution === 'R' || !settings.timeRange) {
       return;
     }
@@ -683,6 +689,69 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
   }
 
+  checkApproriateCurrentTS(ts: number, settings: any): boolean {
+    let bOK = false;
+    let diff = this.getLinuxTimeFromTimeStamp(settings.timeRange.to, settings.timezone) - ts;
+    let threshold = 0;
+    switch (settings.resolution) {
+      case 'H':
+        threshold = 60 * 60000;
+        break;
+      case 'D':
+        threshold = 24 * 60 * 60000;
+        break;
+      case 'W':
+        threshold = 7 * 24 * 60 * 60000;
+        break;
+      case 'M':
+        threshold = 30 * 24 * 60 * 60000;
+        break;
+      case 'Y':
+        threshold = 365 * 24 * 60 * 60000;
+        break;
+      case '5Mi':
+        threshold = 5 * 60000;
+        break;
+      case '10Mi':
+        threshold = 10 * 60000;
+        break;
+      case '15Mi':
+        threshold = 15 * 60000;
+        break;
+      case '30Mi':
+        threshold = 30 * 60000;
+        break;
+      default:
+    }
+    bOK = (diff <= threshold);
+    return bOK;
+  }
+
+  progressLastDP(series: any, settings: any) {
+    if (!settings || !settings.resolution || settings.resolution === 'R' || !settings.selectedPeriod || !settings.timeRange) {
+      return;
+    }
+
+    // Get last point
+    let lastDP = series.dataPoints[series.dataPoints.length - 1];
+    // Progress if correct
+    if (this.checkApproriateCurrentTS(lastDP[1], settings)) {
+      series.dataPoints[series.dataPoints.length - 1][1] = this.getLinuxTimeFromTimeStamp(settings.timeRange.to, settings.timezone);
+    }
+  }
+
+  processSeries(series: any, settings: any, soloSeries: boolean) {
+    this.sortSeriesDataPoints(series.dataPoints);
+    // Progress last point
+    if (settings.progressLastDataPoint) {
+      this.progressLastDP(series, settings);
+    }
+    // Only fill for query that has 1 series in return
+    if (settings.completeSeriesWZeros && soloSeries) {
+      this.fillSeriesGaps(series, 0, settings);
+    }
+  }
+
   processTimeSeriesResult(queries: any, response: FetchResponse, settings: any): DataQueryResponse {
     const data: MutableDataFrame[] = [];
     let error: DataQueryError | undefined = undefined;
@@ -706,11 +775,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           if (!series) {
             continue;
           }
-          this.sortSeriesDataPoints(series.dataPoints);
-          // Only fill for query that has 1 series in return
-          if (settings.completeSeriesWZeros && qseries.length === 1) {
-            this.fillSeriesGaps(series, 0, queries[i], settings);
-          }
+
+          this.processSeries(series, settings, (qseries.length === 1));
+
           data.push(this.getDataFrameFromTimeSeries(series, queries[i].refId));
         }
       }
@@ -776,6 +843,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let resolution: string = this.resolution;
     let ignoreSemPeriod = false;
     let completeSeriesWZero = false;
+    let progressLastDataPoint = false;
 
     for (const target of options.targets) {
       if (target.hide) {
@@ -797,6 +865,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         }
         ignoreSemPeriod = target.ignoreSemanticPeriod ? target.ignoreSemanticPeriod : false;
         completeSeriesWZero = target.completeTimeSeriesWZero ? target.completeTimeSeriesWZero : false;
+        progressLastDataPoint = target.progressLastDataPoint ? target.progressLastDataPoint : false;
       } else {
         if (!target.dataProvider || !target.dataProvider.value) {
           continue;
@@ -835,7 +904,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return {
       resolution: resolution,
       ignoreSemPeriod: ignoreSemPeriod,
-      completeSeriesWZero: completeSeriesWZero
+      completeSeriesWZero: completeSeriesWZero,
+      progressLastDataPoint: progressLastDataPoint
     };
   }
 
@@ -860,7 +930,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // let timezone = `${tzHoursStr}:${tzMinutesStr}`;
     let timezone = utcOffset;
     // Period for request.
-    let period = settings.ignoreSemPeriod ? '' : this.getPeriodForRequest(options.range.raw, settings.resolution);
+    let selPeriod = this.getPeriodForRequest(options.range.raw, settings.resolution);
+    let period = settings.ignoreSemPeriod ? '' : selPeriod;
     // From and To time stamps.
     let from;
     let to;
@@ -884,7 +955,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       period: period,
       from: from,
       to: to,
-      timezone: timezone
+      timezone: timezone,
+      selPeriod: selPeriod
     };
   }
 
@@ -896,13 +968,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const streams: Array<Observable<DataQueryResponse>> = [];
 
     // Start streams and prepare queries
-    let { resolution, ignoreSemPeriod, completeSeriesWZero } = this.prepareForQuery(options, {
+    let { resolution, ignoreSemPeriod, completeSeriesWZero, progressLastDataPoint } = this.prepareForQuery(options, {
       tSeries: queriesTSeries,
       table: queriesTable,
       rTable: queriesRTable
     });
     // Prepare time range
-    let { period, from, to, timezone } = this.prepareTimeRangeForQuery(options, {
+    let { period, from, to, timezone, selPeriod } = this.prepareTimeRangeForQuery(options, {
       ignoreSemPeriod: ignoreSemPeriod,
       resolution: resolution
     });
@@ -935,7 +1007,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         this.processTimeSeriesResult(queriesTSeries, response, {
           isFRUN: this.isFRUN,
           completeSeriesWZeros: completeSeriesWZero,
+          progressLastDataPoint: progressLastDataPoint,
           timeRange: body.timeRange,
+          selectedPeriod: selPeriod,
           resolution: resolution,
           timezone: timezone,
         })
