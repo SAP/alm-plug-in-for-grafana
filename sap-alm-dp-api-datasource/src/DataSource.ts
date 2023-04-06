@@ -736,7 +736,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let lastDP = series.dataPoints[series.dataPoints.length - 1];
     // Progress if correct
     if (this.checkApproriateCurrentTS(lastDP[1], settings)) {
-      console.log(settings);
       series.dataPoints[series.dataPoints.length - 1][1] = this.getLinuxTimeFromTimeStamp(settings.timeRange.to, settings.timezone);
     }
   }
