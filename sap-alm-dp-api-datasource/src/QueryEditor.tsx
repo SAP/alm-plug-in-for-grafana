@@ -121,8 +121,7 @@ export class QueryEditor extends PureComponent<Props> {
     this.dataProviderOptions = [];
     if (q && q !== '') {
       this.dataProviderOptionsBackup.forEach((option) => {
-        if ((option.label && option.label.indexOf(q) > -1)
-        || (option.value && option.value.indexOf(q) > -1)) {
+        if ((option.label && option.label.indexOf(q) > -1) || (option.value && option.value.indexOf(q) > -1)) {
           this.dataProviderOptions.push({
             label: option.label,
             value: option.value,
@@ -276,7 +275,7 @@ export class QueryEditor extends PureComponent<Props> {
               this.dataProviderMeasuresOptions = filter.values.map((value) => ({
                 label: value.key,
                 value: value.key,
-                description: value.label
+                description: value.label,
               }));
             }
           });
@@ -607,13 +606,42 @@ export class QueryEditor extends PureComponent<Props> {
   render() {
     const css = `
     .filterVal-text-truncate {
-      width: 160px;
+      flex-grow: 1;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
     }
+    .filterLabel-text-truncate {
+      max-width: 81px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .filter-container {
+      min-width: 300px;
+      flex-grow: 1;
+    }
+    .filter-info-container {
+      flex-grow: 1;
+      justify-content: flex-start;
+      padding: 0;
+    }
+    .filter-add-btn-container {
+      min-width: 300px;
+      flex-grow: 1;
+      justify-content: flex-start;
+      background-color: transparent;
+      padding: 0;
+    }
     .marginL4px {
       margin-left: 4px;
+    }
+    .marginB4px {
+      margin-bottom: 4px;
+    }
+    .wrap-flex {
+      flex-grow: 1;
+      flex-wrap: wrap;
     }
     `;
     const defaultQuery: Partial<MyQuery> = {
@@ -646,6 +674,8 @@ export class QueryEditor extends PureComponent<Props> {
       completeTimeSeriesWZero,
       progressLastDataPoint,
     } = query;
+
+    const { isFRUN } = this.props.datasource;
 
     // Check if selected filter is correct, load filter's values
     // This needs to be done to ini custom filter options
@@ -716,9 +746,11 @@ export class QueryEditor extends PureComponent<Props> {
               <div className="gf-form-switch">
                 <Switch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} />
               </div>
+            </div>
 
-              <label className="gf-form-label marginL4px width-15">
-                Progressive Last Data Point
+            <div className="gf-form">
+              <label className="gf-form-label width-11">
+                Progress Last Data Point
                 <IconButton
                   name="info-circle"
                   tooltip="The data point's value of current time stamp has not finished yet. This will update the approriate last time stamp to current time."
@@ -763,202 +795,217 @@ export class QueryEditor extends PureComponent<Props> {
             </div>
             <div className="gf-form">
               <label className="gf-form-label width-11">Filters</label>
-              {dataProviderFilters?.map((f, i) => {
-                return (
-                  <span className="gf-form-label" key={i}>
-                    <a
-                      style={f.keySelected ? { display: 'none' } : {}}
-                      onClick={() => {
-                        this.dpfSetKeySelectedState(i, true);
-                      }}
-                      title={f.key.description}
-                    >
-                      {f.key && f.key.label ? f.key.label : `[key${i}]`}
-                    </a>
+              <div className="gf-form wrap-flex">
+                {dataProviderFilters?.map((f, i) => {
+                  return (
+                    <span className="gf-form-label filter-container" key={i}>
+                      <div className="gf-form-label filter-info-container">
+                        <a
+                          style={f.keySelected ? { display: 'none' } : {}}
+                          className="filterLabel-text-truncate"
+                          onClick={() => {
+                            this.dpfSetKeySelectedState(i, true);
+                          }}
+                          title={f.key.label}
+                        >
+                          {f.key && f.key.label ? f.key.label : `[key${i}]`}
+                        </a>
 
-                    <span style={f.keySelected ? {} : { display: 'none' }}>
-                      <Select
-                        maxMenuHeight={170}
-                        width={20}
-                        options={[...this.dataProviderFilterOptions, ...this.dataProviderCustomFilterOptions]}
-                        value={f.key}
-                        onBlur={() => {
-                          this.dpfSetKeySelectedState(i, false);
-                        }}
-                        onChange={(value) => {
-                          this.onDPFKeyChange(value, i);
-                        }}
-                        allowCustomValue
-                        onCreateOption={(customValue) => {
-                          this.dataProviderCustomFilterOptions = [
-                            ...this.dataProviderCustomFilterOptions,
-                            { label: customValue, value: customValue },
-                          ];
-                          this.onDPFKeyChange({ label: customValue, value: customValue }, i);
-                        }}
+                        <span style={f.keySelected ? {} : { display: 'none' }}>
+                          <Select
+                            maxMenuHeight={170}
+                            width={10}
+                            options={[...this.dataProviderFilterOptions, ...this.dataProviderCustomFilterOptions]}
+                            value={f.key}
+                            onBlur={() => {
+                              this.dpfSetKeySelectedState(i, false);
+                            }}
+                            onChange={(value) => {
+                              this.onDPFKeyChange(value, i);
+                            }}
+                            allowCustomValue
+                            onCreateOption={(customValue) => {
+                              this.dataProviderCustomFilterOptions = [
+                                ...this.dataProviderCustomFilterOptions,
+                                { label: customValue, value: customValue },
+                              ];
+                              this.onDPFKeyChange({ label: customValue, value: customValue }, i);
+                            }}
+                          />
+                        </span>
+                        <span>&nbsp;</span>
+                        <div className="query-segment-operator">=</div>
+                        <span>&nbsp;</span>
+                        <a
+                          style={f.valuesSelected ? { display: 'none' } : {}}
+                          className="filterVal-text-truncate"
+                          onClick={() => {
+                            this.dpfSetValueSelectedState(i, true);
+                          }}
+                          title={this.getCombinedFilterValues(f.values)}
+                        >
+                          {this.getCombinedFilterValues(f.values)}
+                        </a>
+                        <span style={f.valuesSelected ? {} : { display: 'none' }}>
+                          {f.key.value &&
+                          this.dataProviderFiltersValues[f.key.value] &&
+                          !this.dataProviderFiltersValues[f.key.value].isMultiple ? (
+                            <Select
+                              maxMenuHeight={170}
+                              width={19}
+                              options={[
+                                ...this.dataProviderFilterValueOptions[i],
+                                ...this.dataProviderCustomFilterValueOptions[i],
+                              ]}
+                              value={f.values}
+                              onBlur={() => {
+                                this.dpfSetValueSelectedState(i, false);
+                              }}
+                              onChange={(value) => {
+                                this.onDPFValueChange(value, i);
+                              }}
+                              allowCustomValue
+                              onCreateOption={(customValue) => {
+                                this.dataProviderCustomFilterValueOptions[i] = [
+                                  ...this.dataProviderCustomFilterValueOptions[i],
+                                  { label: customValue, value: customValue },
+                                ];
+                                this.onDPFValueChange({ label: customValue, value: customValue }, i);
+                              }}
+                            />
+                          ) : (
+                            <MultiSelect
+                              maxMenuHeight={170}
+                              width={20}
+                              options={[
+                                ...this.dataProviderFilterValueOptions[i],
+                                ...this.dataProviderCustomFilterValueOptions[i],
+                              ]}
+                              value={f.values}
+                              onBlur={() => {
+                                this.dpfSetValueSelectedState(i, false);
+                              }}
+                              onChange={(value) => {
+                                this.onDPFValuesChange(value, i);
+                              }}
+                              allowCustomValue
+                              onCreateOption={(customValue) => {
+                                this.dataProviderCustomFilterValueOptions[i] = [
+                                  ...this.dataProviderCustomFilterValueOptions[i],
+                                  { label: customValue, value: customValue },
+                                ];
+                                this.onDPFValuesChange([{ label: customValue, value: customValue }], i);
+                              }}
+                            />
+                          )}
+                        </span>
+
+                        <span>&nbsp;&nbsp;&nbsp;</span>
+                      </div>
+                      <Button
+                        data-key={i}
+                        size="sm"
+                        variant="secondary"
+                        icon="times"
+                        title="Remove filter"
+                        onClick={this.onDPFRemovePress}
                       />
                     </span>
-                    <span>&nbsp;</span>
-                    <div className="query-segment-operator">=</div>
-                    <span>&nbsp;</span>
-                    <a
-                      style={f.valuesSelected ? { display: 'none' } : {}}
-                      className="filterVal-text-truncate"
-                      onClick={() => {
-                        this.dpfSetValueSelectedState(i, true);
-                      }}
-                      title={this.getCombinedFilterValues(f.values)}
-                    >
-                      {this.getCombinedFilterValues(f.values)}
-                    </a>
-                    <span style={f.valuesSelected ? {} : { display: 'none' }}>
-                      {f.key.value &&
-                      this.dataProviderFiltersValues[f.key.value] &&
-                      !this.dataProviderFiltersValues[f.key.value].isMultiple ? (
+                  );
+                })}
+                <span className="gf-form-label filter-add-btn-container">
+                  <Button
+                    icon="plus"
+                    variant="secondary"
+                    title="Add new filter"
+                    onClick={this.onAddNewFilterClick}
+                    className="gf-form-label query-part"
+                  />
+                </span>
+              </div>
+            </div>
+            {isFRUN ? (
+              <></>
+            ) : (
+              <>
+                {/* <div className="gf-form-inline"> */}
+                <div className="gf-form">
+                  <label className="gf-form-label width-11">Dimensions</label>
+                  <MultiSelect
+                    maxMenuHeight={170}
+                    options={[...this.dataProviderDimensionOptions, ...this.dataProviderCustomDimensionOptions]}
+                    value={drilldown.dimensions}
+                    onChange={(value) => {
+                      this.onDrilldownDimValuesChange(value);
+                    }}
+                    allowCustomValue
+                    onCreateOption={(customValue) => {
+                      this.dataProviderCustomDimensionOptions = [
+                        ...this.dataProviderCustomDimensionOptions,
+                        { label: customValue, value: customValue },
+                      ];
+                      this.onDrilldownDimValuesChange([{ label: customValue, value: customValue }]);
+                    }}
+                  />
+                </div>
+                <div className="gf-form">
+                  <label className="gf-form-label width-11">Measures</label>
+                  <div className="gf-form wrap-flex">
+                    {drilldown.measures.map((m, i) => (
+                      <span className="gf-form-label" key={i}>
+                        <Select
+                          width={20}
+                          maxMenuHeight={170}
+                          placeholder="Method"
+                          options={aggrMethods}
+                          value={m.aggrMethod}
+                          onChange={(value) => {
+                            this.onDrilldownMeasureMethodChange(value, i);
+                          }}
+                        />
+                        <span>&nbsp;</span>
+                        <div className="query-segment-operator">(</div>
+                        <span>&nbsp;</span>
                         <Select
                           maxMenuHeight={170}
-                          width={20}
-                          options={[
-                            ...this.dataProviderFilterValueOptions[i],
-                            ...this.dataProviderCustomFilterValueOptions[i],
-                          ]}
-                          value={f.values}
-                          onBlur={() => {
-                            this.dpfSetValueSelectedState(i, false);
-                          }}
+                          placeholder="Method"
+                          options={[...this.dataProviderMeasuresOptions, ...this.dataProviderCustomMeasuresOptions]}
+                          value={m.value}
                           onChange={(value) => {
-                            this.onDPFValueChange(value, i);
+                            this.onDrilldownMeasureValueChange(value, i);
                           }}
                           allowCustomValue
                           onCreateOption={(customValue) => {
-                            this.dataProviderCustomFilterValueOptions[i] = [
-                              ...this.dataProviderCustomFilterValueOptions[i],
-                              { label: customValue, value: customValue },
-                            ];
-                            this.onDPFValueChange({ label: customValue, value: customValue }, i);
+                            this.onDrilldownMeasureValueChange({ label: customValue, value: customValue }, i);
                           }}
                         />
-                      ) : (
-                        <MultiSelect
-                          maxMenuHeight={170}
-                          width={20}
-                          options={[
-                            ...this.dataProviderFilterValueOptions[i],
-                            ...this.dataProviderCustomFilterValueOptions[i],
-                          ]}
-                          value={f.values}
-                          onBlur={() => {
-                            this.dpfSetValueSelectedState(i, false);
-                          }}
-                          onChange={(value) => {
-                            this.onDPFValuesChange(value, i);
-                          }}
-                          allowCustomValue
-                          onCreateOption={(customValue) => {
-                            this.dataProviderCustomFilterValueOptions[i] = [
-                              ...this.dataProviderCustomFilterValueOptions[i],
-                              { label: customValue, value: customValue },
-                            ];
-                            this.onDPFValuesChange([{ label: customValue, value: customValue }], i);
-                          }}
+                        <span>&nbsp;</span>
+                        <div className="query-segment-operator">)</div>
+                        <span>&nbsp;</span>
+
+                        <span>&nbsp;&nbsp;&nbsp;</span>
+                        <Button
+                          data-key={i}
+                          size="sm"
+                          variant="secondary"
+                          icon="times"
+                          title="Remove filter"
+                          onClick={this.onDrilldownMeasureRemovePress}
                         />
-                      )}
-                    </span>
-
-                    <span>&nbsp;&nbsp;&nbsp;</span>
+                      </span>
+                    ))}
                     <Button
-                      data-key={i}
-                      size="sm"
+                      icon="plus"
                       variant="secondary"
-                      icon="times"
-                      title="Remove filter"
-                      onClick={this.onDPFRemovePress}
+                      title="Add new filter"
+                      onClick={this.onAddNewDrilldownMeasureClick}
+                      className="gf-form-label query-part"
                     />
-                  </span>
-                );
-              })}
-              <Button
-                icon="plus"
-                variant="secondary"
-                title="Add new filter"
-                onClick={this.onAddNewFilterClick}
-                className="gf-form-label query-part"
-              />
-            </div>
-            <div className="gf-form-inline">
-              <div className="gf-form max-width-21">
-                <label className="gf-form-label width-11">Dimensions</label>
-                <MultiSelect
-                  maxMenuHeight={170}
-                  options={[...this.dataProviderDimensionOptions, ...this.dataProviderCustomDimensionOptions]}
-                  value={drilldown.dimensions}
-                  onChange={(value) => {
-                    this.onDrilldownDimValuesChange(value);
-                  }}
-                  allowCustomValue
-                  onCreateOption={(customValue) => {
-                    this.dataProviderCustomDimensionOptions = [
-                      ...this.dataProviderCustomDimensionOptions,
-                      { label: customValue, value: customValue },
-                    ];
-                    this.onDrilldownDimValuesChange([{ label: customValue, value: customValue }]);
-                  }}
-                />
-              </div>
-              <div className="gf-form">
-                <label className="gf-form-label width-11">Measures</label>
-                {drilldown.measures.map((m, i) => (
-                  <span className="gf-form-label" key={i}>
-                    <Select
-                      width={20}
-                      maxMenuHeight={170}
-                      placeholder="Method"
-                      options={aggrMethods}
-                      value={m.aggrMethod}
-                      onChange={(value) => {
-                        this.onDrilldownMeasureMethodChange(value, i);
-                      }}
-                    />
-                    <span>&nbsp;</span>
-                    <div className="query-segment-operator">(</div>
-                    <span>&nbsp;</span>
-                    <Select
-                      maxMenuHeight={170}
-                      placeholder="Method"
-                      options={[...this.dataProviderMeasuresOptions, ...this.dataProviderCustomMeasuresOptions]}
-                      value={m.value}
-                      onChange={(value) => {
-                        this.onDrilldownMeasureValueChange(value, i);
-                      }}
-                      allowCustomValue
-                      onCreateOption={(customValue) => {
-                        this.onDrilldownMeasureValueChange({ label: customValue, value: customValue }, i);
-                      }}
-                    />
-                    <span>&nbsp;</span>
-                    <div className="query-segment-operator">)</div>
-                    <span>&nbsp;</span>
-
-                    <span>&nbsp;&nbsp;&nbsp;</span>
-                    <Button
-                      data-key={i}
-                      size="sm"
-                      variant="secondary"
-                      icon="times"
-                      title="Remove filter"
-                      onClick={this.onDrilldownMeasureRemovePress}
-                    />
-                  </span>
-                ))}
-                <Button
-                  icon="plus"
-                  variant="secondary"
-                  title="Add new filter"
-                  onClick={this.onAddNewDrilldownMeasureClick}
-                  className="gf-form-label query-part"
-                />
-              </div>
-            </div>
+                  </div>
+                </div>
+                {/* </div> */}
+              </>
+            )}
           </>
         )}
       </>
