@@ -33,6 +33,7 @@ export interface MyQuery extends DataQuery {
   drilldown: QueryDrilldown;
   ignoreSemanticPeriod?: boolean;
   completeTimeSeriesWZero?: boolean;
+  progressLastDataPoint?: boolean;
 }
 
 export interface MyVariableQuery {
@@ -58,6 +59,7 @@ export const defaultQuery: Partial<MyQuery> = {
   },
   ignoreSemanticPeriod: false,
   completeTimeSeriesWZero: false,
+  progressLastDataPoint: false,
 };
 
 /**
