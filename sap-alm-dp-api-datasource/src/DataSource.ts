@@ -95,7 +95,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             if (errHandled) {
               result = process(response);
             } else {
-              throw new Error(`Error ${response.status}: ${response.statusText}`);
+              let cid = "", cidh = "x-correlationid";
+              if (response.headers.has(cidh)) {
+                cid = `Correlation Id: ${response.headers.get(cidh)}`;
+              }
+              let msg = `${response.data.message} ${cid}`;
+              throw new Error(`Error ${response.status}: ${response.statusText} - ${msg}`);
             }
           } else {
             result = process(response);
@@ -410,9 +415,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   getErrorFromResponse(response: FetchResponse): DataQueryError {
+    let cid = "", cidh = "x-correlationid";
+    if (response.headers.has(cidh)) {
+      cid = `Correlation Id: ${response.headers.get(cidh)}`;
+    }
+    let msg = `${response.data.message} ${cid}`;
     const error = {
       data: {
-        message: response.data.message,
+        message: msg,
         error: response.data.error,
       },
       status: response.status,
@@ -463,7 +473,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     });
 
     if (response.data.error) {
-      frame.add({time: Date.now(), content: response.data.message, level: this.getLogLevelByMsgType("E")});
+      let cid = "", cidh = "x-correlationid";
+      if (response.headers.has(cidh)) {
+        cid = `Correlation Id: ${response.headers.get(cidh)}`;
+      }
+      let msg = `${response.data.message} ${cid}`;
+      frame.add({time: Date.now(), content: msg, level: this.getLogLevelByMsgType("E")});
     }
 
     let sapMsg = response.headers.get(headerField);
