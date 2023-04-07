@@ -596,20 +596,24 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // For example, if resolution is 'D' (Day), then 20020202000000 and 20020202101010 are the same
     let seriesDate = new Date(series.dataPoints[idx][1]);
     let insertDate = new Date(ts);
-    let scales =  ['Y', 'M', 'D', 'H', 'Mi'];
+    let scales =  ['Y', 'M', 'D', 'H', 'Mi', 'S'];
     let stop;
     switch (settings.resolution) {
+      case 'Y':
+        stop = 'M';
+        break;
       case 'W':
+      case 'M':
         stop = 'D';
         break;
-      case '5Mi':
-      case '10Mi':
-      case '15Mi':
-      case '30Mi':
+      case 'D':
+        stop = 'H';
+        break;
+      case 'H':
         stop = 'Mi';
         break;
       default:
-        stop = settings.resolution;
+        stop = 'S';
     }
     let is = 0;
     let bSame = true;
