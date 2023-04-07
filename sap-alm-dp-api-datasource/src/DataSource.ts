@@ -419,7 +419,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (response.headers.has(cidh)) {
       cid = `Correlation Id: ${response.headers.get(cidh)}`;
     }
-    let msg = `${response.data.message} ${cid}`;
+    let msg = `${response.data.message} - ${cid}`;
     const error = {
       data: {
         message: msg,
