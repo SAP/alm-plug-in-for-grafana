@@ -37,3 +37,12 @@ jobs:
     - name: Build Frontend
       run: cd sap-alm-dp-api-datasource && yarn build
 
+    - name: Start grafana docker
+      run: cd sap-alm-dp-api-datasource && yarn server -d
+
+    - name: Run e2e tests
+      run: cd sap-alm-dp-api-datasource && yarn e2e
+
+    - name: Stop grafana docker
+      run: docker-compose down
+
