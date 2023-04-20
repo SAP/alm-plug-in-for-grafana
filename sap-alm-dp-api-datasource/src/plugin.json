@@ -1,19 +1,23 @@
 {
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
   "name": "SAP ALM DP API",
   "id": "sap-alm-dp-api-datasource",
   "metrics": true,
   "logs": true,
+  "alerting": false,
+  "annotations": false,
+  "category":"other",
   "info": {
     "description": "SAP ALM DP API Datasource",
     "author": {
       "name": "SAP",
-      "url": "www.sap.com"
+      "url": "https://www.sap.com"
     },
     "keywords": [
       "SAP",
-      "FRUN",
-      "CALM",
+      "SAP Focused Run",
+      "SAP Cloud ALM",
       "DP API"
     ],
     "logos": {
@@ -35,7 +39,7 @@
     "updated": "%TODAY%"
   },
   "dependencies": {
-    "grafanaVersion": ">=7.0.0",
+    "grafanaDependency": ">=9.x.x",
     "plugins": []
   },
   "routes": []
