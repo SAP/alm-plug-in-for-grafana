@@ -16,18 +16,21 @@ jobs:
     - run: echo "This job was automatically triggered by a ${{github.event_name}} event."
     - run: echo "This job is running on a ${{runner.os}} server"
     - uses: actions/checkout@v3
+    - name: Setup Node.js environment
     - uses: actions/setup-node@v3
       with:
         node-version: 16
-#        cache: 'yarn'
+        cache: 'yarn'
 #        cache-dependency-path: sap-alm-dp-api-datasource/yarn.lock
 
     - name: REUSE Compliance Check
       uses: fsfe/reuse-action@v1.2.0
 
     - name: Install Dependencies
-      run: cd sap-alm-dp-api-datasource && yarn install
 
-    - name: Build
+#run: cd sap-alm-dp-api-datasource && yarn install
+
+      run: cd sap-alm-dp-api-datasource && yarn install --immutable --prefer-offline
+    - name: Build Frontend
       run: cd sap-alm-dp-api-datasource && yarn build
 
