@@ -28,11 +28,11 @@ jobs:
     - name: Install Dependencies
       run: cd sap-alm-dp-api-datasource && yarn install --immutable --prefer-offline
     - name: Check types
-      run: yarn typecheck
+      run: cd sap-alm-dp-api-datasource && yarn typecheck
     - name: Lint
-      run: yarn lint
+      run: cd sap-alm-dp-api-datasource && yarn lint
     - name: Unit tests
-      run: yarn test:ci
+      run: cd sap-alm-dp-api-datasource && yarn test:ci
 
     - name: Build Frontend
       run: cd sap-alm-dp-api-datasource && yarn build
