@@ -1,6 +1,9 @@
+[![CI](https://github.com/SAP/alm-plug-in-for-grafana/actions/workflows/main_ci.yaml/badge.svg)](https://github.com/SAP/alm-plug-in-for-grafana/actions/workflows/main_ci.yaml)
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/alm-plug-in-for-grafana)](https://api.reuse.software/info/github.com/SAP/alm-plug-in-for-grafana)
+
 # ALM Plug-In for Grafana
 
+Latest release ![Latest release](https://img.shields.io/github/v/release/SAP/alm-plug-in-for-grafana)
 
 The ALM plug-in for Grafana (alm-plug-in-for-grafana) lets you extend your analytics solutions for application life-cycle management.
 
