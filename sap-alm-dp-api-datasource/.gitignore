@@ -29,5 +29,5 @@ e2e-results/
 # Editor
 .idea
 
-yarn.lock
+#yarn.lock
 
