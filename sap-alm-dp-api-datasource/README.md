@@ -68,8 +68,8 @@ Queries are the central mechanism of the SAP Cloud ALM Anlaytics API to format a
 This section will help you build the plugin and install it manually in your Grafana instance.
 
 ### Prerequisites
-- Grafana >= 7.0
-- NodeJS >= 14
+- Grafana >= 9.0
+- NodeJS >= 16
 - yarn
 
 ### Assembly and Installation
@@ -80,7 +80,7 @@ This section will help you build the plugin and install it manually in your Graf
   - Linux: the plugin directory is usually /var/lib/grafana/plugins.
   - [Windows](https://grafana.com/docs/grafana/latest/setup-grafana/installation/windows/): the plugin directory can be $WORKING_DIR/plugins-bundled.  
 - For more information please refer to [Grafana Configuration Doc](https://grafana.com/docs/grafana/latest/).
-- Copy the newly created `dist` folder into the newly created `sap-alm-dp-api-datasource` in Grafana plugins directory.
+- Copy the newly created `dist` folder into the `sap-alm-dp-api-datasource` the plugin directory.
  > If you are upgrading the plugin from a previous version, make sure to backup the `package.json` file first. This file could include several [Cloud ALM API](#Setup) endpoints previously configured in the `routes` section.
 
 - Restart your Grafana or Grafana server to discover the plugin.
