@@ -213,7 +213,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           t.split(',').forEach((ts) => {
             query.columns.metrics.push({ measure: ts, method: v.aggrMethod.value });
           });
-        } else  if (v.value.value && v.aggrMethod.value) {
+        } else if (v.value.value) {
           // Otherwise simply add
           query.columns.metrics.push({ measure: v.value.value, method: v.aggrMethod.value });
         }
@@ -339,10 +339,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
           if (rrfsu && rrfn) {
             // Check for restriction of raw resolution.
-            if (resolution === Resolution.Raw && (rrfn > 2 || rrfsu !== 'H')) {
-              rrfsu = 'H';
-              rrfn = '2';
-            }
+            // if (resolution === Resolution.Raw && (rrfn > 2 || rrfsu !== 'H')) {
+            //   rrfsu = 'H';
+            //   rrfn = '2';
+            // }
 
             // Set period number and unit.
             period = period + rrfn + rrfsu;
