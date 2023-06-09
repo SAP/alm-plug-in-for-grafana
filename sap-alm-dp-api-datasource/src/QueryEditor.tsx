@@ -199,7 +199,8 @@ export class QueryEditor extends PureComponent<Props> {
 
     query.drilldown.dimensions.forEach((dim) => {
       if (
-        dim?.value &&
+        dim &&
+        dim.value &&
         dim.value !== '' &&
         !this.dataProviderDimensionOptions.find((d) => {
           return d.value === dim.value;
@@ -210,7 +211,9 @@ export class QueryEditor extends PureComponent<Props> {
     });
     query.drilldown.measures.forEach((meas) => {
       if (
-        meas?.value?.value &&
+        meas &&
+        meas.value &&
+        meas.value.value &&
         meas.value.value !== '' &&
         !this.dataProviderMeasuresOptions.find((m) => {
           return m.value === meas.value.value;
@@ -286,7 +289,8 @@ export class QueryEditor extends PureComponent<Props> {
           query.dataProviderFilters.forEach((filter, i) => {
             // Check if selected filters' key still presents in the list, otherwise add to custom list
             if (
-              filter?.key?.value &&
+              filter &&
+              filter.key.value &&
               filter.key.value !== '' &&
               !this.dataProviderFilterOptions.find((f) => {
                 return f.value === filter.key.value;
@@ -464,7 +468,7 @@ export class QueryEditor extends PureComponent<Props> {
   onTypeChange = (value: SelectableValue<Format>) => {
     const { onChange, query, onRunQuery } = this.props;
 
-    onChange({ ...query, type: value.value ?? Format.Timeseries });
+    onChange({ ...query, type: value.value || Format.Timeseries });
     // executes the query
     onRunQuery();
   };
@@ -585,14 +589,14 @@ export class QueryEditor extends PureComponent<Props> {
 
   /* Data Provider Filter Remove Request Event */
   onDPFRemovePress = (event: MouseEvent<HTMLButtonElement>) => {
-    let i = parseInt(event.currentTarget.getAttribute('data-key') ?? '0', 10);
+    let i = parseInt(event.currentTarget.getAttribute('data-key') || '0', 10);
 
     this.dpfRemoveFilter(i);
   };
 
   /* Data Provider Filter Remove Request Event */
   onDrilldownMeasureRemovePress = (event: MouseEvent<HTMLButtonElement>) => {
-    let i = parseInt(event.currentTarget.getAttribute('data-key') ?? '0', 10);
+    let i = parseInt(event.currentTarget.getAttribute('data-key') || '0', 10);
 
     this.drilldownRemoveMeasure(i);
   };
@@ -678,7 +682,8 @@ export class QueryEditor extends PureComponent<Props> {
     query.dataProviderFilters.forEach((filter, i) => {
       // Check if selected filters' key still presents in the list, otherwise add to custom list
       if (
-        filter?.key?.value &&
+        filter &&
+        filter.key.value &&
         filter.key.value !== '' &&
         !this.dataProviderFilterOptions.find((f) => {
           return f.value === filter.key.value;
@@ -803,7 +808,7 @@ export class QueryEditor extends PureComponent<Props> {
                           }}
                           title={f.key.label}
                         >
-                          {f?.key?.label ? f.key.label : `[key${i}]`}
+                          {f.key && f.key.label ? f.key.label : `[key${i}]`}
                         </a>
 
                         <span style={f.keySelected ? {} : { display: 'none' }}>
