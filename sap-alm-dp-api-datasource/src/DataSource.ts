@@ -65,11 +65,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     this.alias = instanceSettings.jsonData.alias ? instanceSettings.jsonData.alias : '';
 
-    this.oauthPassThru = instanceSettings.jsonData['oauthPassThru'] || false;
+    this.oauthPassThru = instanceSettings.jsonData['oauthPassThru'] ?? false;
 
-    this.resolution = instanceSettings.jsonData.resolution || Resolution.Hour;
+    this.resolution = instanceSettings.jsonData.resolution ?? Resolution.Hour;
 
-    this.dataProviderConfigs = instanceSettings.jsonData.dataProviderConfigs || {};
+    this.dataProviderConfigs = instanceSettings.jsonData.dataProviderConfigs ?? {};
 
     this.isUpdatingCSRFToken = false;
     this.headers = { 'Content-Type': 'application/json' };
@@ -141,7 +141,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         filter.values.forEach((v) => {
           // Check for variables
           if (v.value) {
-            if (v.value?.substring(0, 1) === '$' || v.value?.substring(0, 2) === '{{') {
+            if (v.value?.startsWith('$') || v.value?.startsWith('{{')) {
               let t = getTemplateSrv().replace(v.value, options ? options.scopedVars : {}, 'csv');
               t.split(',').forEach((ts) => {
                 tf.values.push(ts);
@@ -161,7 +161,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   getDPVersion(dp?: string, isForPath?: boolean): string {
     let dpv = '';
     if (dp && this.dataProviderConfigs && this.dataProviderConfigs[dp]) {
-      dpv = this.dataProviderConfigs[dp].version.value || '';
+      dpv = this.dataProviderConfigs[dp].version.value ?? '';
       if (dpv === 'LATEST') {
         // Empty it out if version is latest, since empty is, by default, latest
         dpv = '';
@@ -356,7 +356,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   getAutomaticResolution(options: { maxDataPoints?: number; range: TimeRange }): string {
     let resolution: string = Resolution.Hour;
-    let maxDataPoints = options.maxDataPoints || 101;
+    let maxDataPoints = options.maxDataPoints ?? 101;
 
     // Get range in minutes
     // let dFrom = options.range.from.toDate().getTime() / (1000 * 60);
@@ -482,7 +482,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
 
     let sapMsg = response.headers.get(headerField);
-    let allMsgs = JSON.parse(sapMsg === null ? "[]" : sapMsg);
+    let allMsgs = JSON.parse(sapMsg ?? "[]");
 
     allMsgs.forEach((msg: any) => {
       frame.add({time: this.getLinuxTimeFromTimeStamp(`${msg.time}`), content: msg.content, level: this.getLogLevelByMsgType(msg.type)});
@@ -550,7 +550,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   getPossibleTimestamps(settings: any): number[] {
     let ts: number[] = [];
 
-    if (!settings || !settings.resolution || !settings.timeRange || !settings.timezone) {
+    if (!settings?.resolution || !settings?.timeRange || !settings?.timezone) {
       return ts;
     }
 
@@ -669,7 +669,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   fillSeriesGaps(series: any, value: string | number | null, settings: any) {
-    if (!settings || !settings.resolution || settings.resolution === 'R' || !settings.timeRange) {
+    if (!settings?.resolution || settings?.resolution === 'R' || !settings?.timeRange) {
       return;
     }
 
@@ -747,7 +747,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   progressLastDP(series: any, settings: any) {
-    if (!settings || !settings.resolution || settings.resolution === 'R' || !settings.selectedPeriod || !settings.timeRange) {
+    if (!settings?.resolution || settings?.resolution === 'R' || !settings?.selectedPeriod || !settings?.timeRange) {
       return;
     }
 
@@ -872,13 +872,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       // Check for configuration query
       if (target.isConfig && !isConfigChecked) {
         isConfigChecked = true;
-        if (target.resolution && target.resolution.autoDecide) {
+        if (target.resolution?.autoDecide) {
           // Get automatic resolution
           resolution = this.getAutomaticResolution({
             maxDataPoints: options.maxDataPoints,
             range: options.range,
           });
-        } else if (target.resolution && target.resolution.default) {
+        } else if (target.resolution?.default) {
           // Get default resolution
           resolution = target.resolution.default;
         }
@@ -886,7 +886,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         completeSeriesWZero = target.completeTimeSeriesWZero ? target.completeTimeSeriesWZero : false;
         progressLastDataPoint = target.progressLastDataPoint ? target.progressLastDataPoint : false;
       } else {
-        if (!target.dataProvider || !target.dataProvider.value) {
+        if (!target.dataProvider?.value) {
           continue;
         }
         if (target.type === Format.Timeseries) {
