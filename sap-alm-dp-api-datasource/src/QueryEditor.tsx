@@ -4,7 +4,7 @@ import React, { MouseEvent, PureComponent, ChangeEvent } from 'react';
 import { AsyncSelect, Button, IconButton, MultiSelect, Select, Switch } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
-import { AggrMethod, Format, Resolution } from './format';
+import { AggrMethod, Format, Resolution, FDoW } from './format';
 import { DPFilterResponse, MyDataSourceOptions, MyQuery } from './types';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
@@ -27,6 +27,12 @@ const resOptions = [
   { label: 'Years', value: Resolution.Year },
   { label: 'Raw', value: Resolution.Raw },
   { label: 'Period', value: Resolution.Period },
+];
+
+const fdowOptions = [
+  { label: 'Monday', value: FDoW.Mon },
+  { label: 'Saturday', value: FDoW.Sat },
+  { label: 'Sunday', value: FDoW.Sun },
 ];
 
 const aggrMethods = [
@@ -460,6 +466,17 @@ export class QueryEditor extends PureComponent<Props> {
     onRunQuery();
   };
 
+  onFDOWChange = (item: SelectableValue<FDoW>) => {
+    const { onChange, query, onRunQuery } = this.props;
+
+    onChange({
+      ...query,
+      fdow: item.value ?? FDoW.Mon,
+    });
+    // executes the query
+    onRunQuery();
+  };
+
   /* Query Type Change */
   onTypeChange = (value: SelectableValue<Format>) => {
     const { onChange, query, onRunQuery } = this.props;
@@ -656,6 +673,7 @@ export class QueryEditor extends PureComponent<Props> {
       },
       ignoreSemanticPeriod: false,
       completeTimeSeriesWZero: false,
+      fdow: FDoW.Mon,
     };
     const query = defaults(this.props.query, defaultQuery);
     const {
@@ -669,6 +687,7 @@ export class QueryEditor extends PureComponent<Props> {
       ignoreSemanticPeriod,
       completeTimeSeriesWZero,
       progressLastDataPoint,
+      fdow,
     } = query;
 
     const { isFRUN } = this.props.datasource;
@@ -754,6 +773,17 @@ export class QueryEditor extends PureComponent<Props> {
               <div className="gf-form-switch">
                 <Switch value={progressLastDataPoint} onChange={this.onProgressLastDataPointChange} />
               </div>
+              <label className="gf-form-label marginL4px width-11">
+                First Day of Week
+                <IconButton name="info-circle" tooltip="Used for weekly data aggregation." />
+              </label>
+              <Select
+                className="width-8"
+                options={fdowOptions}
+                defaultValue={FDoW.Mon}
+                value={fdow}
+                onChange={this.onFDOWChange}
+              />
             </div>
           </>
         ) : (

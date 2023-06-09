@@ -1,5 +1,5 @@
 import { DataQuery, DataSourceJsonData, SelectableValue } from '@grafana/data';
-import { Format, Resolution, AggrMethod, FilterType } from 'format';
+import { Format, Resolution, AggrMethod, FilterType, FDoW } from 'format';
 
 export interface ConfigQueryResolution {
   default?: Resolution;
@@ -34,6 +34,7 @@ export interface MyQuery extends DataQuery {
   ignoreSemanticPeriod?: boolean;
   completeTimeSeriesWZero?: boolean;
   progressLastDataPoint?: boolean;
+  fdow: FDoW;
 }
 
 export interface MyVariableQuery {
@@ -60,6 +61,7 @@ export const defaultQuery: Partial<MyQuery> = {
   ignoreSemanticPeriod: false,
   completeTimeSeriesWZero: false,
   progressLastDataPoint: false,
+  fdow: FDoW.Mon,
 };
 
 /**

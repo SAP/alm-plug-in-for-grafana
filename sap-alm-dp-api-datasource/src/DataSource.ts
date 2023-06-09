@@ -29,7 +29,7 @@ import {
 } from './types';
 import { merge, Observable, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Format, Resolution } from 'format';
+import { FDoW, Format, Resolution } from 'format';
 
 const routePath = '/analytics';
 const dpListPath = '/providers';
@@ -863,6 +863,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let ignoreSemPeriod = false;
     let completeSeriesWZero = false;
     let progressLastDataPoint = false;
+    let fdow = FDoW.Mon;
 
     for (const target of options.targets) {
       if (target.hide) {
@@ -885,6 +886,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         ignoreSemPeriod = target.ignoreSemanticPeriod ? target.ignoreSemanticPeriod : false;
         completeSeriesWZero = target.completeTimeSeriesWZero ? target.completeTimeSeriesWZero : false;
         progressLastDataPoint = target.progressLastDataPoint ? target.progressLastDataPoint : false;
+        fdow = target.fdow;
       } else {
         if (!target.dataProvider?.value) {
           continue;
@@ -924,7 +926,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       resolution: resolution,
       ignoreSemPeriod: ignoreSemPeriod,
       completeSeriesWZero: completeSeriesWZero,
-      progressLastDataPoint: progressLastDataPoint
+      progressLastDataPoint: progressLastDataPoint,
+      fdow: fdow
     };
   }
 
@@ -987,7 +990,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const streams: Array<Observable<DataQueryResponse>> = [];
 
     // Start streams and prepare queries
-    let { resolution, ignoreSemPeriod, completeSeriesWZero, progressLastDataPoint } = this.prepareForQuery(options, {
+    let { resolution, ignoreSemPeriod, completeSeriesWZero, progressLastDataPoint, fdow } = this.prepareForQuery(options, {
       tSeries: queriesTSeries,
       table: queriesTable,
       rTable: queriesRTable
@@ -1009,6 +1012,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       },
       resolution: resolution,
       timezone: timezone,
+      firstWeekDay: fdow,
     };
 
     if (queriesTSeries.length) {

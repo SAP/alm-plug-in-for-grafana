@@ -30,3 +30,9 @@ export enum FilterType {
   dimension = 'dimension',
   attribute = 'attribute',
 }
+
+export enum FDoW {
+  Sat = 'SA',
+  Sun = 'SU',
+  Mon = 'MO',
+}
