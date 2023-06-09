@@ -1,0 +1,46 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "SAP ALM DP API",
+  "id": "sap-alm-dp-api-datasource",
+  "metrics": true,
+  "logs": true,
+  "alerting": false,
+  "annotations": false,
+  "category":"other",
+  "info": {
+    "description": "SAP ALM DP API Datasource",
+    "author": {
+      "name": "SAP",
+      "url": "https://www.sap.com"
+    },
+    "keywords": [
+      "SAP",
+      "SAP Focused Run",
+      "SAP Cloud ALM",
+      "DP API"
+    ],
+    "logos": {
+      "small": "img/logo.png",
+      "large": "img/logo.png"
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/SAP/alm-plug-in-for-grafana"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/SAP/alm-plug-in-for-grafana/blob/master/LICENSE"
+      }
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=9.x.x",
+    "plugins": []
+  },
+  "routes": []
+}
