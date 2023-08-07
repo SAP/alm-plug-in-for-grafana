@@ -1,4 +1,5 @@
-import { DataQuery, DataSourceJsonData, SelectableValue } from '@grafana/data';
+import { DataQuery } from '@grafana/schema';
+import { DataSourceJsonData, SelectableValue } from '@grafana/data';
 import { Format, Resolution, AggrMethod, FilterType, FDoW } from 'format';
 
 export interface ConfigQueryResolution {
@@ -44,7 +45,7 @@ export interface MyVariableQuery {
   value: SelectableValue<string>;
 }
 
-export const defaultQuery: Partial<MyQuery> = {
+export const DEFAULT_QUERY: Partial<MyQuery> = {
   name: '',
   type: Format.Timeseries,
   isConfig: false,

@@ -1,5 +1,5 @@
 import React, { PureComponent, ChangeEvent } from 'react';
-import { DataSourceHttpSettings, Select, Switch } from '@grafana/ui';
+import { DataSourceHttpSettings, InlineField, InlineFieldRow, InlineLabel, InlineSwitch, Input, Select, VerticalGroup } from '@grafana/ui';
 import {
   DataSourceJsonData,
   DataSourcePluginOptionsEditorProps,
@@ -181,23 +181,15 @@ export class ConfigEditor extends PureComponent<Props> {
       <>
         <div className="gf-form-group">
           <h3 className="page-heading">Connection</h3>
-          <div className="gf-form-group">
-            <h6>Destination System</h6>
-            <div className="gf-form-inline">
-              <div className="gf-form-switch-container-react">
-                <label className="gf-form-label width-10">SAP Cloud ALM</label>
-                <div className="gf-form-switch">
-                  <Switch value={!jsonData.isFRUN} onChange={this.onIsCALMChange} />
-                </div>
-              </div>
-              <div className="gf-form-switch-container-react">
-                <label className="gf-form-label width-10">SAP Focused Run</label>
-                <div className="gf-form-switch">
-                  <Switch value={jsonData.isFRUN} onChange={this.onIsFRUNChange} />
-                </div>
-              </div>
-            </div>
-          </div>
+          <h6>Destination System</h6>
+          <InlineFieldRow>
+            <InlineField labelWidth={26} label="SAP Cloud ALM">
+              <InlineSwitch id="swIsCALM" value={!jsonData.isFRUN} onChange={this.onIsCALMChange} />
+            </InlineField>
+            <InlineField labelWidth={26} label="SAP Focused Run">
+              <InlineSwitch id="swIsFRUN" value={jsonData.isFRUN} onChange={this.onIsFRUNChange} />
+            </InlineField>
+          </InlineFieldRow>
           {jsonData.isFRUN ? (
             <DataSourceHttpSettings
               defaultUrl={'http://localhost:8080'}
@@ -208,11 +200,11 @@ export class ConfigEditor extends PureComponent<Props> {
           ) : (
             <div className="gf-form-group">
               <h6>System Settings</h6>
-              <div className="gf-form">
-                <label className="gf-form-label width-10">Alias</label>
-
-                <input onChange={this.onAliasChange} value={jsonData.alias} className="gf-form-input" />
-              </div>
+              <InlineFieldRow>
+                <InlineField labelWidth={26} label="Alias" grow>
+                  <Input id="inpAlias" value={jsonData.alias} onChange={this.onAliasChange} />
+                </InlineField>
+              </InlineFieldRow>
             </div>
           )}
         </div>
@@ -220,49 +212,69 @@ export class ConfigEditor extends PureComponent<Props> {
         <div className="gf-form-group">
           <h3 className="page-heading">Global Query Settings</h3>
           <div className="gf-form-group">
-            <div className="gf-form">
-              <label className="gf-form-label width-10">Resolution</label>
-
-              <Select
-                options={resOptions}
-                defaultValue={jsonData.resolution}
-                value={jsonData.resolution}
-                onChange={this.onResolutionChange}
-              />
-            </div>
-          </div>
-          <div className="gf-form-group">
-            <h6>Data Providers Settings</h6>
-            <div className="gf-form">
-              <label className="gf-form-label width-13">Id</label>
-              <label className="gf-form-label width-18">Name</label>
-              <label className="gf-form-label width-6">Used Version</label>
-            </div>
-            {this.dataProviderOptions.map((dp, i) => {
-              return (
-                <div key={dp.value} className="gf-form">
-                  <label className="gf-form-label width-13" title={dp.description}>
-                    {dp.value}
-                  </label>
-                  <label className="gf-form-label width-18" title={dp.description}>
-                    {dp.label}
-                  </label>
-                  <Select
-                    width={12}
-                    options={this.dataProviderVersionsOptions[i]}
-                    defaultValue={{ value: 'LATEST', label: 'Latest' }}
-                    value={
-                      jsonData.dataProviderConfigs && dp && dp.value && jsonData.dataProviderConfigs[dp.value]
-                        ? jsonData.dataProviderConfigs[dp.value].version
-                        : undefined
-                    }
-                    onChange={(item) => {
-                      this.onDPVersionChange(item, i);
-                    }}
-                  />
-                </div>
-              );
-            })}
+            <InlineFieldRow>
+              <InlineField labelWidth={26} label="Resolution" grow>
+                <Select
+                  options={resOptions}
+                  defaultValue={jsonData.resolution}
+                  value={jsonData.resolution}
+                  onChange={this.onResolutionChange}
+                />
+              </InlineField>
+            </InlineFieldRow>
+            <InlineFieldRow>
+              <InlineField labelWidth={26} label="Data Providers Settings" grow>
+                <VerticalGroup spacing='xs'>
+                  <InlineFieldRow>
+                    <InlineLabel width={27}>Id</InlineLabel>
+                    <InlineLabel width={36}>Name</InlineLabel>
+                    <InlineLabel width={15}>Used version</InlineLabel>
+                  </InlineFieldRow>
+                  {this.dataProviderOptions.map((dp, i) => {
+                    return (
+                      <InlineFieldRow key={dp.value}>
+                        <InlineLabel width={27} title={dp.description}>{dp.value}</InlineLabel>
+                        <InlineLabel width={36} title={dp.description}>{dp.label}</InlineLabel>
+                        <Select
+                          width={15}
+                          options={this.dataProviderVersionsOptions[i]}
+                          defaultValue={{ value: 'LATEST', label: 'Latest' }}
+                          value={
+                            jsonData.dataProviderConfigs && dp && dp.value && jsonData.dataProviderConfigs[dp.value]
+                              ? jsonData.dataProviderConfigs[dp.value].version
+                              : undefined
+                          }
+                          onChange={(item) => {
+                            this.onDPVersionChange(item, i);
+                          }}
+                        />
+                      </InlineFieldRow>
+                      // <div key={dp.value} className="gf-form">
+                      //   <label className="gf-form-label width-13" title={dp.description}>
+                      //     {dp.value}
+                      //   </label>
+                      //   <label className="gf-form-label width-18" title={dp.description}>
+                      //     {dp.label}
+                      //   </label>
+                      //   <Select
+                      //     width={12}
+                      //     options={this.dataProviderVersionsOptions[i]}
+                      //     defaultValue={{ value: 'LATEST', label: 'Latest' }}
+                      //     value={
+                      //       jsonData.dataProviderConfigs && dp && dp.value && jsonData.dataProviderConfigs[dp.value]
+                      //         ? jsonData.dataProviderConfigs[dp.value].version
+                      //         : undefined
+                      //     }
+                      //     onChange={(item) => {
+                      //       this.onDPVersionChange(item, i);
+                      //     }}
+                      //   />
+                      // </div>
+                    );
+                  })}
+                </VerticalGroup>
+              </InlineField>
+            </InlineFieldRow>
           </div>
         </div>
       </>

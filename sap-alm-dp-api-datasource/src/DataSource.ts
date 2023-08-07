@@ -20,7 +20,7 @@ import { BackendSrvRequest, FetchResponse, getBackendSrv, getTemplateSrv } from 
 import {
   MyQuery,
   MyDataSourceOptions,
-  defaultQuery,
+  DEFAULT_QUERY,
   TextValuePair,
   DPFilterResponse,
   DataProviderFilter,
@@ -48,14 +48,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   isFRUN: boolean;
   alias: string;
   headers: any;
-  uid: string;
+  almUid: string;
   dataProviderConfigs: { [key: string]: DataProviderConfig };
   isUpdatingCSRFToken: boolean;
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
 
-    this.uid = (Date.now() + Math.floor(Math.random() * 100000)).toString();
+    this.almUid = (Date.now() + Math.floor(Math.random() * 100000)).toString();
 
     this.url = instanceSettings.url ? instanceSettings.url : '';
 
@@ -177,7 +177,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   // The query contains name (string), dataProvider (string: name of data provider)
   // and filters (array of key (string) and values (string array) pair)
   getQueryForRequest(target: MyQuery, options: DataQueryRequest<MyQuery>): RequestQuery {
-    const t = defaults(target, defaultQuery);
+    const t = defaults(target, DEFAULT_QUERY);
     const dpv = this.getDPVersion(t.dataProvider.value);
     let query: RequestQuery = {
       name: t.name,
@@ -1021,7 +1021,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         url: this.getRootURL() + dpDataPath,
         headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
-        requestId: `${options.dashboardId}-${options.panelId}-querydata-timeseries`,
+        requestId: `${options.dashboardUID}-${options.panelId}-querydata-timeseries`,
         data: {
           ...body,
           queries: queriesTSeries,
@@ -1046,7 +1046,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         url: this.getRootURL() + dpDataPath,
         headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
-        requestId: `${options.dashboardId}-${options.panelId}-querydata-tableraw`,
+        requestId: `${options.dashboardUID}-${options.panelId}-querydata-tableraw`,
         data: {
           ...body,
           format: 'table',
@@ -1066,7 +1066,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         url: this.getRootURL() + dpDataPath,
         headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
-        requestId: `${options.dashboardId}-${options.panelId}-querydata-table`,
+        requestId: `${options.dashboardUID}-${options.panelId}-querydata-table`,
         data: {
           ...body,
           format: 'table',
@@ -1131,7 +1131,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         data: body,
         headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
-        // requestId: this.uid + queryId + "-searchdp",
+        // requestId: this.almUid + queryId + "-searchdp",
       };
 
       const obsver = this.fetchData(options, (response: FetchResponse) => this.processMetrics(response, query));
@@ -1149,7 +1149,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       url: this.getRootURL() + dpListPath,
       // headers: this.headers,
       // credentials: this.withCredentials ? "include" : undefined,
-      requestId: this.uid + queryId + '-searchdp',
+      requestId: this.almUid + queryId + '-searchdp',
     };
     return this.fetchData(payload, this.processDataProvidersSearch);
   }
@@ -1189,7 +1189,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     filter?: DPFilterResponse,
     query?: MyQuery
   ): Observable<DPFilterResponse[]> {
-    const t = defaults(query, defaultQuery);
+    const t = defaults(query, DEFAULT_QUERY);
     const dpv = this.getDPVersion(dp);
     let body;
     if (filter) {
@@ -1211,7 +1211,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       url: this.getRootURL() + dpFiltersPath,
       headers: this.headers,
       // credentials: this.withCredentials ? "include" : undefined,
-      requestId: this.uid + queryId + '-searchfilters',
+      requestId: this.almUid + queryId + '-searchfilters',
       data: body,
     };
     return this.fetchData(options, this.processDataProviderFiltersSearch);

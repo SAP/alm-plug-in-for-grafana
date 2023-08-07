@@ -1,11 +1,11 @@
 import defaults from 'lodash/defaults';
 
 import React, { MouseEvent, PureComponent, ChangeEvent } from 'react';
-import { AsyncSelect, Button, IconButton, MultiSelect, Select, Switch } from '@grafana/ui';
+import { AsyncSelect, Button, Input, MultiSelect, Select, InlineFieldRow, InlineField, InlineSwitch, HorizontalGroup, InlineLabel } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { AggrMethod, Format, Resolution, FDoW } from './format';
-import { DPFilterResponse, MyDataSourceOptions, MyQuery } from './types';
+import { DPFilterResponse, MyDataSourceOptions, MyQuery, DEFAULT_QUERY } from './types';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -619,6 +619,7 @@ export class QueryEditor extends PureComponent<Props> {
   render() {
     const css = `
     .filterVal-text-truncate {
+      max-width: 160px;
       flex-grow: 1;
       text-overflow: ellipsis;
       overflow: hidden;
@@ -631,23 +632,12 @@ export class QueryEditor extends PureComponent<Props> {
       white-space: nowrap;
     }
     .filter-container {
-      min-width: 300px;
-      flex-grow: 1;
+      min-width: 307px;
     }
     .filter-info-container {
       flex-grow: 1;
       justify-content: flex-start;
       padding: 0;
-    }
-    .filter-add-btn-container {
-      min-width: 300px;
-      flex-grow: 1;
-      justify-content: flex-start;
-      background-color: transparent;
-      padding: 0;
-    }
-    .marginL4px {
-      margin-left: 4px;
     }
     .marginB4px {
       margin-bottom: 4px;
@@ -655,27 +645,10 @@ export class QueryEditor extends PureComponent<Props> {
     .wrap-flex {
       flex-grow: 1;
       flex-wrap: wrap;
+      margin-bottom: 0;
     }
     `;
-    const defaultQuery: Partial<MyQuery> = {
-      name: '',
-      type: Format.Timeseries,
-      isConfig: false,
-      dataProvider: {},
-      dataProviderFilters: [],
-      resolution: {
-        default: Resolution.Hour,
-        autoDecide: true,
-      },
-      drilldown: {
-        measures: [],
-        dimensions: [],
-      },
-      ignoreSemanticPeriod: false,
-      completeTimeSeriesWZero: false,
-      fdow: FDoW.Mon,
-    };
-    const query = defaults(this.props.query, defaultQuery);
+    const query = defaults(this.props.query, DEFAULT_QUERY);
     const {
       type,
       name,
@@ -715,115 +688,96 @@ export class QueryEditor extends PureComponent<Props> {
     return (
       <>
         <style>{css}</style>
-        <div className="gf-form max-width-21">
-          <label className="gf-form-label width-11">Configuration Query</label>
-          <div className="gf-form-switch">
-            <Switch value={isConfig} onChange={this.onIsConfigChange} />
-          </div>
-        </div>
+        <InlineFieldRow>
+          <InlineField labelWidth={21} label="Configuration Query" tooltip="Set this query as configuration query. Only first one is counted as configuration query.">
+            <InlineSwitch id="swIsConf" value={isConfig} onChange={this.onIsConfigChange} />
+          </InlineField>
+        </InlineFieldRow>
         {isConfig ? (
+          // Configuration Query UI
           <>
-            <div className="gf-form">
-              <label className="gf-form-label width-11">Automatic Resolution</label>
-              <div className="gf-form-switch">
-                <Switch value={resolution?.autoDecide} onChange={this.onAutoDecideChange} />
-              </div>
+            <InlineFieldRow>
+              <InlineField labelWidth={26} label="Automatic Resolution" tooltip="Resolution will be decided by plug-in.">
+                <InlineSwitch id="swAutoRes" value={resolution?.autoDecide} onChange={this.onAutoDecideChange} />
+              </InlineField>
 
-              <label className="gf-form-label marginL4px width-11">
-                Default Resolution
-                <IconButton name="info-circle" tooltip="This is used when auto-resolution is off." />
-              </label>
-              <Select
-                className="width-8"
-                options={resOptions}
-                defaultValue={resolution?.default}
-                value={resolution?.default}
-                onChange={this.onResolutionChange}
-              />
-            </div>
-            <div className="gf-form">
-              <label className="gf-form-label width-11">
-                Ignore Semantic Period
-                <IconButton name="info-circle" tooltip="To not use semantic period in data request." />
-              </label>
-              <div className="gf-form-switch">
-                <Switch value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} />
-              </div>
-
-              <label className="gf-form-label marginL4px width-15">
-                Complete Time Series with Zeros
-                <IconButton
-                  name="info-circle"
-                  tooltip="Fill missing data points for time series (Only for queries with single response)."
+              <InlineField label="Default Resolution"
+                tooltip="Only applied when automatic resolution is off.">
+                <Select id="selDefRes"
+                  className="width-8"
+                  options={resOptions}
+                  defaultValue={resolution?.default}
+                  value={resolution?.default}
+                  onChange={this.onResolutionChange}
                 />
-              </label>
-              <div className="gf-form-switch">
-                <Switch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} />
-              </div>
-            </div>
+              </InlineField>
+            </InlineFieldRow>
 
-            <div className="gf-form">
-              <label className="gf-form-label width-11">
-                Progress Last Data Point
-                <IconButton
-                  name="info-circle"
-                  tooltip="The data point's value of current time stamp has not finished yet. This will update the approriate last time stamp to current time."
+            <InlineFieldRow>
+              <InlineField labelWidth={26} label="Ignore Semantic Period" tooltip="To not use semantic period in data request.">
+                <InlineSwitch id="swIgnSemPer" value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} />
+              </InlineField>
+
+              <InlineField label="Complete Time Series with '0's" tooltip="Fill missing data points for time series with value 0. Only applied for queries with single response.">
+                <InlineSwitch id="swCompTSZ" value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} />
+              </InlineField>
+            </InlineFieldRow>
+
+            <InlineFieldRow>
+              <InlineField labelWidth={26} label="Progress Current Data Point" tooltip="The value of latest (current) data point has not finished yet. Latest data point's time stamp will be updated to current time.">
+                <InlineSwitch id="swProgCurDP" value={progressLastDataPoint} onChange={this.onProgressLastDataPointChange} />
+              </InlineField>
+
+              <InlineField label="First Day of Week" tooltip="Used for weekly data aggregation.">
+                <Select id="selFDoW"
+                  className="width-8"
+                  options={fdowOptions}
+                  defaultValue={FDoW.Mon}
+                  value={fdow}
+                  onChange={this.onFDOWChange}
                 />
-              </label>
-              <div className="gf-form-switch">
-                <Switch value={progressLastDataPoint} onChange={this.onProgressLastDataPointChange} />
-              </div>
-              <label className="gf-form-label marginL4px width-11">
-                First Day of Week
-                <IconButton name="info-circle" tooltip="Used for weekly data aggregation." />
-              </label>
-              <Select
-                className="width-8"
-                options={fdowOptions}
-                defaultValue={FDoW.Mon}
-                value={fdow}
-                onChange={this.onFDOWChange}
-              />
-            </div>
+              </InlineField>
+            </InlineFieldRow>
           </>
         ) : (
+          // Normal Query UI
           <>
-            <div className="gf-form-inline">
-              <div className="gf-form max-width-21">
-                <label className="gf-form-label width-11">Format As</label>
-                <Select
+            <InlineFieldRow>
+              <InlineField labelWidth={21} label="Format As" tooltip="Get data in selected format.">
+                <Select id="selFormat"
+                    maxMenuHeight={170}
+                    options={formatAsOptions}
+                    defaultValue={type}
+                    value={type}
+                    onChange={this.onTypeChange}
+                  />
+              </InlineField>
+
+              <InlineField label="Legend" tooltip="Label of time series.">
+                <Input id="inLegend" onChange={this.onNameChange} value={name} placeholder='Set legend for data set' />
+              </InlineField>
+            </InlineFieldRow>
+            <InlineFieldRow>
+              <InlineField labelWidth={21} label="Data Provider" tooltip="Area where data come from." grow>
+                <AsyncSelect
                   maxMenuHeight={170}
-                  options={formatAsOptions}
-                  defaultValue={type}
-                  value={type}
-                  onChange={this.onTypeChange}
+                  placeholder="Select a data provider"
+                  loadOptions={this.loadDataProviders}
+                  defaultOptions
+                  onChange={this.onDataProviderChange}
+                  value={dataProvider}
+                  onCreateOption={(customValue) => {
+                    this.onDataProviderChange({ label: customValue, value: customValue });
+                  }}
                 />
-              </div>
-              <div className="gf-form max-width-21">
-                <label className="gf-form-label marginL4px width-5">Legend</label>
-                <input onChange={this.onNameChange} value={name} className="gf-form-input" />
-              </div>
-            </div>
-            <div className="gf-form">
-              <label className="gf-form-label width-11">Data Provider</label>
-              <AsyncSelect
-                maxMenuHeight={170}
-                placeholder="Select a data provider"
-                loadOptions={this.loadDataProviders}
-                defaultOptions
-                onChange={this.onDataProviderChange}
-                value={dataProvider}
-                onCreateOption={(customValue) => {
-                  this.onDataProviderChange({ label: customValue, value: customValue });
-                }}
-              />
-            </div>
-            <div className="gf-form">
-              <label className="gf-form-label width-11">Filters</label>
+              </InlineField>
+            </InlineFieldRow>
+            <InlineFieldRow style={{'flex-flow': 'nowrap'} as React.CSSProperties}>
+              <InlineLabel width={21} tooltip="Filter for expected data." >Filters</InlineLabel>
               <div className="gf-form wrap-flex">
                 {dataProviderFilters?.map((f, i) => {
                   return (
-                    <span className="gf-form-label filter-container" key={i}>
+                    <span className="gf-form-label filter-container marginB4px" key={i}>
                       <div className="gf-form-label filter-info-container">
                         <a
                           style={f.keySelected ? { display: 'none' } : {}}
@@ -850,10 +804,9 @@ export class QueryEditor extends PureComponent<Props> {
                             }}
                             allowCustomValue
                             onCreateOption={(customValue) => {
-                              this.dataProviderCustomFilterOptions = [
-                                ...this.dataProviderCustomFilterOptions,
-                                { label: customValue, value: customValue },
-                              ];
+                              this.dataProviderCustomFilterOptions.push(
+                                { label: customValue, value: customValue }
+                              );
                               this.onDPFKeyChange({ label: customValue, value: customValue }, i);
                             }}
                           />
@@ -931,53 +884,51 @@ export class QueryEditor extends PureComponent<Props> {
                         data-key={i}
                         size="sm"
                         variant="secondary"
-                        icon="times"
+                        icon="trash-alt"
                         title="Remove filter"
                         onClick={this.onDPFRemovePress}
                       />
                     </span>
                   );
                 })}
-                <span className="gf-form-label filter-add-btn-container">
-                  <Button
-                    icon="plus"
-                    variant="secondary"
-                    title="Add new filter"
-                    onClick={this.onAddNewFilterClick}
-                    className="gf-form-label query-part"
-                  />
-                </span>
+                <Button
+                  icon="plus"
+                  variant="secondary"
+                  title="Add new filter"
+                  onClick={this.onAddNewFilterClick}
+                  className="marginB4px"
+                >Filter</Button>
               </div>
-            </div>
+            </InlineFieldRow>
             {isFRUN ? (
               <></>
             ) : (
               <>
-                {/* <div className="gf-form-inline"> */}
-                <div className="gf-form">
-                  <label className="gf-form-label width-11">Dimensions</label>
-                  <MultiSelect
-                    maxMenuHeight={170}
-                    options={[...this.dataProviderDimensionOptions, ...this.dataProviderCustomDimensionOptions]}
-                    value={drilldown.dimensions}
-                    onChange={(value) => {
-                      this.onDrilldownDimValuesChange(value);
-                    }}
-                    allowCustomValue
-                    onCreateOption={(customValue) => {
-                      this.dataProviderCustomDimensionOptions = [
-                        ...this.dataProviderCustomDimensionOptions,
-                        { label: customValue, value: customValue },
-                      ];
-                      this.onDrilldownDimValuesChange([{ label: customValue, value: customValue }]);
-                    }}
-                  />
-                </div>
-                <div className="gf-form">
-                  <label className="gf-form-label width-11">Measures</label>
+                <InlineFieldRow>
+                  <InlineField labelWidth={21} label="Dimensions" grow>
+                    <MultiSelect
+                      maxMenuHeight={170}
+                      options={[...this.dataProviderDimensionOptions, ...this.dataProviderCustomDimensionOptions]}
+                      value={drilldown.dimensions}
+                      onChange={(value) => {
+                        this.onDrilldownDimValuesChange(value);
+                      }}
+                      allowCustomValue
+                      onCreateOption={(customValue) => {
+                        this.dataProviderCustomDimensionOptions = [
+                          ...this.dataProviderCustomDimensionOptions,
+                          { label: customValue, value: customValue },
+                        ];
+                        this.onDrilldownDimValuesChange([{ label: customValue, value: customValue }]);
+                      }}
+                    />
+                  </InlineField>
+                </InlineFieldRow>
+                <InlineFieldRow style={{'flex-flow': 'nowrap'} as React.CSSProperties}>
+                  <InlineLabel width={21}>Measures</InlineLabel>
                   <div className="gf-form wrap-flex">
                     {drilldown.measures.map((m, i) => (
-                      <span className="gf-form-label" key={i}>
+                      <span className="gf-form-label filter-container marginB4px" key={i}>
                         <Select
                           width={20}
                           maxMenuHeight={170}
@@ -1013,8 +964,8 @@ export class QueryEditor extends PureComponent<Props> {
                           data-key={i}
                           size="sm"
                           variant="secondary"
-                          icon="times"
-                          title="Remove filter"
+                          icon="trash-alt"
+                          title="Remove measure"
                           onClick={this.onDrilldownMeasureRemovePress}
                         />
                       </span>
@@ -1022,13 +973,12 @@ export class QueryEditor extends PureComponent<Props> {
                     <Button
                       icon="plus"
                       variant="secondary"
-                      title="Add new filter"
+                      title="Add new measure"
                       onClick={this.onAddNewDrilldownMeasureClick}
-                      className="gf-form-label query-part"
-                    />
+                      className="marginB4px"
+                    >Measure</Button>
                   </div>
-                </div>
-                {/* </div> */}
+                </InlineFieldRow>
               </>
             )}
           </>
