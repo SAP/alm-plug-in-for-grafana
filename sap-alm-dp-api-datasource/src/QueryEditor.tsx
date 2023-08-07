@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
 import React, { MouseEvent, PureComponent, ChangeEvent } from 'react';
-import { AsyncSelect, Button, Input, MultiSelect, Select, InlineFieldRow, InlineField, InlineSwitch, HorizontalGroup, InlineLabel } from '@grafana/ui';
+import { AsyncSelect, Button, Input, MultiSelect, Select, InlineFieldRow, InlineField, InlineSwitch, InlineLabel } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { AggrMethod, Format, Resolution, FDoW } from './format';
