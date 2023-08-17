@@ -47,7 +47,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   withCredentials: boolean;
   oauthPassThru: boolean;
   isFRUN: boolean;
-  isPredefined: boolean;
+  isPredefined?: boolean;
   alias: string;
   headers: any;
   almUid: string;
@@ -65,7 +65,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     this.isFRUN = instanceSettings.jsonData.isFRUN ? instanceSettings.jsonData.isFRUN : false;
 
-    this.isPredefined = instanceSettings.jsonData.isPredefined ? instanceSettings.jsonData.isPredefined : false;
+    this.isPredefined = instanceSettings.jsonData.isPredefined;
 
     this.alias = instanceSettings.jsonData.alias ? instanceSettings.jsonData.alias : '';
 
