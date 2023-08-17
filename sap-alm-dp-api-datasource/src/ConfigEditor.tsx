@@ -226,21 +226,6 @@ export class ConfigEditor extends PureComponent<Props> {
     onOptionsChange({ ...options, secureJsonData });
   };
 
-  onResetClientId = () => {
-    const { onOptionsChange, options } = this.props;
-    onOptionsChange({ 
-      ...options,
-      secureJsonFields: {
-        ...options.secureJsonFields,
-        cId: false,
-      },
-      secureJsonData: {
-        ...options.secureJsonData,
-        cId: ""
-      }
-    });
-  };
-
   onClientSecChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
     const secureJsonData = {
@@ -248,21 +233,6 @@ export class ConfigEditor extends PureComponent<Props> {
       cSec: event.target.value,
     };
     onOptionsChange({ ...options, secureJsonData });
-  };
-
-  onResetClientSec = () => {
-    const { onOptionsChange, options } = this.props;
-    onOptionsChange({ 
-      ...options,
-      secureJsonFields: {
-        ...options.secureJsonFields,
-        cSec: false,
-      },
-      secureJsonData: {
-        ...options.secureJsonData,
-        cSec: ""
-      }
-    });
   };
 
   render() {
