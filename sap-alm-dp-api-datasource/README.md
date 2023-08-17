@@ -20,7 +20,7 @@ To get the list of Roles and Authorisations required to connect the ALM plug-in 
 
 
 ## Contents
-- [Concepts](#SAP-ALM-API-Concepts)
+- [Concepts](#sap-alm-api-concepts)
    - [Output Format](#Output-Format)
    - [Time Dimensions](#Time-Dimensions)
    - [Queries](#Queries)
@@ -73,6 +73,7 @@ This section will help you build the plugin and install it manually in your Graf
 - yarn
 
 ### Assembly and Installation
+
 - Open command and go to `sap-alm-dp-api-datasource` folder.
 - Use command `yarn install` to install dependency libraries.
 - Use command `yarn build` to build the plugin. This should create `dist` folder.
@@ -81,7 +82,11 @@ This section will help you build the plugin and install it manually in your Graf
   - [Windows](https://grafana.com/docs/grafana/latest/setup-grafana/installation/windows/): the plugin directory can be $WORKING_DIR/plugins-bundled.  
 - For more information please refer to [Grafana Configuration Doc](https://grafana.com/docs/grafana/latest/).
 - Copy the newly created `dist` folder into the `sap-alm-dp-api-datasource` the plugin directory.
- > If you are upgrading the plugin from a previous version, make sure to backup the `package.json` file first. This file could include several [Cloud ALM API](#Setup) endpoints previously configured in the `routes` section.
+  > Important!
+  >
+  > - If you are upgrading the plugin from a previous version, make sure to backup the `plugin.json` file first. This file could include several [Cloud ALM API](#setup) endpoints previously configured in the `routes` section.
+  >
+  > - Since version 1.1.4, a default route `zudr` is introduced for Cloud ALM connection setup. Please refer to [Cloud ALM API Setup](#custom-parameters) for details.
 
 - Restart your Grafana or Grafana server to discover the plugin.
 - Certain versions of Grafana require to disable the signature verification for unsigned plugins. In case the Data Source is not visible or is not working after the restart, add the following parameter to `grafana.ini` file (`custom.ini` in windows): `allow_loading_unsigned_plugins=sap-alm-dp-api-datasource`
@@ -98,15 +103,24 @@ and selecting the `SAP ALM DP API` data source.
 
 ![Configuration - Data Source](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP_ALM_DP_API_SELECT.png)
 
-When adding a datasource, the first thing to do is to select the proper `Destination System` in the `Connection` section.
+When adding a datasource, the first thing to do is to select the proper `Destination System` in the `Connection` tab.
 
-![Data Source Setup - URL](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20SETTINGS.png)
+![Data Source Setup - URL](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/DS_NEWLY_CREATED.png)
 
 The configuration is different depending on the type of connection, `SAP Cloud ALM` or `SAP Focused Run`.
 
 #### SAP Cloud ALM
 
-- Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work. ![Data Source Setup - URL](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png)
+
+There are 2 ways to provide connection parameters for SAP Cloud ALM: Predefined Parameters, and Custom Parameters.
+
+
+##### Predefined Parameters
+
+
+- Ask your Grafana administrator to add a route configuration in `routes` configuration of data source configuration file `plugin.json` with the properties as follow. It requires a restart of Grafana instance for the configuration to work.
+
+![Data Source Setup - URL](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20PLUGIN%20CONFIG.png)
 
   - `path`: Your destination alias. To be used in data source settings.
   - `url`: Your API end point. Path should be: `/api/calm-analytics/v1`.
@@ -117,15 +131,49 @@ The configuration is different depending on the type of connection, `SAP Cloud A
       - `client_id`: Your authentication client id.
       - `client_secret`: Your authentication client secret.
 - Use the value in the `path` field as `alias` field in data source settings.
-    ![Data Source Setup - CALM Alias](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20CALM%20SYS%20SETTINGS.png)
 
-CALM REST Service may have different versions for specific data provider. You may choose the desired versions in table below.
+![Data Source Setup - CALM Alias](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/DS_CALM_PREDEF_ALIAS.png)
 
-![Data Source Setup - Data Providers Version Selection](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/SAP%20CALM%20DP%20API%20DS%20DP%20Versions.png)
+Cloud ALM REST service may have different versions for specific data provider. You may choose the desired versions in table of `Global Query Settings` tab below.
 
+![Data Source Setup - Data Providers Version Selection](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/DS_GLOBAL_QSET.png)
+
+
+##### Custom Parameters
+
+
+- Unselect the `Predefined` switch.
+- The `Alias` field will be changed to value `zudr`.
+    - This is a default route which is shipped with the plug-in. In case it's not there, please ask your administrator to add below route configuration in `plugin.json` file:
+    ```json
+    {
+        ...
+        "routes": [{
+            "path": "zudr",
+            "url": "{{ .JsonData.apiUrl }}",
+            "tokenAuth": {
+            "url": "{{ .JsonData.tokenUrl }}",
+            "params": {
+                "grant_type": "client_credentials",
+                "client_id": "{{ .SecureJsonData.cId }}",
+                "client_secret": "{{ .SecureJsonData.cSec }}"
+            }
+            }
+        }]
+    }
+    ```
+- Now you have to provide all required parameters just like a route configuration for Cloud ALM above.
+    - `URL`: API URL.
+    - `Token URL`: URL to token provider.
+    - `Client Id`: Client Id for OAuth 2.0 authorization.
+    - `Client Secret`: Client Secret for OAuth 2.0 Authorization.
+
+![Data Source Setup - Data Providers Version Selection](https://raw.githubusercontent.com/SAP/alm-plug-in-for-grafana/assets/DS_CALM_CUSTOM_CONN.png)
 
 
 #### SAP Focused Run
+
+
   - Make sure you have activated the necessary SICF service as described in [SAP Advanced Analytics Rest API](https://support.sap.com/en/alm/sap-focused-run/expert-portal/sap-advanced-analytics-rest-api.html)
   - Select "Focused RUN" as a destination system in the `Connection` settings
 

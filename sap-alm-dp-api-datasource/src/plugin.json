@@ -42,5 +42,16 @@
     "grafanaDependency": ">=9.x.x",
     "plugins": []
   },
-  "routes": []
+  "routes": [{
+    "path": "zudr",
+    "url": "{{ .JsonData.apiUrl }}",
+    "tokenAuth": {
+      "url": "{{ .JsonData.tokenUrl }}",
+      "params": {
+        "grant_type": "client_credentials",
+        "client_id": "{{ .SecureJsonData.cId }}",
+        "client_secret": "{{ .SecureJsonData.cSec }}"
+      }
+    }
+  }]
 }

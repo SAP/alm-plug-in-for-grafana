@@ -239,14 +239,14 @@ export class QueryEditor extends PureComponent<Props> {
     // Load all related filters
     if (dp.value) {
       datasource
-        .searchDataProviderFilters(dp.value, query.refId, rfilter ? rfilter : undefined, query)
+        .searchDataProviderFilters(dp.value, query.refId, rfilter ?? undefined, query)
         .subscribe((result) => {
           if (!rfilter) {
             this.cleanUpDPFilters();
           }
 
           result.forEach((filter, i) => {
-            let exist = this.dataProviderFiltersValues[filter.key] ? true : false;
+            let exist = !!this.dataProviderFiltersValues[filter.key];
 
             if (
               filter.type === 'attribute' ||
@@ -753,7 +753,7 @@ export class QueryEditor extends PureComponent<Props> {
                   />
               </InlineField>
 
-              <InlineField label="Legend" tooltip="Label of time series.">
+              <InlineField label="Legend" tooltip="Label of series. It will be used as prefix for labels of multi-series.">
                 <Input id="inLegend" onChange={this.onNameChange} value={name} placeholder='Set legend for data set' />
               </InlineField>
             </InlineFieldRow>
@@ -777,7 +777,7 @@ export class QueryEditor extends PureComponent<Props> {
               <div className="gf-form wrap-flex">
                 {dataProviderFilters?.map((f, i) => {
                   return (
-                    <span className="gf-form-label filter-container marginB4px" key={i}>
+                    <span className="gf-form-label filter-container marginB4px" key={f.key.label}>
                       <div className="gf-form-label filter-info-container">
                         <a
                           style={f.keySelected ? { display: 'none' } : {}}
@@ -928,7 +928,7 @@ export class QueryEditor extends PureComponent<Props> {
                   <InlineLabel width={21}>Measures</InlineLabel>
                   <div className="gf-form wrap-flex">
                     {drilldown.measures.map((m, i) => (
-                      <span className="gf-form-label filter-container marginB4px" key={i}>
+                      <span className="gf-form-label filter-container marginB4px" key={m.value.label}>
                         <Select
                           width={20}
                           maxMenuHeight={170}
