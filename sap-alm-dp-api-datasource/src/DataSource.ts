@@ -35,6 +35,7 @@ const routePath = '/analytics';
 const dpListPath = '/providers';
 const dpFiltersPath = '/providers/filters';
 const dpDataPath = '/providers/data';
+const predefAlias = "zudr";
 
 export interface RequestQuery {
   [key: string]: any;
@@ -46,6 +47,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   withCredentials: boolean;
   oauthPassThru: boolean;
   isFRUN: boolean;
+  isPredefined: boolean;
   alias: string;
   headers: any;
   almUid: string;
@@ -62,6 +64,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     this.withCredentials = instanceSettings.withCredentials !== undefined;
 
     this.isFRUN = instanceSettings.jsonData.isFRUN ? instanceSettings.jsonData.isFRUN : false;
+
+    this.isPredefined = instanceSettings.jsonData.isPredefined ? instanceSettings.jsonData.isPredefined : false;
 
     this.alias = instanceSettings.jsonData.alias ? instanceSettings.jsonData.alias : '';
 
@@ -1085,6 +1089,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   getRootURL(): string {
     if (this.isFRUN) {
       return this.url;
+    } else if (!this.isPredefined) {
+      return this.url + '/' + predefAlias + routePath;
     } else {
       return this.url + '/' + this.alias + routePath;
     }

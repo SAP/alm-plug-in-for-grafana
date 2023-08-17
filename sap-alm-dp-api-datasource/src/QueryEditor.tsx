@@ -239,14 +239,14 @@ export class QueryEditor extends PureComponent<Props> {
     // Load all related filters
     if (dp.value) {
       datasource
-        .searchDataProviderFilters(dp.value, query.refId, rfilter ? rfilter : undefined, query)
+        .searchDataProviderFilters(dp.value, query.refId, rfilter ?? undefined, query)
         .subscribe((result) => {
           if (!rfilter) {
             this.cleanUpDPFilters();
           }
 
           result.forEach((filter, i) => {
-            let exist = this.dataProviderFiltersValues[filter.key] ? true : false;
+            let exist = !!this.dataProviderFiltersValues[filter.key];
 
             if (
               filter.type === 'attribute' ||
@@ -690,7 +690,7 @@ export class QueryEditor extends PureComponent<Props> {
         <style>{css}</style>
         <InlineFieldRow>
           <InlineField labelWidth={21} label="Configuration Query" tooltip="Set this query as configuration query. Only first one is counted as configuration query.">
-            <InlineSwitch id="swIsConf" value={isConfig} onChange={this.onIsConfigChange} />
+            <InlineSwitch value={isConfig} onChange={this.onIsConfigChange} />
           </InlineField>
         </InlineFieldRow>
         {isConfig ? (
@@ -698,12 +698,12 @@ export class QueryEditor extends PureComponent<Props> {
           <>
             <InlineFieldRow>
               <InlineField labelWidth={26} label="Automatic Resolution" tooltip="Resolution will be decided by plug-in.">
-                <InlineSwitch id="swAutoRes" value={resolution?.autoDecide} onChange={this.onAutoDecideChange} />
+                <InlineSwitch value={resolution?.autoDecide} onChange={this.onAutoDecideChange} />
               </InlineField>
 
               <InlineField label="Default Resolution"
                 tooltip="Only applied when automatic resolution is off.">
-                <Select id="selDefRes"
+                <Select 
                   className="width-8"
                   options={resOptions}
                   defaultValue={resolution?.default}
@@ -715,21 +715,21 @@ export class QueryEditor extends PureComponent<Props> {
 
             <InlineFieldRow>
               <InlineField labelWidth={26} label="Ignore Semantic Period" tooltip="To not use semantic period in data request.">
-                <InlineSwitch id="swIgnSemPer" value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} />
+                <InlineSwitch value={ignoreSemanticPeriod} onChange={this.onIgnoreSemPeriodChange} />
               </InlineField>
 
               <InlineField label="Complete Time Series with '0's" tooltip="Fill missing data points for time series with value 0. Only applied for queries with single response.">
-                <InlineSwitch id="swCompTSZ" value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} />
+                <InlineSwitch value={completeTimeSeriesWZero} onChange={this.onCompleteSeriesWZeroChange} />
               </InlineField>
             </InlineFieldRow>
 
             <InlineFieldRow>
               <InlineField labelWidth={26} label="Progress Current Data Point" tooltip="The value of latest (current) data point has not finished yet. Latest data point's time stamp will be updated to current time.">
-                <InlineSwitch id="swProgCurDP" value={progressLastDataPoint} onChange={this.onProgressLastDataPointChange} />
+                <InlineSwitch value={progressLastDataPoint} onChange={this.onProgressLastDataPointChange} />
               </InlineField>
 
               <InlineField label="First Day of Week" tooltip="Used for weekly data aggregation.">
-                <Select id="selFDoW"
+                <Select 
                   className="width-8"
                   options={fdowOptions}
                   defaultValue={FDoW.Mon}
@@ -744,7 +744,7 @@ export class QueryEditor extends PureComponent<Props> {
           <>
             <InlineFieldRow>
               <InlineField labelWidth={21} label="Format As" tooltip="Get data in selected format.">
-                <Select id="selFormat"
+                <Select 
                     maxMenuHeight={170}
                     options={formatAsOptions}
                     defaultValue={type}
@@ -753,8 +753,8 @@ export class QueryEditor extends PureComponent<Props> {
                   />
               </InlineField>
 
-              <InlineField label="Legend" tooltip="Label of time series.">
-                <Input id="inLegend" onChange={this.onNameChange} value={name} placeholder='Set legend for data set' />
+              <InlineField label="Legend" tooltip="Label of series. It will be used as prefix for labels of multi-series.">
+                <Input onChange={this.onNameChange} value={name} placeholder='Set legend for data set' />
               </InlineField>
             </InlineFieldRow>
             <InlineFieldRow>
@@ -777,7 +777,7 @@ export class QueryEditor extends PureComponent<Props> {
               <div className="gf-form wrap-flex">
                 {dataProviderFilters?.map((f, i) => {
                   return (
-                    <span className="gf-form-label filter-container marginB4px" key={i}>
+                    <span className="gf-form-label filter-container marginB4px" key={f.key.label}>
                       <div className="gf-form-label filter-info-container">
                         <a
                           style={f.keySelected ? { display: 'none' } : {}}
@@ -928,7 +928,7 @@ export class QueryEditor extends PureComponent<Props> {
                   <InlineLabel width={21}>Measures</InlineLabel>
                   <div className="gf-form wrap-flex">
                     {drilldown.measures.map((m, i) => (
-                      <span className="gf-form-label filter-container marginB4px" key={i}>
+                      <span className="gf-form-label filter-container marginB4px" key={m.value.label}>
                         <Select
                           width={20}
                           maxMenuHeight={170}

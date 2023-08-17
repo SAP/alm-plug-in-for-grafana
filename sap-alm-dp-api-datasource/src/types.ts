@@ -80,6 +80,21 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
   isFRUN?: boolean;
   alias?: string;
   dataProviderConfigs?: { [key: string]: DataProviderConfig };
+  isPredefined?: boolean;
+  apiUrl?: string;
+  tokenUrl?: string;
+}
+
+export const DEFAULT_DSO: Partial<MyDataSourceOptions> = {
+  isPredefined: true
+}
+
+/**
+ * Value that is used in the backend, but never sent over HTTP to the frontend
+ */
+export interface MySecureOptions {
+  cId?: string;
+  cSec?: string;
 }
 
 export interface TextValuePair {
@@ -113,9 +128,3 @@ export interface DPFilterResponse {
   group: string;
   type: FilterType;
 }
-/**
- * Value that is used in the backend, but never sent over HTTP to the frontend
- */
-// export interface MySecureJsonData {
-//   apiKey?: string;
-// }
