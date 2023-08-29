@@ -23,6 +23,7 @@ export enum AggrMethod {
   Min = 'MIN',
   Max = 'MAX',
   Sum = 'SUM',
+  Percent = 'PERCENT',
 }
 
 export enum FilterType {
