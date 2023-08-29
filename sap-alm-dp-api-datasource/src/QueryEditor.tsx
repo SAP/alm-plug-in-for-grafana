@@ -5,7 +5,7 @@ import { AsyncSelect, Button, Input, MultiSelect, Select, InlineFieldRow, Inline
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { AggrMethod, Format, Resolution, FDoW } from './format';
-import { DPFilterResponse, MyDataSourceOptions, MyQuery, DEFAULT_QUERY } from './types';
+import { DPFilterResponse, MyDataSourceOptions, MyQuery } from './types';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -40,6 +40,7 @@ const aggrMethods = [
   { label: 'Sum', value: AggrMethod.Sum },
   { label: 'Min', value: AggrMethod.Min },
   { label: 'Max', value: AggrMethod.Max },
+  { label: 'Percent', value: AggrMethod.Percent },
 ];
 
 export class QueryEditor extends PureComponent<Props> {
@@ -648,7 +649,25 @@ export class QueryEditor extends PureComponent<Props> {
       margin-bottom: 0;
     }
     `;
-    const query = defaults(this.props.query, DEFAULT_QUERY);
+    const defaultQuery: Partial<MyQuery> = {
+      name: '',
+      type: Format.Timeseries,
+      isConfig: false,
+      dataProvider: {},
+      dataProviderFilters: [],
+      resolution: {
+        default: Resolution.Hour,
+        autoDecide: true,
+      },
+      drilldown: {
+        measures: [],
+        dimensions: [],
+      },
+      ignoreSemanticPeriod: false,
+      completeTimeSeriesWZero: false,
+      fdow: FDoW.Mon,
+    };
+    const query = defaults(this.props.query, defaultQuery);
     const {
       type,
       name,
