@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   grafana:
-    container_name: 'sap-alm-dp-api-datasource'
+    container_name: 'sap-alm-dp-api-datasource-3003'
     build:
       context: ./.config
       args:
