@@ -1025,7 +1025,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         url: this.getRootURL() + dpDataPath,
         headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
-        requestId: `${options.dashboardUID}-${options.panelId}-querydata-timeseries`,
+        requestId: `${options.dashboardUID}-${options.panelId}-${this.almUid}-querydata-timeseries`,
         data: {
           ...body,
           queries: queriesTSeries,
@@ -1050,7 +1050,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         url: this.getRootURL() + dpDataPath,
         headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
-        requestId: `${options.dashboardUID}-${options.panelId}-querydata-tableraw`,
+        requestId: `${options.dashboardUID}-${options.panelId}-${this.almUid}-querydata-tableraw`,
         data: {
           ...body,
           format: 'table',
@@ -1070,7 +1070,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         url: this.getRootURL() + dpDataPath,
         headers: this.headers,
         // credentials: this.withCredentials ? "include" : undefined,
-        requestId: `${options.dashboardUID}-${options.panelId}-querydata-table`,
+        requestId: `${options.dashboardUID}-${options.panelId}-${this.almUid}-querydata-table`,
         data: {
           ...body,
           format: 'table',
