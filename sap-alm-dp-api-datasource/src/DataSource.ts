@@ -387,24 +387,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
 
     return aRes[Math.min(iIdx, aRes.length - 1)];
-    // if (nCal / 60 <= maxDataPoints) {
-    //   // Check for hours
-    //   resolution = Resolution.Hour;
-    // } else if (nCal / (60 * 24) <= maxDataPoints) {
-    //   // Check for days
-    //   resolution = Resolution.Day;
-    // } else if (nCal / (60 * 24 * 7) <= maxDataPoints) {
-    //   // Check for weeks
-    //   resolution = Resolution.Week;
-    // } else if (nCal / (60 * 24 * 30) <= maxDataPoints) {
-    //   // Check for months
-    //   resolution = Resolution.Month;
-    // } else if (nCal / (60 * 24 * 365) <= maxDataPoints) {
-    //   // Check for years
-    //   resolution = Resolution.Year;
-    // }
-
-    // return resolution;
   }
 
   getLinuxTimeFromTimeStamp(ts: string, tz?: string): number {
