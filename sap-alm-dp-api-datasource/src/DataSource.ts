@@ -359,7 +359,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   getAutomaticResolution(options: { maxDataPoints?: number; range: TimeRange }): string {
-    let resolution: string = Resolution.Hour;
     let maxDataPoints = options.maxDataPoints ?? 101;
 
     // Get range in minutes
@@ -367,25 +366,45 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // let dTo = options.range.to.toDate().getTime() / (1000 * 60);
     // Get the differences in minutes
     let nCal = options.range.to.diff(options.range.from, 'minutes');
-
-    if (nCal / 60 <= maxDataPoints) {
-      // Check for hours
-      resolution = Resolution.Hour;
-    } else if (nCal / (60 * 24) <= maxDataPoints) {
-      // Check for days
-      resolution = Resolution.Day;
-    } else if (nCal / (60 * 24 * 7) <= maxDataPoints) {
-      // Check for weeks
-      resolution = Resolution.Week;
-    } else if (nCal / (60 * 24 * 30) <= maxDataPoints) {
-      // Check for months
-      resolution = Resolution.Month;
-    } else if (nCal / (60 * 24 * 365) <= maxDataPoints) {
-      // Check for years
-      resolution = Resolution.Year;
+    
+    let aRes = [
+      Resolution.Min5,
+      Resolution.Min10,
+      Resolution.Min15,
+      Resolution.Min30,
+      Resolution.Hour,
+      Resolution.Day,
+      Resolution.Week,
+      Resolution.Month,
+      Resolution.Year
+    ], aDiv = [
+      5, 10, 15, 30, 60, (60*24), (60*24*7), (60*24*30), (60*24*365)
+    ];
+    
+    let iIdx = 0;
+    while (aDiv[iIdx] && (nCal / aDiv[iIdx] > maxDataPoints)) {
+      iIdx++;
     }
 
-    return resolution;
+    return aRes[Math.min(iIdx, aRes.length - 1)];
+    // if (nCal / 60 <= maxDataPoints) {
+    //   // Check for hours
+    //   resolution = Resolution.Hour;
+    // } else if (nCal / (60 * 24) <= maxDataPoints) {
+    //   // Check for days
+    //   resolution = Resolution.Day;
+    // } else if (nCal / (60 * 24 * 7) <= maxDataPoints) {
+    //   // Check for weeks
+    //   resolution = Resolution.Week;
+    // } else if (nCal / (60 * 24 * 30) <= maxDataPoints) {
+    //   // Check for months
+    //   resolution = Resolution.Month;
+    // } else if (nCal / (60 * 24 * 365) <= maxDataPoints) {
+    //   // Check for years
+    //   resolution = Resolution.Year;
+    // }
+
+    // return resolution;
   }
 
   getLinuxTimeFromTimeStamp(ts: string, tz?: string): number {
