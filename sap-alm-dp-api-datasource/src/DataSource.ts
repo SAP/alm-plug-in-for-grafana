@@ -271,6 +271,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   translateToPeriodUnit(unit: string): string {
     if (unit) {
       switch (unit) {
+        case 'h':
+          return 'H';
         case 'd':
           return 'D';
         case 'w':
@@ -280,7 +282,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         case 'y':
           return 'Y';
         default:
-          return 'H';
+          return 'Mi';
       }
     }
     return '';
