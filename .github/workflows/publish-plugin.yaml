@@ -1,0 +1,49 @@
+name: attach plugin package to release
+
+on:
+  push:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "This job was automatically triggered by a ${{github.event_name}} event."
+    - run: echo "This job is running on a ${{runner.os}} server"
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'yarn'
+        cache-dependency-path: sap-alm-dp-api-datasource/yarn.lock
+
+    - name: Install Dependencies
+      run: cd sap-alm-dp-api-datasource && yarn install --immutable --prefer-offline
+    - name: Check types
+      run: cd sap-alm-dp-api-datasource && yarn typecheck
+    - name: Lint
+      run: cd sap-alm-dp-api-datasource && yarn lint
+    - name: Unit tests
+      run: cd sap-alm-dp-api-datasource && yarn test:ci
+
+    - name: Build Frontend
+      id: build
+      run: cd sap-alm-dp-api-datasource && yarn build
+
+    - name: Archive build artifacts
+      run: cd sap-alm-dp-api-datasource && zip -r sap-alm-dp-api-datasource.zip dist/
+
+
+    - uses: googleapis/release-please-action@v4
+      id: release
+      with:
+        release-type: simple
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload release artifact
+      if: ${{ steps.release.outputs.release_created }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd sap-alm-dp-api-datasource && gh release upload ${{ steps.release.outputs.tag_name }} sap-alm-dp-api-datasource.zip 
+
+
