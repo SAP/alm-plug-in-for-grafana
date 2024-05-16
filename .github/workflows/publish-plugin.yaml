@@ -2,9 +2,9 @@ name: attach plugin package to release
 
 on:
   push:
-    branches: 
-      - master
-      - main
+    #    branches: 
+    #      - master
+    #      - main
 jobs:
   release:
     runs-on: ubuntu-latest
