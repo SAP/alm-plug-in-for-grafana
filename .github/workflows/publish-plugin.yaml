@@ -2,9 +2,9 @@ name: attach plugin package to release
 
 on:
   push:
-    #    branches: 
-    #      - master
-    #      - main
+    branches: 
+      - master
+      - main
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -31,6 +31,7 @@ jobs:
     - uses: googleapis/release-please-action@v4
       id: release
       with:
+        target-branch: release-pipeline
         release-type: simple
         token: ${{ secrets.GITHUB_TOKEN }}
     - name: Upload release artifact
