@@ -2,19 +2,20 @@ name: CI
 
 on:
   push:
-    branches: 
-      - master
-      - main
-  pull_request:
-    branches: 
-      - master
-      - main
+    #    branches: 
+      #      - master
+      #      - main
+      #  pull_request:
+      #    branches: 
+      #      - master
+      #      - main
 
 # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   check:
+    name: check
     runs-on: ubuntu-latest
     steps:
     - run: echo "This job was automatically triggered by a ${{github.event_name}} event."
