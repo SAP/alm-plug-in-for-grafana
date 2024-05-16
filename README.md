@@ -25,7 +25,6 @@ The ALM plug-in for Grafana provides the following components:
 - [Data source plug-in](sap-alm-dp-api-datasource).
 
 
-
 ## Want to learn more
 If you want to learn more about SAP Cloud ALM:
 - Take a look at our page in [SAP Support Portal](https://support.sap.com/en/alm/sap-cloud-alm.html)

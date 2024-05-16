@@ -9,8 +9,6 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      #    - run: echo "This job was automatically triggered by a ${{github.event_name}} event."
-      #    - run: echo "This job is running on a ${{runner.os}} server"
     - uses: actions/checkout@v3
     
     - name: Setup Node.js environment
@@ -22,13 +20,6 @@ jobs:
 
     - name: Install Dependencies
       run: cd sap-alm-dp-api-datasource && yarn install --immutable --prefer-offline
-      #    - name: Check types
-      #      run: cd sap-alm-dp-api-datasource && yarn typecheck
-      #    - name: Lint
-      #      run: cd sap-alm-dp-api-datasource && yarn lint
-      #    - name: Unit tests
-      #      run: cd sap-alm-dp-api-datasource && yarn test:ci
-
 
     - name: Build Frontend
       id: build
