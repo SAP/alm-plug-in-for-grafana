@@ -75,6 +75,7 @@ export class QueryEditor extends PureComponent<Props> {
 
     onChange({ ...query, dataProviderFilters: query.dataProviderFilters });
   };
+  /* test 
 
   /* Remove filter for data provider */
   dpfRemoveFilter = (i: number) => {
