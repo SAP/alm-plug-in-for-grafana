@@ -271,6 +271,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   translateToPeriodUnit(unit: string): string {
     if (unit) {
       switch (unit) {
+        case 's':
+          return 'S';
         case 'h':
           return 'H';
         case 'd':
@@ -370,6 +372,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let nCal = options.range.to.diff(options.range.from, 'minutes');
     
     let aRes = [
+      Resolution.Sec10,
+      Resolution.Sec15,
+      Resolution.Min1,
       Resolution.Min5,
       Resolution.Min10,
       Resolution.Min15,
@@ -380,7 +385,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       Resolution.Month,
       Resolution.Year
     ], aDiv = [
-      5, 10, 15, 30, 60, (60*24), (60*24*7), (60*24*30), (60*24*365)
+      (1/6), (15/60), 1, 5, 10, 15, 30, 60, (60*24), (60*24*7), (60*24*30), (60*24*365)
     ];
     
     let iIdx = 0;
@@ -530,16 +535,18 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   getDateFromTS(ts: string, tz: string, resolution: string, fdow = 1): Date {
     let toBegin = {
+      s: ['Mi', 'H', 'D', 'M', 'Y', 'W'],
       mi: ['H', 'D', 'M', 'Y', 'W'],
       h: ['D', 'M', 'Y', 'W'],
       d: ['M', 'Y'],
       m: ['Y']
     };
-    let y = ts.substring(0, 4),
+    let y = ts.substring(0, 4),   
       m = (toBegin.m.indexOf(resolution) >= 0) ? '01' : ts.substring(4, 6),
       d = (toBegin.d.indexOf(resolution) >= 0) ? '01' : ts.substring(6, 8),
       h = (toBegin.h.indexOf(resolution) >= 0) ? '00' : ts.substring(8, 10),
-      mi = (toBegin.mi.indexOf(resolution) >= 0) ? '00' : ts.substring(10, 12);
+      mi = (toBegin.mi.indexOf(resolution) >= 0) ? '00' : ts.substring(10, 12),
+      s = (toBegin.s.indexOf(resolution) >= 0) ? '00' : ts.substring(12, 14);
     
     // Take care of weekly granularity to look for first day of the week
     if (resolution === 'W') {
@@ -551,7 +558,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       d = td.length < 2 ? `0${td}` : td;
     }
 
-    return new Date(`${y}-${m}-${d}T${h}:${mi}:00.000${tz}`);
+    return new Date(`${y}-${m}-${d}T${h}:${mi}:${s}.000${tz}`);
   }
 
   getPossibleTimestamps(settings: any): number[] {
@@ -586,6 +593,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           case 'Y':
             step = 365 * 24 * 60 * 60000;
             break;
+          case '10S':
+              step = 10000;
+              break;
+          case '15S':
+              step = 15000;
+              break;
+          case '1Mi':
+              step = 60000;
+              break;
           case '5Mi':
             step = 5 * 60000;
             break;
@@ -735,6 +751,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       case 'Y':
         threshold = 365 * 24 * 60 * 60000;
         break;
+      case '10S':
+        threshold = 10000;
+          break;
+      case '15S':
+        threshold = 15000;
+          break;
+      case '1Mi':
+        threshold = 60000;
+          break;
       case '5Mi':
         threshold = 5 * 60000;
         break;
