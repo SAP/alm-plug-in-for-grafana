@@ -26,6 +26,9 @@ import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 const resOptions = [
+  { label: '10 Seconds', value: Resolution.Sec10 },
+  { label: '15 Seconds', value: Resolution.Sec15},
+  { label: '1 Minute', value: Resolution.Min1 },
   { label: '5 Minutes', value: Resolution.Min5 },
   { label: '10 Minutes', value: Resolution.Min10 },
   { label: '15 Minutes', value: Resolution.Min15 },
