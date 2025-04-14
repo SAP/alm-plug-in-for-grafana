@@ -2,6 +2,7 @@ export enum Format {
   Table = 'table',
   Timeseries = 'timeseries',
   RawTable = 'rawtable',
+  LastTable = 'lasttable',
 }
 
 export enum Resolution {
