@@ -69,14 +69,14 @@ This section will help you build the plugin and install it manually in your Graf
 
 ### Prerequisites
 - Grafana >= 9.0
-- NodeJS >= 16
-- yarn
+- NodeJS >= 22
+- npm
 
 ### Assembly and Installation
 
 - Open command and go to `sap-alm-dp-api-datasource` folder.
-- Use command `yarn install` to install dependency libraries.
-- Use command `yarn build` to build the plugin. This should create `dist` folder.
+- Use command `npm install` to install dependency libraries.
+- Use command `npm run build` to build the plugin. This should create `dist` folder.
 - Create `sap-alm-dp-api-datasource` folder in your Grafana plugins directory (check the plugins parameter in the [PATHS](https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#paths) section in your *.ini file). 
   - Linux: the plugin directory is usually /var/lib/grafana/plugins.
   - [Windows](https://grafana.com/docs/grafana/latest/setup-grafana/installation/windows/): the plugin directory can be $WORKING_DIR/plugins-bundled.  
