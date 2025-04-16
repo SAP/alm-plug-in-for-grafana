@@ -1,11 +1,15 @@
 #docker image build -t alm_plugin_builder:1.0 -f Dockerfile --build-arg NODE_VERSION=20 .
-FROM ubuntu:latest
+FROM ubuntu:24.04
 LABEL version=1.0
 ARG NODE_VERSION=20
 
-# Update environment
-RUN apt update
-RUN apt install -y bash vim git curl npm
+# Update environment and install necessary tools
+RUN apt update && apt install -y \
+    bash \
+    git \
+    curl \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /github
 VOLUME /github
