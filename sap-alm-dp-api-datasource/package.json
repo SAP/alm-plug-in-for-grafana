@@ -1,6 +1,6 @@
 {
   "name": "sap-alm-dp-api-datasource",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "SAP ALM DP API Datasource",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
@@ -80,7 +80,7 @@
     "@grafana/schema": "^11.5.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
-  "packageManager": "yarn@1.22.19"
+  "packageManager": "yarn@1.22.22"
 }
