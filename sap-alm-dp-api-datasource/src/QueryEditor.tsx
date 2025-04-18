@@ -13,6 +13,7 @@ const formatAsOptions = [
   { label: 'Time Series', value: Format.Timeseries },
   { label: 'Table', value: Format.Table },
   { label: 'Raw Table', value: Format.RawTable },
+  { label: 'Last Table', value: Format.LastTable },
 ];
 
 const resOptions = [

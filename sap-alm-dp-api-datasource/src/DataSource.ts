@@ -941,6 +941,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             // datasourceId: this.id,
             // alias: getTemplateSrv().replace(target.alias || '', options.scopedVars),
           });
+        } else if (target.type === Format.LastTable) {
+          queries.lTable.push({
+            ...this.getQueryForRequest(target, options),
+            refId: target.refId,
+            // intervalMs: options.intervalMs,
+            // maxDataPoints: options.maxDataPoints,
+            // datasourceId: this.id,
+            // alias: getTemplateSrv().replace(target.alias || '', options.scopedVars),
+          });
         } else {
           queries.table.push({
             ...this.getQueryForRequest(target, options),
@@ -1019,13 +1028,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const queriesTSeries: any[] = [];
     const queriesTable: any[] = [];
     const queriesRTable: any[] = [];
+    const queriesLTable: any[] = [];
     const streams: Array<Observable<DataQueryResponse>> = [];
 
     // Start streams and prepare queries
     let { resolution, ignoreSemPeriod, completeSeriesWZero, progressLastDataPoint, fdow } = this.prepareForQuery(options, {
       tSeries: queriesTSeries,
       table: queriesTable,
-      rTable: queriesRTable
+      rTable: queriesRTable,
+      lTable: queriesLTable
     });
     // Prepare time range
     let { period, from, to, timezone, selPeriod } = this.prepareTimeRangeForQuery(options, {
@@ -1088,6 +1099,26 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         },
       }, (response: FetchResponse) =>
         this.processTableResult(queriesRTable, response)
+      , undefined, true);
+
+      streams.push(stream);
+    }
+    if (queriesLTable.length) {
+      const stream = this.fetchData({
+        method: 'POST',
+        url: this.getRootURL() + dpDataPath,
+        headers: this.headers,
+        // credentials: this.withCredentials ? "include" : undefined,
+        requestId: `${options.dashboardUID}-${options.panelId}-${this.almUid}-querydata-tablelast`,
+        data: {
+          ...body,
+          format: 'table',
+          tableType: 'last',
+          table_format: 'last',
+          queries: queriesLTable,
+        },
+      }, (response: FetchResponse) =>
+        this.processTableResult(queriesLTable, response)
       , undefined, true);
 
       streams.push(stream);
