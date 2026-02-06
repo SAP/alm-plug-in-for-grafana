@@ -5,7 +5,7 @@ services:
     container_name: 'sap-alm-dp-api-datasource-3003'
     build:
       args:
-        grafana_version: ${GRAFANA_VERSION:-10.0.3}
+        grafana_version: ${GRAFANA_VERSION:-12.2.0}
     ports:
       - 3003:3000/tcp
     extends:

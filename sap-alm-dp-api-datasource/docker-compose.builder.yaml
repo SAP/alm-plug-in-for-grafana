@@ -1,0 +1,24 @@
+services:
+  alm-plugin-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 20
+    image: alm_plugin_builder:1.0
+    container_name: alm_plugin_builder
+    # The Dockerfile clones the repo, but for development we want to mount our local files.
+    # The VOLUME instruction in the Dockerfile will be overwritten by this.
+    # We mount the parent directory, which is the root of the git repository.
+    volumes:
+      - ../:/github
+    # The working directory for the plugin is inside the cloned repo.
+    working_dir: /github/sap-alm-dp-api-datasource
+    # The command to run in the container.
+    # The Dockerfile's ENTRYPOINT sets up nvm. The command is executed within that environment.
+    # We first install dependencies with yarn, then start the development watcher.
+    command: >
+      bash -c "
+        yarn install &&
+        yarn build
+      "
