@@ -905,6 +905,7 @@ export class QueryEditor extends PureComponent<Props> {
                         <span>&nbsp;&nbsp;&nbsp;</span>
                       </div>
                       <Button
+                        aria-label="Remove filter"
                         data-key={i}
                         size="sm"
                         variant="secondary"
@@ -985,6 +986,7 @@ export class QueryEditor extends PureComponent<Props> {
 
                         <span>&nbsp;&nbsp;&nbsp;</span>
                         <Button
+                          aria-label="Remove measure"
                           data-key={i}
                           size="sm"
                           variant="secondary"
