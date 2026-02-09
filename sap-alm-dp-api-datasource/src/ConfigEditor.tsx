@@ -204,18 +204,26 @@ export class ConfigEditor extends PureComponent<Props> {
 
   onAPIURLChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
+    let apiUrl = event.target.value;
+    if (apiUrl.endsWith('/api')) {
+      apiUrl = apiUrl.replace('/api', '/api/calm-analytics/v1');
+    }
     const jsonData = {
       ...options.jsonData,
-      apiUrl: event.target.value,
+      apiUrl: apiUrl,
     };
     onOptionsChange({ ...options, jsonData });
   };
 
   onTokenURLChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
+    let tokenUrl = event.target.value;
+    if (tokenUrl && !tokenUrl.endsWith('/oauth/token')) {
+      tokenUrl = tokenUrl.endsWith('/') ? tokenUrl + 'oauth/token' : tokenUrl + '/oauth/token';
+    }
     const jsonData = {
       ...options.jsonData,
-      tokenUrl: event.target.value,
+      tokenUrl: tokenUrl,
     };
     onOptionsChange({ ...options, jsonData });
   };
@@ -310,14 +318,14 @@ export class ConfigEditor extends PureComponent<Props> {
                   <div className="gf-form-group">
                     <h3 className="page-heading">HTTP</h3>
                     <InlineFieldRow>
-                      <InlineField labelWidth={26} label="URL" tooltip="URL to your Cloud ALM API Service." grow>
+                      <InlineField labelWidth={26} label="URL" tooltip="URL to your Cloud ALM API Service. If the URL ends with /api, it will be automatically replaced with /api/calm-analytics/v1." grow>
                         <Input id="inAPIURL" placeholder="Enter API Service URL" value={jsonData.apiUrl} onChange={this.onAPIURLChange} />
                       </InlineField>
                     </InlineFieldRow>
                   </div>
                   <h3 className="page-heading">OAuth 2.0</h3>
                   <InlineFieldRow>
-                    <InlineField labelWidth={26} label="Token URL" tooltip="URL to your Cloud ALM Token Provider Service." grow>
+                    <InlineField labelWidth={26} label="Token URL" tooltip="URL to your Cloud ALM Token Provider Service. If the URL does not end with /oauth/token, it will be added automatically." grow>
                       <Input id="inTokenURL" placeholder="Enter Token URL" value={jsonData.tokenUrl} onChange={this.onTokenURLChange} />
                     </InlineField>
                   </InlineFieldRow>

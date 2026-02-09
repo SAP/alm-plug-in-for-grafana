@@ -86,7 +86,7 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
 }
 
 export const DEFAULT_DSO: Partial<MyDataSourceOptions> = {
-  isPredefined: true
+  isPredefined: false
 }
 
 /**
