@@ -194,6 +194,7 @@ export const VariableQueryEditor: React.FC<VariableQueryProps> = ({ datasource, 
           allowCustomValue
         />
         <Button
+          aria-label="Refresh Data Providers List"
           icon="sync"
           variant="secondary"
           title="Refresh Data Providers List"
