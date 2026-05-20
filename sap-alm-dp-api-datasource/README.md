@@ -68,15 +68,15 @@ Queries are the central mechanism of the SAP Cloud ALM Anlaytics API to format a
 This section will help you build the plugin and install it manually in your Grafana instance.
 
 ### Prerequisites
-- Grafana >= 9.0
-- NodeJS >= 16
-- yarn
+- Grafana >= 11.0
+- NodeJS >= 20
+- yarn or npm
 
 ### Assembly and Installation
 
 - Open command and go to `sap-alm-dp-api-datasource` folder.
-- Use command `yarn install` to install dependency libraries.
-- Use command `yarn build` to build the plugin. This should create `dist` folder.
+- Use command `yarn install` or `npm install` to install dependency libraries.
+- Use command `yarn build` or `npm run build` to build the plugin. This should create `dist` folder.
 - Create `sap-alm-dp-api-datasource` folder in your Grafana plugins directory (check the plugins parameter in the [PATHS](https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#paths) section in your *.ini file). 
   - Linux: the plugin directory is usually /var/lib/grafana/plugins.
   - [Windows](https://grafana.com/docs/grafana/latest/setup-grafana/installation/windows/): the plugin directory can be $WORKING_DIR/plugins-bundled.  
@@ -229,6 +229,8 @@ If `Automatic Resolution` is used, the data source will decide the resolution ba
 
 Otherwise, the data source will use the `Default Resolution` for all the queries.
 
+Available resolution values: `10S` (10 seconds), `15S` (15 seconds), `1Mi` (1 minute), `5Mi` (5 minutes), `10Mi` (10 minutes), `15Mi` (15 minutes), `30Mi` (30 minutes), `H` (hour), `D` (day), `W` (week), `M` (month), `Y` (year), `P` (period), `R` (raw).
+
 ### Normal Query
 
 This is where you configure the criteria by which the `Data Provider` retrieves data.
@@ -239,7 +241,8 @@ The information one query can hold is as follow:
 - `Format As`: responded data should be formatted as provided. Options are:
     - `Time Series`: data is returned in time series format.
     - `Table`: data is returned in table format for the most recent time frame in the requested period.
-    - `Raw Table`: data is returned in table format.
+    - `Raw Table`: data is returned in table format for all time frames in the requested period.
+    - `Last Table`: data is returned in table format for the latest time frame only.
 - `Legend`: name of query. It will be used as legend or part of legends if query is to retrieve multiple dataset.
 - `Data Provider`: area or application of destination system to retrieve data from.
 - `Filters`: provide attributes as filters for `Data Provider` to use as criterias for retrieving data.
@@ -264,6 +267,10 @@ The information one query can hold is as follow:
         - Change values in respective select list.
     - Delete measure:
         - Click on the `x` button on the measure to delete it.
+- `Ignore Semantic Period`: when enabled, the semantic period is not used in the data request.
+- `Complete Time Series with '0's`: fill missing data points for time series with value 0. Only applied for queries with a single response.
+- `Progress Current Data Point`: the latest (current) data point has not finished yet; its timestamp will be updated to the current time.
+- `First Day of Week`: used for weekly data aggregation. Options are Monday (default), Saturday, and Sunday.
 
 ## Return Formats
 
