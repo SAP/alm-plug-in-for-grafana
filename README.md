@@ -22,7 +22,7 @@ The goals of the SAP Cloud ALM analytics API are:
 
 ## Compatibility
 
-- **Grafana** >= 9.0
+- **Grafana** >= 12.0 (built against Grafana 12.x APIs)
 - **SAP Cloud ALM** Analytics API
 - **SAP Focused RUN** 3.0 FP01 (Beta) and higher
 
@@ -35,7 +35,7 @@ The ALM plug-in for Grafana provides the following components:
 
 ## Getting Started
 
-1. Install the data source plugin in your Grafana instance (see [Installation](sap-alm-dp-api-datasource/README.md#installation)).
+1. Install the data source plugin in your Grafana instance (see [Package Assembly](sap-alm-dp-api-datasource/README.md#package-assembly)).
 2. Configure your SAP Cloud ALM or SAP Focused RUN connection (see [Setup](sap-alm-dp-api-datasource/README.md#setup)).
 3. Start building dashboards using the [Query Configuration](sap-alm-dp-api-datasource/README.md#query-configuration) guide.
 
