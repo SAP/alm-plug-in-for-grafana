@@ -19,7 +19,6 @@ The goals of the SAP Cloud ALM analytics API are:
 - Consume SAP Cloud ALM analytics from SAP Analytics Cloud or from an OData consumer without coding.
 - Consume SAP Cloud ALM analytics from third-party frontend applications.
 
-
 ## Compatibility
 
 - **Grafana** >= 12.0 (built against Grafana 12.x APIs)
